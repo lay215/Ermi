@@ -1,0 +1,2592 @@
+[
+  {
+    "source": "风扇",
+    "en": "Fans",
+    "zh-Hant": "風扇"
+  },
+  {
+    "source": "打开系统设置",
+    "en": "Open Settings",
+    "zh-Hant": "開啟系統設定"
+  },
+  {
+    "source": "CPU 温度",
+    "en": "CPU Temperature",
+    "zh-Hant": "CPU 溫度"
+  },
+  {
+    "source": "内存",
+    "en": "Memory",
+    "zh-Hant": "記憶體"
+  },
+  {
+    "source": "近 60 秒 · {0}%",
+    "en": "Last 60 sec · {0}%",
+    "zh-Hant": "近 60 秒 · {0}%"
+  },
+  {
+    "source": "占用较高的 App",
+    "en": "Top Apps",
+    "zh-Hant": "用量較高的 App"
+  },
+  {
+    "source": "按内存 ↓",
+    "en": "Memory ↓",
+    "zh-Hant": "按記憶體 ↓"
+  },
+  {
+    "source": "按 CPU ↓",
+    "en": "CPU ↓",
+    "zh-Hant": "按 CPU ↓"
+  },
+  {
+    "source": "排序方式：{0}，点击切换",
+    "en": "Sort: {0}; click to switch",
+    "zh-Hant": "排序方式：{0}，點擊切換"
+  },
+  {
+    "source": "结束 {0}",
+    "en": "Quit {0}",
+    "zh-Hant": "結束 {0}"
+  },
+  {
+    "source": "正在读取进程…",
+    "en": "Reading processes…",
+    "zh-Hant": "正在讀取程序…"
+  },
+  {
+    "source": "系统",
+    "en": "System",
+    "zh-Hant": "系統"
+  },
+  {
+    "source": "自动调节",
+    "en": "Automatic",
+    "zh-Hant": "自動調節"
+  },
+  {
+    "source": "固定转速",
+    "en": "Fixed Speed",
+    "zh-Hant": "固定轉速"
+  },
+  {
+    "source": "详情 ↗",
+    "en": "Details ↗",
+    "zh-Hant": "詳情 ↗"
+  },
+  {
+    "source": "日常均衡",
+    "en": "Daily Balance",
+    "zh-Hant": "日常均衡"
+  },
+  {
+    "source": "均衡",
+    "en": "Daily Balance",
+    "zh-Hant": "日常均衡"
+  },
+  {
+    "source": "积极散热",
+    "en": "Active Cooling",
+    "zh-Hant": "積極散熱"
+  },
+  {
+    "source": "管理方案 ↗",
+    "en": "Manage Presets ↗",
+    "zh-Hant": "管理方案 ↗"
+  },
+  {
+    "source": "使用 macOS 默认转速策略。",
+    "en": "Use the default macOS fan policy.",
+    "zh-Hant": "使用 macOS 預設轉速策略。"
+  },
+  {
+    "source": "由 macOS 自动管理转速。",
+    "en": "macOS manages fan speed automatically.",
+    "zh-Hant": "由 macOS 自動管理轉速。"
+  },
+  {
+    "source": "Ermi 未接管风扇控制。",
+    "en": "Ermi is not controlling the fans.",
+    "zh-Hant": "Ermi 未接管風扇控制。"
+  },
+  {
+    "source": "启用控制 ↗",
+    "en": "Enable Control ↗",
+    "zh-Hant": "啓用控制 ↗"
+  },
+  {
+    "source": "固定目标转速",
+    "en": "Target Fan Speed",
+    "zh-Hant": "固定目標轉速"
+  },
+  {
+    "source": "我的方案",
+    "en": "My Preset",
+    "zh-Hant": "我的方案"
+  },
+  {
+    "source": "删除“{0}”？",
+    "en": "Delete “{0}”?",
+    "zh-Hant": "刪除“{0}”？"
+  },
+  {
+    "source": "取消",
+    "en": "Cancel",
+    "zh-Hant": "取消"
+  },
+  {
+    "source": "删除方案",
+    "en": "Delete Preset",
+    "zh-Hant": "刪除方案"
+  },
+  {
+    "source": "仅删除保存的方案，当前风扇运行不受影响。",
+    "en": "Only the saved preset will be deleted. Current fan operation is unchanged.",
+    "zh-Hant": "僅刪除儲存的方案，目前風扇運行不受影響。"
+  },
+  {
+    "source": "系统概览",
+    "en": "Overview",
+    "zh-Hant": "系統概覽"
+  },
+  {
+    "source": "风扇调节",
+    "en": "Fan Control",
+    "zh-Hant": "風扇調節"
+  },
+  {
+    "source": "图标整理",
+    "en": "Menu Bar",
+    "zh-Hant": "圖示整理"
+  },
+  {
+    "source": "系统设置",
+    "en": "Settings",
+    "zh-Hant": "系統設定"
+  },
+  {
+    "source": "正在确认…",
+    "en": "Confirming…",
+    "zh-Hant": "正在確認…"
+  },
+  {
+    "source": "系统管理",
+    "en": "System Managed",
+    "zh-Hant": "系統管理"
+  },
+  {
+    "source": "选择方案后调节，保存方案不会改变转速。",
+    "en": "Choose a preset to apply it. Saving a preset does not change fan speed.",
+    "zh-Hant": "選擇方案後調節，儲存方案不會改變轉速。"
+  },
+  {
+    "source": "交还系统",
+    "en": "Return to System",
+    "zh-Hant": "交還系統"
+  },
+  {
+    "source": "请在系统窗口完成授权…",
+    "en": "Complete authorization in the system dialog…",
+    "zh-Hant": "請在系統窗口完成授權…"
+  },
+  {
+    "source": "调节风扇前需要授权控制服务。",
+    "en": "Authorize the control service before adjusting fans.",
+    "zh-Hant": "調節風扇前需要授權控制服務。"
+  },
+  {
+    "source": "风扇服务暂未连接，正在自动重连。",
+    "en": "Fan service disconnected. Reconnecting automatically.",
+    "zh-Hant": "風扇服務暫未連接，正在自動重連。"
+  },
+  {
+    "source": "日常办公、浏览网页",
+    "en": "Everyday work and web browsing",
+    "zh-Hant": "日常辦公、瀏覽網頁"
+  },
+  {
+    "source": "更早加速，适合持续高负载；风声更明显",
+    "en": "Speeds up sooner for sustained heavy workloads; more fan noise",
+    "zh-Hant": "更早加速，適合持續高負載；風聲更明顯"
+  },
+  {
+    "source": "＋ 新建方案",
+    "en": "＋ New Preset",
+    "zh-Hant": "＋ 新建方案"
+  },
+  {
+    "source": "还没有自定义方案",
+    "en": "No custom presets yet",
+    "zh-Hant": "還沒有自定義方案"
+  },
+  {
+    "source": "编辑",
+    "en": "Edit",
+    "zh-Hant": "編輯"
+  },
+  {
+    "source": "删除 {0}",
+    "en": "Delete {0}",
+    "zh-Hant": "刪除 {0}"
+  },
+  {
+    "source": "✓ 使用中",
+    "en": "✓ Active",
+    "zh-Hant": "✓ 使用中"
+  },
+  {
+    "source": "使用",
+    "en": "Use",
+    "zh-Hant": "使用"
+  },
+  {
+    "source": "新建方案",
+    "en": "New Preset",
+    "zh-Hant": "新建方案"
+  },
+  {
+    "source": "编辑方案",
+    "en": "Edit Preset",
+    "zh-Hant": "編輯方案"
+  },
+  {
+    "source": "关闭",
+    "en": "Close",
+    "zh-Hant": "關閉"
+  },
+  {
+    "source": "名称",
+    "en": "Name",
+    "zh-Hant": "名稱"
+  },
+  {
+    "source": "方案名称",
+    "en": "Preset Name",
+    "zh-Hant": "方案名稱"
+  },
+  {
+    "source": "调节方式",
+    "en": "Control Mode",
+    "zh-Hant": "調節方式"
+  },
+  {
+    "source": "温度来源",
+    "en": "Temperature Source",
+    "zh-Hant": "溫度來源"
+  },
+  {
+    "source": "CPU / GPU 最高",
+    "en": "Highest CPU / GPU",
+    "zh-Hant": "CPU / GPU 最高"
+  },
+  {
+    "source": "开始加速",
+    "en": "Start Ramping",
+    "zh-Hant": "開始加速"
+  },
+  {
+    "source": "达到全速",
+    "en": "Full Speed At",
+    "zh-Hant": "達到全速"
+  },
+  {
+    "source": "{0}目标",
+    "en": "{0} Target",
+    "zh-Hant": "{0}目標"
+  },
+  {
+    "source": "保存不会立即改变转速",
+    "en": "Saving does not change fan speed",
+    "zh-Hant": "儲存不會立即改變轉速"
+  },
+  {
+    "source": "保存方案",
+    "en": "Save Preset",
+    "zh-Hant": "儲存方案"
+  },
+  {
+    "source": "{0} · {1}°C 开始，{2}°C 全速",
+    "en": "{0} · Start at {1}°C, full speed at {2}°C",
+    "zh-Hant": "{0} · {1}°C 開始，{2}°C 全速"
+  },
+  {
+    "source": "固定目标 · {0} RPM",
+    "en": "Fixed target · {0} RPM",
+    "zh-Hant": "固定目標 · {0} RPM"
+  },
+  {
+    "source": "请填写方案名称。",
+    "en": "Enter a preset name.",
+    "zh-Hant": "請填寫方案名稱。"
+  },
+  {
+    "source": "温度须在 0–150°C 内，开始温度低于全速温度。",
+    "en": "Temperatures must be within 0–150°C, with the start below full speed.",
+    "zh-Hant": "溫度須在 0–150°C 內，開始溫度低於全速溫度。"
+  },
+  {
+    "source": "请等待读取两只风扇的范围，并填写有效目标转速。",
+    "en": "Wait for both fan ranges to load, then enter valid target speeds.",
+    "zh-Hant": "請等待讀取兩只風扇的範圍，並填寫有效目標轉速。"
+  },
+  {
+    "source": "{0} 允许 {1}–{2} RPM。",
+    "en": "{0} allows {1}–{2} RPM.",
+    "zh-Hant": "{0} 允許 {1}–{2} RPM。"
+  },
+  {
+    "source": "示例数据",
+    "en": "Sample Data",
+    "zh-Hant": "示例資料"
+  },
+  {
+    "source": "可用空间 · GB",
+    "en": "Available · GB",
+    "zh-Hant": "可用空間 · GB"
+  },
+  {
+    "source": "电池",
+    "en": "Battery",
+    "zh-Hant": "電池"
+  },
+  {
+    "source": "近 60 秒",
+    "en": "Last 60 sec",
+    "zh-Hant": "近 60 秒"
+  },
+  {
+    "source": "内存近60秒趋势",
+    "en": "Memory usage over 60 seconds",
+    "zh-Hant": "記憶體近60秒趨勢"
+  },
+  {
+    "source": "CPU近60秒趋势",
+    "en": "CPU usage over 60 seconds",
+    "zh-Hant": "CPU近60秒趨勢"
+  },
+  {
+    "source": "高占用进程",
+    "en": "Top Processes",
+    "zh-Hant": "高用量程序"
+  },
+  {
+    "source": "· {0} 个",
+    "en": "· {0} items",
+    "zh-Hant": "· {0} 個"
+  },
+  {
+    "source": "内存 ↓",
+    "en": "Memory ↓",
+    "zh-Hant": "記憶體 ↓"
+  },
+  {
+    "source": " · CPU：单核 100%",
+    "en": " · CPU: 100% per core",
+    "zh-Hant": " · CPU：單核 100%"
+  },
+  {
+    "source": "进程 CPU 以单个核心为 100%，可能超过 100%，与整机使用率分母不同。",
+    "en": "Process CPU uses 100% per core and may exceed 100%; its scale differs from overall CPU usage.",
+    "zh-Hant": "程序 CPU 以單個核心為 100%，可能超過 100%，與整機使用率分母不同。"
+  },
+  {
+    "source": "进程",
+    "en": "Process",
+    "zh-Hant": "程序"
+  },
+  {
+    "source": "退出 {0}",
+    "en": "Quit {0}",
+    "zh-Hant": "退出 {0}"
+  },
+  {
+    "source": "正在采集进程…",
+    "en": "Collecting processes…",
+    "zh-Hant": "正在採集程序…"
+  },
+  {
+    "source": "全部",
+    "en": "All",
+    "zh-Hant": "全部"
+  },
+  {
+    "source": "收起",
+    "en": "Hidden",
+    "zh-Hant": "收起"
+  },
+  {
+    "source": "当前系统暂不支持收纳",
+    "en": "Icon hiding is unavailable on this system",
+    "zh-Hant": "目前系統暫不支持收納"
+  },
+  {
+    "source": "已停用收纳，所有图标均显示",
+    "en": "Hiding disabled; all icons are visible",
+    "zh-Hant": "已停用收納，所有圖示均顯示"
+  },
+  {
+    "source": "需要{0}权限",
+    "en": "{0} permission required",
+    "zh-Hant": "需要{0}權限"
+  },
+  {
+    "source": "正在收起图标…",
+    "en": "Hiding icons…",
+    "zh-Hant": "正在收起圖示…"
+  },
+  {
+    "source": "收纳区图标已收起",
+    "en": "Grouped icons are hidden",
+    "zh-Hant": "收納區圖示已收起"
+  },
+  {
+    "source": "菜单栏图标已展开",
+    "en": "Menu bar icons are expanded",
+    "zh-Hant": "選單列圖示已展開"
+  },
+  {
+    "source": "已收起 {0} 个 App 的图标",
+    "en": "Icons from {0} apps hidden",
+    "zh-Hant": "已收起 {0} 個 App 的圖示"
+  },
+  {
+    "source": "全部已展开 · {0} 个 App 待收起",
+    "en": "All expanded · {0} apps to hide",
+    "zh-Hant": "全部已展開 · {0} 個 App 待收起"
+  },
+  {
+    "source": "收纳图标",
+    "en": "Hide Icons",
+    "zh-Hant": "收納圖示"
+  },
+  {
+    "source": "取消收起",
+    "en": "Cancel Hiding",
+    "zh-Hant": "取消收起"
+  },
+  {
+    "source": "临时展开",
+    "en": "Expand Temporarily",
+    "zh-Hant": "臨時展開"
+  },
+  {
+    "source": "立即收起",
+    "en": "Hide Now",
+    "zh-Hant": "立即收起"
+  },
+  {
+    "source": "当前系统的菜单栏接口不可用，图标保持显示。系统更新后可重新检查。",
+    "en": "The menu bar interface is unavailable. Icons remain visible; check again after a system update.",
+    "zh-Hant": "目前系統的選單列介面不可用，圖示保持顯示。系統更新後可重新檢查。"
+  },
+  {
+    "source": "按住 ⌘ 拖动图标分组",
+    "en": "Hold ⌘ and drag icons to group",
+    "zh-Hant": "按住 ⌘ 拖動圖示分組"
+  },
+  {
+    "source": "将分隔线 │ 放到收起箭头左侧，再把需要收纳的图标拖到分隔线左侧。常用图标与 Ermi 留在右侧。",
+    "en": "Move the divider │ left of the collapse arrow, then drag icons to its left. Keep frequently used icons and Ermi on the right.",
+    "zh-Hant": "將分隔線 │ 放到收起箭頭左側，再把需要收納的圖示拖到分隔線左側。常用圖示與 Ermi 留在右側。"
+  },
+  {
+    "source": "打开展开栏 ↗",
+    "en": "Open Icon Tray ↗",
+    "zh-Hant": "開啟展開欄 ↗"
+  },
+  {
+    "source": "自动收起",
+    "en": "Auto-hide",
+    "zh-Hant": "自動收起"
+  },
+  {
+    "source": "展开后自动收起",
+    "en": "Auto-hide After Expanding",
+    "zh-Hant": "展開後自動收起"
+  },
+  {
+    "source": "不自动收起",
+    "en": "Never",
+    "zh-Hant": "不自動收起"
+  },
+  {
+    "source": "{0} 秒后",
+    "en": "After {0} seconds",
+    "zh-Hant": "{0} 秒後"
+  },
+  {
+    "source": "系统图标与 Ermi 始终保留 · 使用说明",
+    "en": "System icons and Ermi stay visible · Help",
+    "zh-Hant": "系統圖示與 Ermi 始終保留 · 使用說明"
+  },
+  {
+    "source": "按 App 分组，同一 App 的多个入口一起显示或收起。依赖系统私有接口，升级后可能失效。停用或退出 Ermi 会恢复显示。",
+    "en": "Icons are grouped by app and shown or hidden together. Uses a private system interface that may change after updates. Disabling or quitting Ermi restores visibility.",
+    "zh-Hant": "按 App 分組，同一 App 的多個入口一起顯示或收起。依賴系統私有介面，升級後可能失效。停用或退出 Ermi 會恢復顯示。"
+  },
+  {
+    "source": "位置由 macOS 保存，新图标可能进入收纳区；展开后可重新拖动。刘海遮挡的图标可能仍不可见。停用或退出 Ermi 会恢复显示。",
+    "en": "macOS saves icon positions. New icons may enter the hidden area; expand and drag to rearrange. Icons behind the notch may remain invisible. Disabling or quitting Ermi restores visibility.",
+    "zh-Hant": "位置由 macOS 儲存，新圖示可能進入收納區；展開後可重新拖動。劉海遮擋的圖示可能仍不可見。停用或退出 Ermi 會恢復顯示。"
+  },
+  {
+    "source": "自动收起从临时展开后计时。展开栏以真实 App 图标显示菜单栏入口，点击调用该入口；也可 ⌥ 点击菜单栏箭头打开。",
+    "en": "Auto-hide starts after temporarily expanding. The tray shows real app icons; click to activate each menu item. You can also ⌥-click the menu bar arrow.",
+    "zh-Hant": "自動收起從臨時展開後計時。展開欄以真實 App 圖示顯示選單列入口，點擊調用該入口；也可 ⌥ 點擊選單列箭頭開啟。"
+  },
+  {
+    "source": "允许读取菜单栏图标",
+    "en": "Allow Menu Bar Access",
+    "zh-Hant": "允許讀取選單列圖示"
+  },
+  {
+    "source": "在系统设置 → 隐私与安全性 → {0}中允许 Ermi，返回后自动刷新。",
+    "en": "Allow Ermi in System Settings → Privacy & Security → {0}. Icons refresh when you return.",
+    "zh-Hant": "在系統設定 → 隱私權與安全性 → {0}中允許 Ermi，返回後自動重新整理。"
+  },
+  {
+    "source": "前往授权",
+    "en": "Authorize",
+    "zh-Hant": "前往授權"
+  },
+  {
+    "source": "本机菜单栏 App",
+    "en": "Menu Bar Apps",
+    "zh-Hant": "本機選單列 App"
+  },
+  {
+    "source": "收起筛选",
+    "en": "Hide Filters",
+    "zh-Hant": "收起篩選"
+  },
+  {
+    "source": "筛选",
+    "en": "Filter",
+    "zh-Hant": "篩選"
+  },
+  {
+    "source": "搜索 App",
+    "en": "Search Apps",
+    "zh-Hant": "搜索 App"
+  },
+  {
+    "source": "筛选分组",
+    "en": "Filter Group",
+    "zh-Hant": "篩選分組"
+  },
+  {
+    "source": "常驻",
+    "en": "Visible",
+    "zh-Hant": "常駐"
+  },
+  {
+    "source": "始终显示 · 保留入口",
+    "en": "Always visible · Reserved",
+    "zh-Hant": "始終顯示 · 保留入口"
+  },
+  {
+    "source": "{0} · {1} 个菜单栏入口",
+    "en": "{0} · {1} menu bar items",
+    "zh-Hant": "{0} · {1} 個選單列入口"
+  },
+  {
+    "source": "{0}图标位置",
+    "en": "{0} icon position",
+    "zh-Hant": "{0}圖示位置"
+  },
+  {
+    "source": "正在读取本机图标…",
+    "en": "Reading menu bar icons…",
+    "zh-Hant": "正在讀取本機圖示…"
+  },
+  {
+    "source": "暂无可管理的菜单栏 App",
+    "en": "No manageable menu bar apps",
+    "zh-Hant": "暫無可管理的選單列 App"
+  },
+  {
+    "source": "没有符合条件的 App",
+    "en": "No matching apps",
+    "zh-Hant": "沒有符合條件的 App"
+  },
+  {
+    "source": "读取中…",
+    "en": "Reading…",
+    "zh-Hant": "讀取中…"
+  },
+  {
+    "source": "刷新",
+    "en": "Refresh",
+    "zh-Hant": "重新整理"
+  },
+  {
+    "source": "应用图标",
+    "en": "App icon",
+    "zh-Hant": "應用圖示"
+  },
+  {
+    "source": "登录后自动在菜单栏启动 Ermi。",
+    "en": "Launch Ermi in the menu bar after login.",
+    "zh-Hant": "登入後自動在選單列啓動 Ermi。"
+  },
+  {
+    "source": "已注册，等待你在系统设置中允许；目前不会自动启动。",
+    "en": "Registered; waiting for approval in System Settings. Auto-launch is currently disabled.",
+    "zh-Hant": "已註冊，等待你在系統設定中允許；目前不會自動啓動。"
+  },
+  {
+    "source": "当前未开启登录启动。",
+    "en": "Launch at login is off.",
+    "zh-Hant": "目前未開啓登入啓動。"
+  },
+  {
+    "source": "系统尚未识别登录项。可尝试开启；若失败，请将 Ermi.app 放入应用程序目录后重试。",
+    "en": "The login item is not recognized yet. Try enabling it; if that fails, move Ermi.app to Applications and retry.",
+    "zh-Hant": "系統尚未識別登入項。可嘗試開啓；若失敗，請將 Ermi.app 放入應用程序目錄後重試。"
+  },
+  {
+    "source": "无法识别系统返回的登录项状态。",
+    "en": "Unknown login item status returned by the system.",
+    "zh-Hant": "無法識別系統傳回的登入項狀態。"
+  },
+  {
+    "source": "无法更新登录启动：{0}",
+    "en": "Unable to update launch at login: {0}",
+    "zh-Hant": "無法更新登入啓動：{0}"
+  },
+  {
+    "source": "无法打开系统设置，请手动前往“隐私与安全性”管理 Ermi 权限。",
+    "en": "Unable to open System Settings. Go to Privacy & Security to manage Ermi permissions.",
+    "zh-Hant": "無法開啟系統設定，請手動前往“隱私權與安全性”管理 Ermi 權限。"
+  },
+  {
+    "source": "通用",
+    "en": "General",
+    "zh-Hant": "通用"
+  },
+  {
+    "source": "登录时启动 Ermi",
+    "en": "Launch Ermi at Login",
+    "zh-Hant": "登入時啓動 Ermi"
+  },
+  {
+    "source": "前往登录项设置",
+    "en": "Open Login Items",
+    "zh-Hant": "前往登入項設定"
+  },
+  {
+    "source": "减少动态效果",
+    "en": "Reduce Motion",
+    "zh-Hant": "減少動態效果"
+  },
+  {
+    "source": "系统已开启减少动态效果，页面切换将遵循系统设置。",
+    "en": "Reduce Motion is enabled in macOS. Page transitions follow the system setting.",
+    "zh-Hant": "系統已開啓減少動態效果，頁面切換將遵循系統設定。"
+  },
+  {
+    "source": "减少页面切换的位移动画。",
+    "en": "Reduce movement during page transitions.",
+    "zh-Hant": "減少頁面切換的位移動畫。"
+  },
+  {
+    "source": "权限与隐私",
+    "en": "Permissions & Privacy",
+    "zh-Hant": "權限與隱私"
+  },
+  {
+    "source": "图标整理权限",
+    "en": "Menu Bar Permission",
+    "zh-Hant": "圖示整理權限"
+  },
+  {
+    "source": "已授权",
+    "en": "Authorized",
+    "zh-Hant": "已授權"
+  },
+  {
+    "source": "未授权",
+    "en": "Not Authorized",
+    "zh-Hant": "未授權"
+  },
+  {
+    "source": "图标整理使用系统辅助功能访问菜单栏项目并执行你选择的操作；不需要屏幕录制或键盘输入监听。",
+    "en": "Menu bar organization uses Accessibility to access menu items and perform your chosen actions. Screen recording and keyboard monitoring are not required.",
+    "zh-Hant": "圖示整理使用系統輔助使用訪問選單列項目並執行你選擇的操作；不需要螢幕錄制或鍵盤輸入監聽。"
+  },
+  {
+    "source": "管理图标整理权限…",
+    "en": "Manage Menu Bar Permission…",
+    "zh-Hant": "管理圖示整理權限…"
+  },
+  {
+    "source": "调节风扇需要单独授权后台控制服务。可在下方“风扇服务”中安装、更新或移除；登录启动开关不会改变该服务。",
+    "en": "Fan control requires a separately authorized background service. Install, update, or remove it under Fan Service below. Launch at login does not affect this service.",
+    "zh-Hant": "調節風扇需要單獨授權背景控制服務。可在下方“風扇服務”中安裝、更新或移除；登入啓動開關不會改變該服務。"
+  },
+  {
+    "source": "打开登录项与后台服务…",
+    "en": "Open Login Items & Background Services…",
+    "zh-Hant": "開啟登入項與背景服務…"
+  },
+  {
+    "source": "风扇服务",
+    "en": "Fan Service",
+    "zh-Hant": "風扇服務"
+  },
+  {
+    "source": "连接状态",
+    "en": "Connection",
+    "zh-Hant": "連接狀態"
+  },
+  {
+    "source": "已连接",
+    "en": "Connected",
+    "zh-Hant": "已連接"
+  },
+  {
+    "source": "未连接",
+    "en": "Disconnected",
+    "zh-Hant": "未連接"
+  },
+  {
+    "source": "安装 / 更新授权",
+    "en": "Install / Update Authorization",
+    "zh-Hant": "安裝 / 更新授權"
+  },
+  {
+    "source": "卸载服务",
+    "en": "Uninstall Service",
+    "zh-Hant": "解除安裝服務"
+  },
+  {
+    "source": "关于 Ermi",
+    "en": "About Ermi",
+    "zh-Hant": "關於 Ermi"
+  },
+  {
+    "source": "版本",
+    "en": "Version",
+    "zh-Hant": "版本"
+  },
+  {
+    "source": "设备型号",
+    "en": "Device Model",
+    "zh-Hant": "裝置型號"
+  },
+  {
+    "source": "刷新状态",
+    "en": "Refresh Status",
+    "zh-Hant": "重新整理狀態"
+  },
+  {
+    "source": "Ermi 设置",
+    "en": "Ermi Settings",
+    "zh-Hant": "Ermi 設定"
+  },
+  {
+    "source": "开发构建",
+    "en": "Development Build",
+    "zh-Hant": "開發構建"
+  },
+  {
+    "source": "暂不可用",
+    "en": "Unavailable",
+    "zh-Hant": "暫不可用"
+  },
+  {
+    "source": "已保存：间距 {0} · 内边距 {1}",
+    "en": "Saved: spacing {0} · padding {1}",
+    "zh-Hant": "已儲存：間距 {0} · 內邊距 {1}"
+  },
+  {
+    "source": "保存失败，请重试。",
+    "en": "Could not save. Try again.",
+    "zh-Hant": "儲存失敗，請重試。"
+  },
+  {
+    "source": "已保存，注销重新登录或重启 Mac 后生效。",
+    "en": "Saved. Log out and back in, or restart your Mac, to apply.",
+    "zh-Hant": "已儲存，登出重新登入或重啓 Mac 後生效。"
+  },
+  {
+    "source": "恢复失败，请重试。",
+    "en": "Could not restore. Try again.",
+    "zh-Hant": "恢復失敗，請重試。"
+  },
+  {
+    "source": "已恢复系统默认设置，注销重新登录或重启 Mac 后生效。",
+    "en": "System defaults restored. Log out and back in, or restart your Mac, to apply.",
+    "zh-Hant": "已恢復系統預設設定，登出重新登入或重啓 Mac 後生效。"
+  },
+  {
+    "source": "结束 {0}？",
+    "en": "Quit {0}?",
+    "zh-Hant": "結束 {0}？"
+  },
+  {
+    "source": "退出会请求 App 正常结束；强制退出可能丢失未保存的内容。",
+    "en": "Quit asks the app to close normally. Force Quit may lose unsaved work.",
+    "zh-Hant": "退出會請求 App 正常結束；強制退出可能丟失未儲存的內容。"
+  },
+  {
+    "source": "交互演示 · 不会结束本机进程",
+    "en": "Interactive demo · No local processes will quit",
+    "zh-Hant": "交互演示 · 不會結束本機程序"
+  },
+  {
+    "source": "执行前将再次核实进程身份",
+    "en": "Process identity will be checked again before proceeding",
+    "zh-Hant": "執行前將再次覈實程序身份"
+  },
+  {
+    "source": "强制退出",
+    "en": "Force Quit",
+    "zh-Hant": "強制退出"
+  },
+  {
+    "source": "退出",
+    "en": "Quit",
+    "zh-Hant": "退出"
+  },
+  {
+    "source": "设计预览不会结束本机进程。",
+    "en": "Design preview does not quit local processes.",
+    "zh-Hant": "設計預覽不會結束本機程序。"
+  },
+  {
+    "source": "Ermi 抬头白鼬标识",
+    "en": "Ermi upright stoat logo",
+    "zh-Hant": "Ermi 抬頭白鼬標識"
+  },
+  {
+    "source": "CPU 和 GPU 负载趋势",
+    "en": "CPU and GPU load trends",
+    "zh-Hant": "CPU 和 GPU 負載趨勢"
+  },
+  {
+    "source": "内存占用趋势",
+    "en": "Memory usage trend",
+    "zh-Hant": "記憶體用量趨勢"
+  },
+  {
+    "source": "当前选择：{0}",
+    "en": "Selected: {0}",
+    "zh-Hant": "目前選擇：{0}"
+  },
+  {
+    "source": "权限已识别，正在准备刷新图标。",
+    "en": "Permission recognized. Preparing to refresh icons.",
+    "zh-Hant": "權限已識別，正在準備重新整理圖示。"
+  },
+  {
+    "source": "请在系统设置中允许当前 Ermi，返回后自动刷新图标。",
+    "en": "Allow the current Ermi in System Settings. Icons refresh when you return.",
+    "zh-Hant": "請在系統設定中允許目前 Ermi，返回後自動重新整理圖示。"
+  },
+  {
+    "source": "设备控制和数据访问",
+    "en": "Device Control & Data Access",
+    "zh-Hant": "裝置控制和資料訪問"
+  },
+  {
+    "source": "辅助功能",
+    "en": "Accessibility",
+    "zh-Hant": "輔助使用"
+  },
+  {
+    "source": "Ermi 尚未获得{0}权限。系统中已允许时，请退出并重新打开当前 Ermi。",
+    "en": "Ermi lacks {0} permission. If already allowed in System Settings, quit and reopen this Ermi build.",
+    "zh-Hant": "Ermi 尚未獲得{0}權限。系統中已允許時，請退出並重新開啟目前 Ermi。"
+  },
+  {
+    "source": "权限已撤销，请重新授权后刷新图标列表。",
+    "en": "Permission revoked. Authorize again to refresh the icon list.",
+    "zh-Hant": "權限已撤銷，請重新授權後重新整理圖示列表。"
+  },
+  {
+    "source": "权限已识别，已检查 {0} 个运行 App，但未读到菜单栏入口。",
+    "en": "Permission recognized. Checked {0} running apps, but found no menu bar items.",
+    "zh-Hant": "權限已識別，已檢查 {0} 個運行 App，但未讀到選單列入口。"
+  },
+  {
+    "source": " 系统读取结果：{0}。",
+    "en": " System read results: {0}.",
+    "zh-Hant": " 系統讀取結果：{0}。"
+  },
+  {
+    "source": "已读取 {0} 个 App。分组更改后保持展开，点击收起应用。",
+    "en": "Read {0} apps. Icons stay expanded after grouping; click Hide to apply.",
+    "zh-Hant": "已讀取 {0} 個 App。分組更改後保持展開，點擊收起應用。"
+  },
+  {
+    "source": "请按住 ⌘，将分隔线拖到收起箭头左侧，再重试。",
+    "en": "Hold ⌘ and drag the divider left of the collapse arrow, then retry.",
+    "zh-Hant": "請按住 ⌘，將分隔線拖到收起箭頭左側，再重試。"
+  },
+  {
+    "source": "请从构建后的 Ermi.app 启动图标整理。",
+    "en": "Open menu bar organization from the built Ermi.app.",
+    "zh-Hant": "請從構建後的 Ermi.app 啓動圖示整理。"
+  },
+  {
+    "source": "请先将至少一个正在运行的 App 设为折叠收纳。",
+    "en": "Set at least one running app to Hidden first.",
+    "zh-Hant": "請先將至少一個正在運行的 App 設為折疊收納。"
+  },
+  {
+    "source": "系统响应超时，已取消收起请求。",
+    "en": "System timed out. Hiding was canceled.",
+    "zh-Hant": "系統響應超時，已取消收起請求。"
+  },
+  {
+    "source": "已收起 {0} 个 App 的菜单栏入口。",
+    "en": "Menu bar items from {0} apps hidden.",
+    "zh-Hant": "已收起 {0} 個 App 的選單列入口。"
+  },
+  {
+    "source": "收起失败，图标保持显示：{0}",
+    "en": "Could not hide; icons remain visible: {0}",
+    "zh-Hant": "收起失敗，圖示保持顯示：{0}"
+  },
+  {
+    "source": "⌘ 拖动：左侧收纳，右侧常驻",
+    "en": "⌘-drag: hidden on the left, visible on the right",
+    "zh-Hant": "⌘ 拖動：左側收納，右側常駐"
+  },
+  {
+    "source": "展开收纳图标",
+    "en": "Expand Hidden Icons",
+    "zh-Hant": "展開收納圖示"
+  },
+  {
+    "source": "收起收纳图标",
+    "en": "Hide Grouped Icons",
+    "zh-Hant": "收起收納圖示"
+  },
+  {
+    "source": "Ermi · 点击展开图标；⌥ 点击打开展开栏",
+    "en": "Ermi · Click to expand; ⌥-click to open the tray",
+    "zh-Hant": "Ermi · 點擊展開圖示；⌥ 點擊開啟展開欄"
+  },
+  {
+    "source": "Ermi · 点击收起图标；⌥ 点击打开展开栏",
+    "en": "Ermi · Click to hide; ⌥-click to open the tray",
+    "zh-Hant": "Ermi · 點擊收起圖示；⌥ 點擊開啟展開欄"
+  },
+  {
+    "source": "运行 App 已变化，已展开全部图标；可刷新列表后再次收起。",
+    "en": "Running apps changed. All icons expanded; refresh the list before hiding again.",
+    "zh-Hant": "運行 App 已變化，已展開全部圖示；可重新整理列表後再次收起。"
+  },
+  {
+    "source": "已取消管理员验证。",
+    "en": "Administrator authentication canceled.",
+    "zh-Hant": "已取消管理員驗證。"
+  },
+  {
+    "source": "找不到本机安装入口，请运行打包后的 Ermi.app。",
+    "en": "Local installer not found. Run the packaged Ermi.app.",
+    "zh-Hant": "找不到本機安裝入口，請運行打包後的 Ermi.app。"
+  },
+  {
+    "source": "安装程序退出（{0}）。",
+    "en": "Installer exited ({0}).",
+    "zh-Hant": "安裝程序退出（{0}）。"
+  },
+  {
+    "source": "系统自动",
+    "en": "System Auto",
+    "zh-Hant": "系統自動"
+  },
+  {
+    "source": "App 自动",
+    "en": "App Auto",
+    "zh-Hant": "App 自動"
+  },
+  {
+    "source": "固定 RPM",
+    "en": "Fixed RPM",
+    "zh-Hant": "固定 RPM"
+  },
+  {
+    "source": "热状态正常",
+    "en": "Thermal State Normal",
+    "zh-Hant": "熱狀態正常"
+  },
+  {
+    "source": "热状态略高",
+    "en": "Thermal State Fair",
+    "zh-Hant": "熱狀態略高"
+  },
+  {
+    "source": "热状态较高",
+    "en": "Thermal State Serious",
+    "zh-Hant": "熱狀態較高"
+  },
+  {
+    "source": "热状态严重",
+    "en": "Thermal State Critical",
+    "zh-Hant": "熱狀態嚴重"
+  },
+  {
+    "source": "热状态待读取",
+    "en": "Reading Thermal State",
+    "zh-Hant": "熱狀態待讀取"
+  },
+  {
+    "source": "CPU 温度 · 示例",
+    "en": "CPU Temperature · Sample",
+    "zh-Hant": "CPU 溫度 · 示例"
+  },
+  {
+    "source": "CPU 温度 · 正在读取",
+    "en": "CPU Temperature · Reading",
+    "zh-Hant": "CPU 溫度 · 正在讀取"
+  },
+  {
+    "source": "CPU 温度 · 暂不可用",
+    "en": "CPU Temperature · Unavailable",
+    "zh-Hant": "CPU 溫度 · 暫不可用"
+  },
+  {
+    "source": "CPU 温度 · 核心均值",
+    "en": "CPU Temperature · Core Average",
+    "zh-Hant": "CPU 溫度 · 核心均值"
+  },
+  {
+    "source": "温度来源：AppleSMC",
+    "en": "Temperature source: AppleSMC",
+    "zh-Hant": "溫度來源：AppleSMC"
+  },
+  {
+    "source": "CPU 核心平均 %.1f°C · %d 个可用传感器\nAppleSMC: %@",
+    "en": "CPU core average %.1f°C · %d available sensors\nAppleSMC: %@",
+    "zh-Hant": "CPU 核心平均 %.1f°C · %d 個可用感測器\nAppleSMC: %@"
+  },
+  {
+    "source": "左",
+    "en": "Left",
+    "zh-Hant": "左"
+  },
+  {
+    "source": "右",
+    "en": "Right",
+    "zh-Hant": "右"
+  },
+  {
+    "source": "风扇 {0}",
+    "en": "Fan {0}",
+    "zh-Hant": "風扇 {0}"
+  },
+  {
+    "source": "风扇读数暂不可用",
+    "en": "Fan readings unavailable",
+    "zh-Hant": "風扇讀數暫不可用"
+  },
+  {
+    "source": "{0} · AppleSMC {1} · 实测 RPM",
+    "en": "{0} · AppleSMC {1} · Measured RPM",
+    "zh-Hant": "{0} · AppleSMC {1} · 實測 RPM"
+  },
+  {
+    "source": "应用",
+    "en": "App",
+    "zh-Hant": "應用"
+  },
+  {
+    "source": "空间暂不可用",
+    "en": "Storage unavailable",
+    "zh-Hant": "空間暫不可用"
+  },
+  {
+    "source": "共 %.0f GB · 已用 %.0f%%",
+    "en": "Total %.0f GB · %.0f%% used",
+    "zh-Hant": "共 %.0f GB · 已用 %.0f%%"
+  },
+  {
+    "source": "用户目录所在卷：{0}；GB 为十进制容量，可用量不含估算的可清除空间。",
+    "en": "Volume containing your home folder: {0}. GB uses decimal units; available space excludes estimated purgeable storage.",
+    "zh-Hant": "使用者目錄所在卷：{0}；GB 為十進制容量，可用量不含估算的可清除空間。"
+  },
+  {
+    "source": "正在读取用户目录所在卷",
+    "en": "Reading the home folder volume",
+    "zh-Hant": "正在讀取使用者目錄所在卷"
+  },
+  {
+    "source": "无电池",
+    "en": "No Battery",
+    "zh-Hant": "無電池"
+  },
+  {
+    "source": "电源信息暂不可用",
+    "en": "Power information unavailable",
+    "zh-Hant": "電源資訊暫不可用"
+  },
+  {
+    "source": "台式设备 / 无内置电池",
+    "en": "Desktop / No built-in battery",
+    "zh-Hant": "桌上型裝置 / 無內置電池"
+  },
+  {
+    "source": "正在充电",
+    "en": "Charging",
+    "zh-Hant": "正在充電"
+  },
+  {
+    "source": "已充满 · 电源接通",
+    "en": "Fully Charged · Plugged In",
+    "zh-Hant": "已充滿 · 電源接通"
+  },
+  {
+    "source": "电源接通 · 未充电",
+    "en": "Plugged In · Not Charging",
+    "zh-Hant": "電源接通 · 未充電"
+  },
+  {
+    "source": "电池供电",
+    "en": "On Battery",
+    "zh-Hant": "電池供電"
+  },
+  {
+    "source": "电源状态未知",
+    "en": "Unknown Power State",
+    "zh-Hant": "電源狀態未知"
+  },
+  {
+    "source": "压力正常",
+    "en": "Normal Pressure",
+    "zh-Hant": "壓力正常"
+  },
+  {
+    "source": "压力偏高",
+    "en": "Elevated Pressure",
+    "zh-Hant": "壓力偏高"
+  },
+  {
+    "source": "压力很高",
+    "en": "High Pressure",
+    "zh-Hant": "壓力很高"
+  },
+  {
+    "source": "压力未知",
+    "en": "Unknown Pressure",
+    "zh-Hant": "壓力未知"
+  },
+  {
+    "source": "网络暂不可用",
+    "en": "Network unavailable",
+    "zh-Hant": "網路暫不可用"
+  },
+  {
+    "source": "未读取到活动物理网络接口",
+    "en": "No active physical network interface found",
+    "zh-Hant": "未讀取到活動物理網路介面"
+  },
+  {
+    "source": "物理接口 {0} 的总流量，不重复统计 VPN；连接切换或首帧等待下次采样。",
+    "en": "Total traffic on physical interface {0}, excluding duplicate VPN traffic. After switching connections or on the first frame, wait for the next sample.",
+    "zh-Hant": "物理介面 {0} 的總流量，不重復統計 VPN；連接切換或首幀等待下次採樣。"
+  },
+  {
+    "source": "运行时间未知",
+    "en": "Uptime unknown",
+    "zh-Hant": "運行時間未知"
+  },
+  {
+    "source": "运行 {0} 天",
+    "en": "Up {0} days",
+    "zh-Hant": "運行 {0} 天"
+  },
+  {
+    "source": "运行 {0} 小时",
+    "en": "Up {0} hours",
+    "zh-Hant": "運行 {0} 小時"
+  },
+  {
+    "source": "运行 {0} 分钟",
+    "en": "Up {0} minutes",
+    "zh-Hant": "運行 {0} 分鐘"
+  },
+  {
+    "source": "正在检查控制授权…",
+    "en": "Checking control authorization…",
+    "zh-Hant": "正在檢查控制授權…"
+  },
+  {
+    "source": "点击安装后在 macOS 弹窗中验证。固定签名身份可沿用授权；安装不会应用预设。",
+    "en": "Click Install and authenticate in the macOS dialog. A stable signing identity retains authorization; installation does not apply a preset.",
+    "zh-Hant": "點擊安裝後在 macOS 彈窗中驗證。固定簽名身份可沿用授權；安裝不會應用預設。"
+  },
+  {
+    "source": "已安装的本机服务与授权不匹配，请更新本机授权。",
+    "en": "The installed local service does not match its authorization. Update local authorization.",
+    "zh-Hant": "已安裝的本機服務與授權不匹配，請更新本機授權。"
+  },
+  {
+    "source": "本机签名授权有效；同一签名的界面更新无需重新授权。更新风扇服务时请点击安装 / 更新授权。",
+    "en": "Local signing authorization is valid. UI updates signed with the same identity need no new authorization. When updating the fan service, click Install / Update Authorization.",
+    "zh-Hant": "本機簽名授權有效；同一簽名的界面更新無需重新授權。更新風扇服務時請點擊安裝 / 更新授權。"
+  },
+  {
+    "source": "当前为旧构建授权；更新一次后可迁移到固定签名身份。",
+    "en": "Authorization is tied to an older build. Update once to migrate to a stable signing identity.",
+    "zh-Hant": "目前為舊構建授權；更新一次後可遷移到固定簽名身份。"
+  },
+  {
+    "source": "控制服务已启用。",
+    "en": "Control service enabled.",
+    "zh-Hant": "控制服務已啓用。"
+  },
+  {
+    "source": "请先在风扇预设中启用控制服务。",
+    "en": "Enable the control service in fan presets first.",
+    "zh-Hant": "請先在風扇預設中啓用控制服務。"
+  },
+  {
+    "source": "请在系统设置中允许 Ermi 后台服务，然后再次启用控制。",
+    "en": "Allow the Ermi background service in System Settings, then enable control again.",
+    "zh-Hant": "請在系統設定中允許 Ermi 背景服務，然後再次啓用控制。"
+  },
+  {
+    "source": "控制服务尚未启用：{0}",
+    "en": "Control service not enabled: {0}",
+    "zh-Hant": "控制服務尚未啓用：{0}"
+  },
+  {
+    "source": "无法连接控制服务",
+    "en": "Unable to connect to the control service",
+    "zh-Hant": "無法連接控制服務"
+  },
+  {
+    "source": "控制服务接口不可用",
+    "en": "Control service interface unavailable",
+    "zh-Hant": "控制服務介面不可用"
+  },
+  {
+    "source": "控制请求超时，等待服务恢复系统控制。",
+    "en": "Control request timed out. Waiting for the service to restore system control.",
+    "zh-Hant": "控制請求超時，等待服務恢復系統控制。"
+  },
+  {
+    "source": "图标间距",
+    "en": "Icon Spacing",
+    "zh-Hant": "圖示間距"
+  },
+  {
+    "source": "作用于系统菜单栏",
+    "en": "Applies to the system menu bar",
+    "zh-Hant": "作用於系統選單列"
+  },
+  {
+    "source": "点击区域内边距",
+    "en": "Click Area Padding",
+    "zh-Hant": "點擊區域內邊距"
+  },
+  {
+    "source": "预览",
+    "en": "Preview",
+    "zh-Hant": "預覽"
+  },
+  {
+    "source": "菜单栏图标间距示意",
+    "en": "Menu bar icon spacing preview",
+    "zh-Hant": "選單列圖示間距示意"
+  },
+  {
+    "source": "保存并应用会重启相关 App，图标会短暂消失。仅保存则在 App 下次启动或重新登录后生效。",
+    "en": "Save & Apply restarts related apps; icons disappear briefly. Save Only takes effect when apps next launch or after logging in again.",
+    "zh-Hant": "儲存並應用會重啓相關 App，圖示會短暫消失。僅儲存則在 App 下次啓動或重新登入後生效。"
+  },
+  {
+    "source": "恢复系统默认",
+    "en": "Restore System Defaults",
+    "zh-Hant": "恢復系統預設"
+  },
+  {
+    "source": "清除当前用户的两项间距覆盖，包括其他工具保存的值",
+    "en": "Clear both spacing overrides for this user, including values saved by other tools",
+    "zh-Hant": "清除目前使用者的兩項間距覆蓋，包括其他工具儲存的值"
+  },
+  {
+    "source": "仅保存",
+    "en": "Save Only",
+    "zh-Hant": "僅儲存"
+  },
+  {
+    "source": "读取图标…",
+    "en": "Reading Icons…",
+    "zh-Hant": "讀取圖示…"
+  },
+  {
+    "source": "保存并应用",
+    "en": "Save & Apply",
+    "zh-Hant": "儲存並應用"
+  },
+  {
+    "source": "保存并刷新菜单栏",
+    "en": "Save & Refresh Menu Bar",
+    "zh-Hant": "儲存並重新整理選單列"
+  },
+  {
+    "source": "以下 App 会退出并重新打开，系统组件会重新加载。请先保存工作；拒绝退出的 App 将保留运行。",
+    "en": "These apps will quit and reopen; system components will reload. Save your work first. Apps that refuse to quit will remain running.",
+    "zh-Hant": "以下 App 會退出並重新開啟，系統組件會重新載入。請先儲存工作；拒絕退出的 App 將保留運行。"
+  },
+  {
+    "source": "尚未获得图标读取权限，本次只能刷新系统组件。请先在图标整理中授权，才能识别第三方 App。",
+    "en": "Menu bar access is not authorized; only system components can refresh. Authorize access in Menu Bar to identify third-party apps.",
+    "zh-Hant": "尚未獲得圖示讀取權限，本次只能重新整理系統組件。請先在圖示整理中授權，才能識別第三方 App。"
+  },
+  {
+    "source": "只刷新本次识别到的项目。Ermi 自身及未列出的图标需下次启动后应用。",
+    "en": "Only listed items will refresh. Ermi and unlisted icons apply changes on their next launch.",
+    "zh-Hant": "只重新整理本次識別到的項目。Ermi 自身及未列出的圖示需下次啓動後應用。"
+  },
+  {
+    "source": "保存并刷新",
+    "en": "Save & Refresh",
+    "zh-Hant": "儲存並重新整理"
+  },
+  {
+    "source": "系统设置…",
+    "en": "Settings…",
+    "zh-Hant": "系統設定…"
+  },
+  {
+    "source": "Ermi · 正在读取 CPU 温度",
+    "en": "Ermi · Reading CPU temperature",
+    "zh-Hant": "Ermi · 正在讀取 CPU 溫度"
+  },
+  {
+    "source": "Ermi · CPU 核心平均温度 %.1f°C",
+    "en": "Ermi · CPU core average %.1f°C",
+    "zh-Hant": "Ermi · CPU 核心平均溫度 %.1f°C"
+  },
+  {
+    "source": "Ermi · 温度暂不可用",
+    "en": "Ermi · Temperature unavailable",
+    "zh-Hant": "Ermi · 溫度暫不可用"
+  },
+  {
+    "source": "展开全部收纳图标",
+    "en": "Expand All Hidden Icons",
+    "zh-Hant": "展開全部收納圖示"
+  },
+  {
+    "source": "图标整理…",
+    "en": "Menu Bar…",
+    "zh-Hant": "圖示整理…"
+  },
+  {
+    "source": "退出 Ermi",
+    "en": "Quit Ermi",
+    "zh-Hant": "退出 Ermi"
+  },
+  {
+    "source": "尚未确认恢复系统风扇控制",
+    "en": "System fan control has not been confirmed",
+    "zh-Hant": "尚未確認恢復系統風扇控制"
+  },
+  {
+    "source": "\n请恢复系统控制后再退出。",
+    "en": "\nRestore system control before quitting.",
+    "zh-Hant": "\n請恢復系統控制後再退出。"
+  },
+  {
+    "source": "返回 Ermi",
+    "en": "Return to Ermi",
+    "zh-Hant": "返回 Ermi"
+  },
+  {
+    "source": "保存失败，未重启任何 App。",
+    "en": "Save failed. No apps were restarted.",
+    "zh-Hant": "儲存失敗，未重啓任何 App。"
+  },
+  {
+    "source": "正在刷新 {0}…",
+    "en": "Refreshing {0}…",
+    "zh-Hant": "正在重新整理 {0}…"
+  },
+  {
+    "source": "已保存，已刷新 {0} 项。",
+    "en": "Saved. Refreshed {0} items.",
+    "zh-Hant": "已儲存，已重新整理 {0} 項。"
+  },
+  {
+    "source": " 未完成：",
+    "en": " Incomplete: ",
+    "zh-Hant": " 未完成："
+  },
+  {
+    "source": "未识别的图标及 Ermi 自身需下次启动后应用；若仍无变化，请注销重新登录。",
+    "en": "Unidentified icons and Ermi apply changes on their next launch. If unchanged, log out and back in.",
+    "zh-Hant": "未識別的圖示及 Ermi 自身需下次啓動後應用；若仍無變化，請登出重新登入。"
+  },
+  {
+    "source": "原进程已退出，请手动重新打开",
+    "en": "Original process exited; reopen it manually",
+    "zh-Hant": "原程序已退出，請手動重新開啟"
+  },
+  {
+    "source": "拒绝退出，已保留运行",
+    "en": "Refused to quit; left running",
+    "zh-Hant": "拒絕退出，已保留運行"
+  },
+  {
+    "source": "尚未退出，已保留运行；请处理保存窗口",
+    "en": "Still running; respond to its save dialog",
+    "zh-Hant": "尚未退出，已保留運行；請處理儲存窗口"
+  },
+  {
+    "source": "重新打开失败，请手动打开",
+    "en": "Could not reopen; open it manually",
+    "zh-Hant": "重新開啟失敗，請手動開啟"
+  },
+  {
+    "source": "重新打开失败：{0}",
+    "en": "Could not reopen: {0}",
+    "zh-Hant": "重新開啟失敗：{0}"
+  },
+  {
+    "source": "控制中心",
+    "en": "Control Center",
+    "zh-Hant": "控制中心"
+  },
+  {
+    "source": "系统菜单栏",
+    "en": "System Menu Bar",
+    "zh-Hant": "系統選單列"
+  },
+  {
+    "source": "刷新命令未能启动",
+    "en": "Could not start refresh command",
+    "zh-Hant": "重新整理命令未能啓動"
+  },
+  {
+    "source": "系统刷新超时",
+    "en": "System refresh timed out",
+    "zh-Hant": "系統重新整理超時"
+  },
+  {
+    "source": "系统拒绝刷新，需重新登录",
+    "en": "System refused refresh; log in again",
+    "zh-Hant": "系統拒絕重新整理，需重新登入"
+  },
+  {
+    "source": "冰川银",
+    "en": "Glacier Silver",
+    "zh-Hant": "冰川銀"
+  },
+  {
+    "source": "石墨灰",
+    "en": "Graphite",
+    "zh-Hant": "石墨灰"
+  },
+  {
+    "source": "午夜蓝",
+    "en": "Midnight Blue",
+    "zh-Hant": "午夜藍"
+  },
+  {
+    "source": "雾松绿",
+    "en": "Misty Pine",
+    "zh-Hant": "霧松綠"
+  },
+  {
+    "source": "暖岩灰",
+    "en": "Warm Stone",
+    "zh-Hant": "暖岩灰"
+  },
+  {
+    "source": "薰衣草灰",
+    "en": "Lavender Gray",
+    "zh-Hant": "薰衣草灰"
+  },
+  {
+    "source": "自定义",
+    "en": "Custom",
+    "zh-Hant": "自定義"
+  },
+  {
+    "source": "主题",
+    "en": "Theme",
+    "zh-Hant": "主題"
+  },
+  {
+    "source": "配色方案",
+    "en": "Color Palette",
+    "zh-Hant": "配色方案"
+  },
+  {
+    "source": "面板背景",
+    "en": "Panel Background",
+    "zh-Hant": "面板背景"
+  },
+  {
+    "source": "主题强调色",
+    "en": "Accent Color",
+    "zh-Hant": "主題強調色"
+  },
+  {
+    "source": "选择后即时生效并自动保存。菜单栏面板与详情页同步使用主题配色；浅强调色会自动加深以保持文字清晰。",
+    "en": "Changes apply instantly and save automatically. The menu bar panel and detail pages share the theme; light accent colors are darkened for readability.",
+    "zh-Hant": "選擇後即時生效並自動儲存。選單列面板與詳細頁面同步使用主題配色；淺強調色會自動加深以保持文字清晰。"
+  },
+  {
+    "source": "恢复冰川银",
+    "en": "Restore Glacier Silver",
+    "zh-Hant": "恢復冰川銀"
+  },
+  {
+    "source": "授权风扇控制",
+    "en": "Authorize Fan Control",
+    "zh-Hant": "授權風扇控制"
+  },
+  {
+    "source": "重试连接",
+    "en": "Retry Connection",
+    "zh-Hant": "重試連接"
+  },
+  {
+    "source": "正在交还系统…",
+    "en": "Returning to system…",
+    "zh-Hant": "正在交還系統…"
+  },
+  {
+    "source": "正在应用…",
+    "en": "Applying…",
+    "zh-Hant": "正在應用…"
+  },
+  {
+    "source": "恢复待确认",
+    "en": "Recovery Unconfirmed",
+    "zh-Hant": "恢復待確認"
+  },
+  {
+    "source": "App 自动温控",
+    "en": "App Temperature Control",
+    "zh-Hant": "App 自動溫控"
+  },
+  {
+    "source": "Ermi 未接管",
+    "en": "Not Controlled by Ermi",
+    "zh-Hant": "Ermi 未接管"
+  },
+  {
+    "source": "睡眠前已停止续租，等待服务确认恢复系统控制。",
+    "en": "Stopped renewing control before sleep. Waiting for the service to confirm system control.",
+    "zh-Hant": "睡眠前已停止續租，等待服務確認恢復系統控制。"
+  },
+  {
+    "source": "睡眠恢复尚未确认：{0}",
+    "en": "Sleep recovery unconfirmed: {0}",
+    "zh-Hant": "睡眠恢復尚未確認：{0}"
+  },
+  {
+    "source": "控制连接不可用：{0}",
+    "en": "Control connection unavailable: {0}",
+    "zh-Hant": "控制連接不可用：{0}"
+  },
+  {
+    "source": "设备控制能力暂不可用",
+    "en": "Device control capabilities unavailable",
+    "zh-Hant": "裝置控制能力暫不可用"
+  },
+  {
+    "source": "请在系统窗口确认卸载…",
+    "en": "Confirm uninstall in the system dialog…",
+    "zh-Hant": "請在系統窗口確認解除安裝…"
+  },
+  {
+    "source": "请在系统窗口确认安装…",
+    "en": "Confirm installation in the system dialog…",
+    "zh-Hant": "請在系統窗口確認安裝…"
+  },
+  {
+    "source": "本机风扇服务已卸载，预设已保留。",
+    "en": "Local fan service uninstalled. Presets retained.",
+    "zh-Hant": "本機風扇服務已解除安裝，預設已保留。"
+  },
+  {
+    "source": "已取消卸载。",
+    "en": "Uninstall canceled.",
+    "zh-Hant": "已取消解除安裝。"
+  },
+  {
+    "source": "已取消安装。",
+    "en": "Installation canceled.",
+    "zh-Hant": "已取消安裝。"
+  },
+  {
+    "source": "授权操作未完成：{0}",
+    "en": "Authorization incomplete: {0}",
+    "zh-Hant": "授權操作未完成：{0}"
+  },
+  {
+    "source": "演示：预设已保存",
+    "en": "Demo: preset saved",
+    "zh-Hant": "演示：預設已儲存"
+  },
+  {
+    "source": "正在保存方案，请稍候。",
+    "en": "Saving preset. Please wait.",
+    "zh-Hant": "正在儲存方案，請稍候。"
+  },
+  {
+    "source": "已保存预设，点击应用后生效。",
+    "en": "Preset saved. Click Apply to use it.",
+    "zh-Hant": "已儲存預設，點擊應用後生效。"
+  },
+  {
+    "source": "演示：不会删除本机方案。",
+    "en": "Demo: local presets will not be deleted.",
+    "zh-Hant": "演示：不會刪除本機方案。"
+  },
+  {
+    "source": "已删除“{0}”，当前风扇运行不变。",
+    "en": "Deleted “{0}”. Current fan operation is unchanged.",
+    "zh-Hant": "已刪除“{0}”，目前風扇運行不變。"
+  },
+  {
+    "source": "删除失败：{0}",
+    "en": "Delete failed: {0}",
+    "zh-Hant": "刪除失敗：{0}"
+  },
+  {
+    "source": "已确认目标转速 · {0}",
+    "en": "Target speed confirmed · {0}",
+    "zh-Hant": "已確認目標轉速 · {0}"
+  },
+  {
+    "source": "控制失败，已恢复系统控制",
+    "en": "Control failed; system control restored",
+    "zh-Hant": "控制失敗，已恢復系統控制"
+  },
+  {
+    "source": "系统控制尚未确认，正在重试恢复",
+    "en": "System control unconfirmed; retrying recovery",
+    "zh-Hant": "系統控制尚未確認，正在重試恢復"
+  },
+  {
+    "source": "恢复尚未确认：{0}",
+    "en": "Recovery unconfirmed: {0}",
+    "zh-Hant": "恢復尚未確認：{0}"
+  },
+  {
+    "source": "无法结束：{0}",
+    "en": "Unable to quit: {0}",
+    "zh-Hant": "無法結束：{0}"
+  },
+  {
+    "source": "操作未被接受，可能没有权限或进程已退出。",
+    "en": "Request not accepted. Permission may be missing, or the process may have exited.",
+    "zh-Hant": "操作未被接受，可能沒有權限或程序已退出。"
+  },
+  {
+    "source": "已结束 {0}",
+    "en": "Quit {0}",
+    "zh-Hant": "已結束 {0}"
+  },
+  {
+    "source": "已发送退出请求，{0} 仍在运行。",
+    "en": "Quit requested; {0} is still running.",
+    "zh-Hant": "已發送退出請求，{0} 仍在運行。"
+  },
+  {
+    "source": "Ermi · 菜单栏展开栏",
+    "en": "Ermi · Menu Bar Tray",
+    "zh-Hant": "Ermi · 選單列展開欄"
+  },
+  {
+    "source": "请先在图标整理页授予辅助功能 / 设备控制和数据访问权限。",
+    "en": "Grant Accessibility / Device Control & Data Access permission in Menu Bar first.",
+    "zh-Hant": "請先在圖示整理頁授予輔助使用 / 裝置控制和資料訪問權限。"
+  },
+  {
+    "source": "读取真实菜单栏入口…",
+    "en": "Reading real menu bar items…",
+    "zh-Hant": "讀取真實選單列入口…"
+  },
+  {
+    "source": "菜单栏入口",
+    "en": "Menu Bar Items",
+    "zh-Hant": "選單列入口"
+  },
+  {
+    "source": "权限已撤销，请重新授权后刷新。",
+    "en": "Permission revoked. Authorize again and refresh.",
+    "zh-Hant": "權限已撤銷，請重新授權後重新整理。"
+  },
+  {
+    "source": "未读到入口。AX 返回码：",
+    "en": "No items found. AX return codes: ",
+    "zh-Hant": "未讀到入口。AX 返回碼："
+  },
+  {
+    "source": "点击访问实际菜单栏入口；不支持 AX 操作的入口会标明。",
+    "en": "Click to access actual menu bar items. Items without AX support are marked.",
+    "zh-Hant": "點擊訪問實際選單列入口；不支持 AX 操作的入口會標明。"
+  },
+  {
+    "source": "入口已失效或权限不可用，请刷新。",
+    "en": "Item expired or permission unavailable. Refresh to retry.",
+    "zh-Hant": "入口已失效或權限不可用，請重新整理。"
+  },
+  {
+    "source": "{0} 未确认打开（AX {1}）。请检查菜单；不会自动重试。",
+    "en": "Opening {0} was not confirmed (AX {1}). Check its menu; no automatic retry.",
+    "zh-Hant": "{0} 未確認開啟（AX {1}）。請檢查選單；不會自動重試。"
+  },
+  {
+    "source": "不支持",
+    "en": "Unsupported",
+    "zh-Hant": "不支持"
+  },
+  {
+    "source": "打开",
+    "en": "Open",
+    "zh-Hant": "開啟"
+  },
+  {
+    "source": "需先恢复上次未完成的接管",
+    "en": "Recover the previous unfinished control session first",
+    "zh-Hant": "需先恢復上次未完成的接管"
+  },
+  {
+    "source": "控制时钟无效",
+    "en": "Invalid control clock",
+    "zh-Hant": "控制時鐘無效"
+  },
+  {
+    "source": "风扇已被其他控制器接管，或模式不可确认",
+    "en": "Another controller owns the fans, or their mode cannot be verified",
+    "zh-Hant": "風扇已被其他控制器接管，或模式不可確認"
+  },
+  {
+    "source": "已请求恢复系统控制",
+    "en": "System control recovery requested",
+    "zh-Hant": "已請求恢復系統控制"
+  },
+  {
+    "source": "控制租约超时或时钟回退",
+    "en": "Control lease expired or clock moved backward",
+    "zh-Hant": "控制租約超時或時鐘回退"
+  },
+  {
+    "source": "风扇能力集合发生变化",
+    "en": "Fan capabilities changed",
+    "zh-Hant": "風扇能力集合發生變化"
+  },
+  {
+    "source": "控制单调时钟无效或回退",
+    "en": "Monotonic control clock is invalid or moved backward",
+    "zh-Hant": "控制單調時鐘無效或回退"
+  },
+  {
+    "source": "设备操作期间控制租约已超时",
+    "en": "Control lease expired during device operation",
+    "zh-Hant": "裝置操作期間控制租約已超時"
+  },
+  {
+    "source": "设备没有有效的可控制风扇",
+    "en": "No valid controllable fans found",
+    "zh-Hant": "裝置沒有有效的可控制風扇"
+  },
+  {
+    "source": "已接管风扇不在当前能力集合中",
+    "en": "Controlled fan is missing from current capabilities",
+    "zh-Hant": "已接管風扇不在目前能力集合中"
+  },
+  {
+    "source": "目标转速超出设备范围",
+    "en": "Target speed exceeds the device range",
+    "zh-Hant": "目標轉速超出裝置範圍"
+  },
+  {
+    "source": "独立目标必须覆盖全部风扇且不能重复",
+    "en": "Individual targets must cover every fan without duplicates",
+    "zh-Hant": "獨立目標必須覆蓋全部風扇且不能重復"
+  },
+  {
+    "source": "独立目标转速超出设备范围",
+    "en": "Individual target speed exceeds the device range",
+    "zh-Hant": "獨立目標轉速超出裝置範圍"
+  },
+  {
+    "source": "两点温控参数无效",
+    "en": "Invalid two-point temperature rule",
+    "zh-Hant": "兩點溫控參數無效"
+  },
+  {
+    "source": "温度采样已过期",
+    "en": "Temperature sample expired",
+    "zh-Hant": "溫度採樣已過期"
+  },
+  {
+    "source": "温控传感器不可用",
+    "en": "Temperature sensor unavailable",
+    "zh-Hant": "溫控感測器不可用"
+  },
+  {
+    "source": "风扇 {0} 未确认目标转速",
+    "en": "Fan {0} target speed unconfirmed",
+    "zh-Hant": "風扇 {0} 未確認目標轉速"
+  },
+  {
+    "source": "风扇 {0}：{1}",
+    "en": "Fan {0}: {1}",
+    "zh-Hant": "風扇 {0}：{1}"
+  },
+  {
+    "source": "恢复回读失败：{0}",
+    "en": "Recovery readback failed: {0}",
+    "zh-Hant": "恢復回讀失敗：{0}"
+  },
+  {
+    "source": "系统控制尚未确认，等待重试",
+    "en": "System control unconfirmed; waiting to retry",
+    "zh-Hant": "系統控制尚未確認，等待重試"
+  },
+  {
+    "source": "Ermi 和维持其运行的进程不能在这里结束。",
+    "en": "Ermi and processes required to run it cannot be quit here.",
+    "zh-Hant": "Ermi 和維持其運行的程序不能在這裡結束。"
+  },
+  {
+    "source": "进程已退出或身份发生变化，请刷新后重试。",
+    "en": "Process exited or its identity changed. Refresh and retry.",
+    "zh-Hant": "程序已退出或身份發生變化，請重新整理後重試。"
+  },
+  {
+    "source": "无法核实进程保护范围，请稍后重试。",
+    "en": "Unable to verify protected processes. Try again later.",
+    "zh-Hant": "無法覈實程序保護範圍，請稍後重試。"
+  },
+  {
+    "source": "系统拒绝结束进程（错误 {0}）。",
+    "en": "System refused to quit the process (error {0}).",
+    "zh-Hant": "系統拒絕結束程序（錯誤 {0}）。"
+  },
+  {
+    "source": "本机授权格式或证书无效，请重新安装。",
+    "en": "Invalid local authorization format or certificate. Reinstall.",
+    "zh-Hant": "本機授權格式或證書無效，請重新安裝。"
+  },
+  {
+    "source": "本机授权文件无效，请重新安装。",
+    "en": "Invalid local authorization file. Reinstall.",
+    "zh-Hant": "本機授權檔案無效，請重新安裝。"
+  },
+  {
+    "source": "当前 Ermi 与本机授权不匹配。签名身份或用户发生变化后，请更新本机授权并重启 Ermi。",
+    "en": "This Ermi does not match local authorization. After changing signing identity or user, update authorization and restart Ermi.",
+    "zh-Hant": "目前 Ermi 與本機授權不匹配。簽名身份或使用者發生變化後，請更新本機授權並重啓 Ermi。"
+  },
+  {
+    "source": "控制服务与本机授权不匹配，拒绝启动。",
+    "en": "Control service does not match local authorization; refusing to start.",
+    "zh-Hant": "控制服務與本機授權不匹配，拒絕啓動。"
+  },
+  {
+    "source": "不能读取本机授权，请先安装本机控制服务。",
+    "en": "Cannot read local authorization. Install the local control service first.",
+    "zh-Hant": "不能讀取本機授權，請先安裝本機控制服務。"
+  },
+  {
+    "source": "本机授权文件的权限或大小不安全。",
+    "en": "Local authorization file permissions or size are unsafe.",
+    "zh-Hant": "本機授權檔案的權限或大小不安全。"
+  },
+  {
+    "source": "本机授权文件未完整读取。",
+    "en": "Local authorization file was not read completely.",
+    "zh-Hant": "本機授權檔案未完整讀取。"
+  },
+  {
+    "source": "授权目录必须由管理员保护，且不能是符号链接：{0}",
+    "en": "Authorization directory must be administrator-protected and not a symbolic link: {0}",
+    "zh-Hant": "授權目錄必須由管理員保護，且不能是符號連結：{0}"
+  },
+  {
+    "source": "代码签名校验失败：{0}",
+    "en": "Code signature verification failed: {0}",
+    "zh-Hant": "代碼簽名校驗失敗：{0}"
+  },
+  {
+    "source": "无法读取代码签名指纹。",
+    "en": "Unable to read code signature fingerprint.",
+    "zh-Hant": "無法讀取代碼簽名指紋。"
+  },
+  {
+    "source": "代码身份规则无效。",
+    "en": "Invalid code identity requirement.",
+    "zh-Hant": "代碼身份規則無效。"
+  },
+  {
+    "source": "预设文件无效，原文件已保留。请先备份并修复后再保存。",
+    "en": "Invalid preset file; the original is retained. Back it up and repair it before saving.",
+    "zh-Hant": "預設檔案無效，原檔案已保留。請先備份並修復後再儲存。"
+  },
+  {
+    "source": "已有同名方案，请使用其他名称；原方案未被覆盖。",
+    "en": "A preset with this name already exists. Choose another name; the original was not overwritten.",
+    "zh-Hant": "已有同名方案，請使用其他名稱；原方案未被覆蓋。"
+  },
+  {
+    "source": "启动磁盘",
+    "en": "Startup Disk",
+    "zh-Hant": "啓動磁碟"
+  },
+  {
+    "source": "当前M1 Max配置要求两只可验证风扇",
+    "en": "This M1 Max configuration requires two verifiable fans",
+    "zh-Hant": "目前M1 Max配置要求兩只可驗證風扇"
+  },
+  {
+    "source": "风扇硬件转速范围无效",
+    "en": "Invalid hardware fan speed range",
+    "zh-Hant": "風扇硬體轉速範圍無效"
+  },
+  {
+    "source": "实测RPM无效",
+    "en": "Invalid measured RPM",
+    "zh-Hant": "實測RPM無效"
+  },
+  {
+    "source": "目标RPM超出本机硬件范围",
+    "en": "Target RPM exceeds this device's range",
+    "zh-Hant": "目標RPM超出本機硬體範圍"
+  },
+  {
+    "source": "风扇已被其他控制器接管",
+    "en": "Fans are controlled by another controller",
+    "zh-Hant": "風扇已被其他控制器接管"
+  },
+  {
+    "source": "Ftst已被其他控制器启用",
+    "en": "Ftst is enabled by another controller",
+    "zh-Hant": "Ftst已被其他控制器啓用"
+  },
+  {
+    "source": "Ftst状态无效",
+    "en": "Invalid Ftst state",
+    "zh-Hant": "Ftst狀態無效"
+  },
+  {
+    "source": "直接接管失败：{0}；设备没有可验证的 Ftst 解锁键",
+    "en": "Direct control failed: {0}; device has no verifiable Ftst unlock key",
+    "zh-Hant": "直接接管失敗：{0}；裝置沒有可驗證的 Ftst 解鎖鍵"
+  },
+  {
+    "source": "手动模式未确认",
+    "en": "Manual mode unconfirmed",
+    "zh-Hant": "手動模式未確認"
+  },
+  {
+    "source": "全局风扇控制尚未释放",
+    "en": "Global fan control has not been released",
+    "zh-Hant": "全局風扇控制尚未釋放"
+  },
+  {
+    "source": "风扇编号无效",
+    "en": "Invalid fan index",
+    "zh-Hant": "風扇編號無效"
+  },
+  {
+    "source": "未知SMC风扇模式",
+    "en": "Unknown SMC fan mode",
+    "zh-Hant": "未知SMC風扇模式"
+  },
+  {
+    "source": "{0}模式未确认：{1} 写入={2}，回读={3}，等待450ms后仍未生效",
+    "en": "{0} mode unconfirmed: {1} wrote={2}, read={3}; unchanged after 450 ms",
+    "zh-Hant": "{0}模式未確認：{1} 寫入={2}，回讀={3}，等待450ms後仍未生效"
+  },
+  {
+    "source": "目标确认期间手动模式丢失：{0} 回读={1}",
+    "en": "Manual mode lost while confirming target: {0} read={1}",
+    "zh-Hant": "目標確認期間手動模式丟失：{0} 回讀={1}"
+  },
+  {
+    "source": "目标RPM回读不一致：{0} 写入={1}，回读={2}，等待450ms后仍未生效",
+    "en": "Target RPM mismatch: {0} wrote={1}, read={2}; unchanged after 450 ms",
+    "zh-Hant": "目標RPM回讀不一致：{0} 寫入={1}，回讀={2}，等待450ms後仍未生效"
+  },
+  {
+    "source": "{0}类型或长度不受支持",
+    "en": "Unsupported type or length for {0}",
+    "zh-Hant": "{0}類型或長度不受支持"
+  },
+  {
+    "source": "{0}转速格式无效",
+    "en": "Invalid speed format for {0}",
+    "zh-Hant": "{0}轉速格式無效"
+  },
+  {
+    "source": "fpe2转速超出编码范围",
+    "en": "fpe2 speed exceeds encoding range",
+    "zh-Hant": "fpe2轉速超出編碼範圍"
+  },
+  {
+    "source": "写入失败",
+    "en": "Write failed",
+    "zh-Hant": "寫入失敗"
+  },
+  {
+    "source": "风扇写入需要已授权的root辅助服务",
+    "en": "Fan writes require an authorized root helper service",
+    "zh-Hant": "風扇寫入需要已授權的root輔助服務"
+  },
+  {
+    "source": "尚未验证该机型的风扇写入协议",
+    "en": "Fan write protocol has not been verified for this model",
+    "zh-Hant": "尚未驗證該機型的風扇寫入協議"
+  },
+  {
+    "source": "不能读取恢复日志",
+    "en": "Cannot read recovery journal",
+    "zh-Hant": "不能讀取恢復記錄"
+  },
+  {
+    "source": "恢复日志权限或大小无效",
+    "en": "Invalid recovery journal permissions or size",
+    "zh-Hant": "恢復記錄權限或大小無效"
+  },
+  {
+    "source": "恢复日志读取不完整",
+    "en": "Recovery journal read is incomplete",
+    "zh-Hant": "恢復記錄讀取不完整"
+  },
+  {
+    "source": "恢复日志内容无效",
+    "en": "Invalid recovery journal contents",
+    "zh-Hant": "恢復記錄內容無效"
+  },
+  {
+    "source": "不能创建恢复日志目录",
+    "en": "Cannot create recovery journal directory",
+    "zh-Hant": "不能創建恢復記錄目錄"
+  },
+  {
+    "source": "恢复日志目录必须由root独占",
+    "en": "Recovery journal directory must be exclusive to root",
+    "zh-Hant": "恢復記錄目錄必須由root獨佔"
+  },
+  {
+    "source": "不能写入恢复日志",
+    "en": "Cannot write recovery journal",
+    "zh-Hant": "不能寫入恢復記錄"
+  },
+  {
+    "source": "恢复日志未能持久化",
+    "en": "Recovery journal could not be persisted",
+    "zh-Hant": "恢復記錄未能持久化"
+  },
+  {
+    "source": "不能同步恢复日志目录",
+    "en": "Cannot sync recovery journal directory",
+    "zh-Hant": "不能同步恢復記錄目錄"
+  },
+  {
+    "source": "恢复日志目录未能持久化",
+    "en": "Recovery journal directory could not be persisted",
+    "zh-Hant": "恢復記錄目錄未能持久化"
+  },
+  {
+    "source": "安装源不是有效的 Ermi App 与风扇服务。",
+    "en": "Installation source is not a valid Ermi app and fan service.",
+    "zh-Hant": "安裝源不是有效的 Ermi App 與風扇服務。"
+  },
+  {
+    "source": "App 与风扇服务必须使用同一本机专用证书签名。",
+    "en": "App and fan service must be signed with the same dedicated local certificate.",
+    "zh-Hant": "App 與風扇服務必須使用同一本機專用證書簽名。"
+  },
+  {
+    "source": "请从你的用户会话通过 sudo 安装，不能使用不明用户身份。",
+    "en": "Install using sudo from your user session; unknown user identities are not allowed.",
+    "zh-Hant": "請從你的使用者會話通過 sudo 安裝，不能使用不明使用者身份。"
+  },
+  {
+    "source": "安装器已变化，请重新打开安装入口。",
+    "en": "Installer changed. Reopen the installation entry point.",
+    "zh-Hant": "安裝器已變化，請重新開啟安裝入口。"
+  },
+  {
+    "source": "正式版风扇服务正在运行，请先停用正式版服务。",
+    "en": "Release fan service is running. Disable it first.",
+    "zh-Hant": "正式版風扇服務正在運行，請先停用正式版服務。"
+  },
+  {
+    "source": "检测到不完整的旧安装，请先使用卸载入口清理。",
+    "en": "Incomplete previous installation found. Uninstall it first.",
+    "zh-Hant": "檢測到不完整的舊安裝，請先使用解除安裝入口清理。"
+  },
+  {
+    "source": "授权期间构建已改变，请重新运行安装器。",
+    "en": "Build changed during authorization. Run the installer again.",
+    "zh-Hant": "授權期間構建已改變，請重新運行安裝器。"
+  },
+  {
+    "source": "控制服务必须为普通可执行文件。",
+    "en": "Control service must be a regular executable file.",
+    "zh-Hant": "控制服務必須為普通可執行檔案。"
+  },
+  {
+    "source": "无法清除控制服务的额外文件权限。",
+    "en": "Unable to remove extra file permissions from the control service.",
+    "zh-Hant": "無法清除控制服務的額外檔案權限。"
+  },
+  {
+    "source": "暂存控制服务校验失败。",
+    "en": "Staged control service verification failed.",
+    "zh-Hant": "暫存控制服務校驗失敗。"
+  },
+  {
+    "source": "本机控制服务已安装。返回 Ermi 点击“连接本机服务”；安装未应用任何预设。",
+    "en": "Local control service installed. Return to Ermi and connect to the local service; no preset was applied.",
+    "zh-Hant": "本機控制服務已安裝。返回 Ermi 點擊“連接本機服務”；安裝未應用任何預設。"
+  },
+  {
+    "source": "旧服务配置的文件归属或权限异常。",
+    "en": "Previous service configuration has invalid ownership or permissions.",
+    "zh-Hant": "舊服務配置的檔案歸屬或權限異常。"
+  },
+  {
+    "source": "无法检查旧服务配置。",
+    "en": "Unable to inspect the previous service configuration.",
+    "zh-Hant": "無法檢查舊服務配置。"
+  },
+  {
+    "source": "本机控制服务已卸载，风扇预设保留。",
+    "en": "Local control service uninstalled. Fan presets retained.",
+    "zh-Hant": "本機控制服務已解除安裝，風扇預設保留。"
+  },
+  {
+    "source": "无法确认风扇恢复日志。",
+    "en": "Unable to verify the fan recovery journal.",
+    "zh-Hant": "無法確認風扇恢復記錄。"
+  },
+  {
+    "source": "风扇恢复日志权限无效。",
+    "en": "Invalid fan recovery journal permissions.",
+    "zh-Hant": "風扇恢復記錄權限無效。"
+  },
+  {
+    "source": "风扇尚未恢复系统控制，已保留原服务。请先在 Ermi 中恢复系统自动后再安装或卸载。",
+    "en": "System fan control has not been restored. Original service retained. Restore system control in Ermi before installing or uninstalling.",
+    "zh-Hant": "風扇尚未恢復系統控制，已保留原服務。請先在 Ermi 中恢復系統自動後再安裝或解除安裝。"
+  },
+  {
+    "source": "需要管理员授权，请使用本机安装入口或 sudo。",
+    "en": "Administrator authorization required. Use the local installer or sudo.",
+    "zh-Hant": "需要管理員授權，請使用本機安裝入口或 sudo。"
+  },
+  {
+    "source": "无法创建安装锁。",
+    "en": "Unable to create installation lock.",
+    "zh-Hant": "無法創建安裝鎖。"
+  },
+  {
+    "source": "已有安装任务运行，或安装锁权限无效。",
+    "en": "Another installation is running, or lock permissions are invalid.",
+    "zh-Hant": "已有安裝任務運行，或安裝鎖權限無效。"
+  },
+  {
+    "source": "launchctl {0} 失败：{1}",
+    "en": "launchctl {0} failed: {1}",
+    "zh-Hant": "launchctl {0} 失敗：{1}"
+  },
+  {
+    "source": "连接已关闭或服务正在退出",
+    "en": "Connection closed or service exiting",
+    "zh-Hant": "連接已關閉或服務正在退出"
+  },
+  {
+    "source": "另一个 Ermi 连接正在控制风扇",
+    "en": "Another Ermi connection is controlling the fans",
+    "zh-Hant": "另一個 Ermi 連接正在控制風扇"
+  },
+  {
+    "source": "正在恢复系统控制，请恢复完成后重新选择模式",
+    "en": "Restoring system control. Select a mode after recovery completes",
+    "zh-Hant": "正在恢復系統控制，請恢復完成後重新選擇模式"
+  },
+  {
+    "source": "控制状态已变化，请重新选择模式",
+    "en": "Control state changed. Select the mode again",
+    "zh-Hant": "控制狀態已變化，請重新選擇模式"
+  },
+  {
+    "source": "正在处理上一条控制请求",
+    "en": "Processing the previous control request",
+    "zh-Hant": "正在處理上一條控制請求"
+  },
+  {
+    "source": "无效控制请求",
+    "en": "Invalid control request",
+    "zh-Hant": "無效控制請求"
+  },
+  {
+    "source": "安装用户身份无效。",
+    "en": "Invalid installation user identity.",
+    "zh-Hant": "安裝使用者身份無效。"
+  },
+  {
+    "source": "本机安装参数无效。",
+    "en": "Invalid local installation arguments.",
+    "zh-Hant": "本機安裝參數無效。"
+  },
+  {
+    "source": "风扇控制服务需要 root 权限。",
+    "en": "Fan control service requires root privileges.",
+    "zh-Hant": "風扇控制服務需要 root 權限。"
+  },
+  {
+    "source": "正式控制服务需要 TeamID 签名，且不能与本机模式同时运行。",
+    "en": "Release control service requires TeamID signing and cannot run alongside local mode.",
+    "zh-Hant": "正式控制服務需要 TeamID 簽名，且不能與本機模式同時運行。"
+  },
+  {
+    "source": "语言",
+    "en": "Language",
+    "zh-Hant": "語言"
+  },
+  {
+    "source": "跟随系统",
+    "en": "Follow System",
+    "zh-Hant": "跟隨系統"
+  },
+  {
+    "source": "简体中文",
+    "en": "简体中文",
+    "zh-Hant": "简体中文"
+  },
+  {
+    "source": "繁體中文",
+    "en": "繁體中文",
+    "zh-Hant": "繁體中文"
+  },
+  {
+    "source": "English",
+    "en": "English",
+    "zh-Hant": "English"
+  },
+  {
+    "source": "界面语言",
+    "en": "Interface Language",
+    "zh-Hant": "介面語言"
+  },
+  {
+    "source": "语言切换立即生效并自动保存。",
+    "en": "Language changes apply instantly and save automatically.",
+    "zh-Hant": "語言切換立即生效並自動儲存。"
+  },
+  {
+    "source": "未提供翻译时显示原文。",
+    "en": "Untranslated text is shown in its original language.",
+    "zh-Hant": "未提供翻譯時顯示原文。"
+  },
+  {
+    "source": "手动",
+    "en": "Manual",
+    "zh-Hant": "手動"
+  },
+  {
+    "source": "最高",
+    "en": "Highest",
+    "zh-Hant": "最高"
+  },
+  {
+    "source": "CPU 核心平均 {0}°C · {1} 个可用传感器\nAppleSMC: {2}",
+    "en": "CPU core average {0}°C · {1} available sensors\nAppleSMC: {2}",
+    "zh-Hant": "CPU 核心平均 {0}°C · {1} 個可用感測器\nAppleSMC: {2}"
+  },
+  {
+    "source": "共 {0} GB · 已用 {1}%",
+    "en": "Total {0} GB · {1}% used",
+    "zh-Hant": "共 {0} GB · 已用 {1}%"
+  },
+  {
+    "source": "Ermi · CPU 核心平均温度 {0}°C",
+    "en": "Ermi · CPU core average {0}°C",
+    "zh-Hant": "Ermi · CPU 核心平均溫度 {0}°C"
+  },
+  {
+    "source": "已确认目标转速 · 日常均衡",
+    "en": "Target speed confirmed · Daily Balance",
+    "zh-Hant": "已確認目標轉速 · 日常均衡"
+  },
+  {
+    "source": "已确认目标转速 · 积极散热",
+    "en": "Target speed confirmed · Active Cooling",
+    "zh-Hant": "已確認目標轉速 · 積極散熱"
+  },
+  {
+    "source": "已确认目标转速 · 固定转速",
+    "en": "Target speed confirmed · Fixed Speed",
+    "zh-Hant": "已確認目標轉速 · 固定轉速"
+  },
+  {
+    "source": "需要设备控制和数据访问权限",
+    "en": "Device Control & Data Access permission required",
+    "zh-Hant": "需要裝置控制和資料存取權限"
+  },
+  {
+    "source": "Ermi 尚未获得设备控制和数据访问权限。系统中已允许时，请退出并重新打开当前 Ermi。",
+    "en": "Ermi lacks Device Control & Data Access permission. If already allowed in System Settings, quit and reopen this Ermi build.",
+    "zh-Hant": "Ermi 尚未獲得裝置控制和資料存取權限。系統中已允許時，請退出並重新開啟目前 Ermi。"
+  },
+  {
+    "source": "在系统设置 → 隐私与安全性 → 设备控制和数据访问中允许 Ermi，返回后自动刷新。",
+    "en": "Allow Ermi in System Settings → Privacy & Security → Device Control & Data Access. Icons refresh when you return.",
+    "zh-Hant": "在系統設定 → 隱私權與安全性 → 裝置控制和資料存取中允許 Ermi，返回後自動重新整理。"
+  },
+  {
+    "source": "需要辅助功能权限",
+    "en": "Accessibility permission required",
+    "zh-Hant": "需要輔助使用權限"
+  },
+  {
+    "source": "Ermi 尚未获得辅助功能权限。系统中已允许时，请退出并重新打开当前 Ermi。",
+    "en": "Ermi lacks Accessibility permission. If already allowed in System Settings, quit and reopen this Ermi build.",
+    "zh-Hant": "Ermi 尚未獲得輔助使用權限。系統中已允許時，請退出並重新開啟目前 Ermi。"
+  },
+  {
+    "source": "在系统设置 → 隐私与安全性 → 辅助功能中允许 Ermi，返回后自动刷新。",
+    "en": "Allow Ermi in System Settings → Privacy & Security → Accessibility. Icons refresh when you return.",
+    "zh-Hant": "在系統設定 → 隱私權與安全性 → 輔助使用中允許 Ermi，返回後自動重新整理。"
+  },
+  {
+    "source": "运行 {0} 天 · CPU：单核 100%",
+    "en": "Up {0} days · CPU: 100% per core",
+    "zh-Hant": "已運行 {0} 天 · CPU：單核心 100%"
+  },
+  {
+    "source": "运行 {0} 小时 · CPU：单核 100%",
+    "en": "Up {0} hours · CPU: 100% per core",
+    "zh-Hant": "已運行 {0} 小時 · CPU：單核心 100%"
+  },
+  {
+    "source": "运行 {0} 分钟 · CPU：单核 100%",
+    "en": "Up {0} minutes · CPU: 100% per core",
+    "zh-Hant": "已運行 {0} 分鐘 · CPU：單核心 100%"
+  },
+  {
+    "source": "运行时间未知 · CPU：单核 100%",
+    "en": "Uptime unknown · CPU: 100% per core",
+    "zh-Hant": "運行時間未知 · CPU：單核心 100%"
+  },
+  {
+    "source": "风扇 {0}目标",
+    "en": "Fan {0} Target",
+    "zh-Hant": "風扇 {0} 目標"
+  },
+  {
+    "source": "风扇 {0} 允许 {1}–{2} RPM。",
+    "en": "Fan {0} allows {1}–{2} RPM.",
+    "zh-Hant": "風扇 {0} 允許 {1}–{2} RPM。"
+  },
+  {
+    "source": "根据当前负载选择散热方式。",
+    "en": "Choose cooling behavior for your current workload.",
+    "zh-Hant": "根據目前負載選擇散熱方式。"
+  },
+  {
+    "source": "风扇服务已连接",
+    "en": "Fan Service Connected",
+    "zh-Hant": "風扇服務已連線"
+  },
+  {
+    "source": "风扇服务未连接",
+    "en": "Fan Service Disconnected",
+    "zh-Hant": "風扇服務未連線"
+  },
+  {
+    "source": "当前转速",
+    "en": "Current Speed",
+    "zh-Hant": "目前轉速"
+  },
+  {
+    "source": "两个风扇使用相同目标值。",
+    "en": "Both fans use the same target speed.",
+    "zh-Hant": "兩個風扇使用相同目標值。"
+  },
+  {
+    "source": "由 macOS 管理",
+    "en": "Managed by macOS",
+    "zh-Hant": "由 macOS 管理"
+  },
+  {
+    "source": "系统根据温度与负载自动调整风扇转速。",
+    "en": "macOS adjusts fan speed based on temperature and workload.",
+    "zh-Hant": "系統根據溫度與負載自動調整風扇轉速。"
+  },
+  {
+    "source": "按温度曲线或固定转速，保存适合你的散热设置。",
+    "en": "Save a temperature curve or fixed speed that suits your needs.",
+    "zh-Hant": "依溫度曲線或固定轉速，儲存適合你的散熱設定。"
+  },
+  {
+    "source": "排序",
+    "en": "Sort",
+    "zh-Hant": "排序"
+  },
+  {
+    "source": "按 CPU 排序",
+    "en": "Sort by CPU",
+    "zh-Hant": "依 CPU 排序"
+  },
+  {
+    "source": "按内存排序",
+    "en": "Sort by Memory",
+    "zh-Hant": "依記憶體排序"
+  },
+  {
+    "source": "图标分组",
+    "en": "Icon Groups",
+    "zh-Hant": "圖示分組"
+  },
+  {
+    "source": "让常用图标留在菜单栏，其余图标按需展开。",
+    "en": "Keep frequent icons visible and reveal the rest when needed.",
+    "zh-Hant": "讓常用圖示留在選單列，其餘圖示按需展開。"
+  },
+  {
+    "source": "间距与行为",
+    "en": "Spacing & Behavior",
+    "zh-Hant": "間距與行為"
+  },
+  {
+    "source": "系统图标与 Ermi 始终保留",
+    "en": "System icons and Ermi always stay visible.",
+    "zh-Hant": "系統圖示與 Ermi 始終保留"
+  },
+  {
+    "source": "临时展开后，按设定时间重新收纳图标。",
+    "en": "Collapse icons after the selected delay when temporarily expanded.",
+    "zh-Hant": "暫時展開後，依設定時間重新收納圖示。"
+  },
+  {
+    "source": "展开栏",
+    "en": "Expanded Tray",
+    "zh-Hant": "展開列"
+  },
+  {
+    "source": "通过独立窗口访问已收起的菜单栏项目。",
+    "en": "Access collapsed menu bar items in a separate window.",
+    "zh-Hant": "透過獨立視窗存取已收起的選單列項目。"
+  },
+  {
+    "source": "调整系统菜单栏图标之间的距离。",
+    "en": "Adjust spacing between system menu bar icons.",
+    "zh-Hant": "調整系統選單列圖示之間的距離。"
+  },
+  {
+    "source": "调整每个图标两侧的点击区域。",
+    "en": "Adjust the clickable padding on each side of an icon.",
+    "zh-Hant": "調整每個圖示兩側的點擊區域。"
+  },
+  {
+    "source": "通用与外观",
+    "en": "General & Appearance",
+    "zh-Hant": "一般與外觀"
+  },
+  {
+    "source": "权限与服务",
+    "en": "Permissions & Services",
+    "zh-Hant": "權限與服務"
+  },
+  {
+    "source": "关于",
+    "en": "About",
+    "zh-Hant": "關於"
+  },
+  {
+    "source": "按你的习惯调整 Ermi。更改即时生效并自动保存，主题同步应用到所有界面。",
+    "en": "Make Ermi your own. Changes are saved automatically and themes apply across all views.",
+    "zh-Hant": "按你的習慣調整 Ermi。更改即時生效並自動儲存，主題同步套用到所有介面。"
+  },
+  {
+    "source": "管理图标整理权限与风扇服务。系统授权仍由 macOS 确认。",
+    "en": "Manage menu bar permissions and the fan service. macOS handles system authorization.",
+    "zh-Hant": "管理圖示整理權限與風扇服務。系統授權仍由 macOS 確認。"
+  },
+  {
+    "source": "通过辅助功能读取并整理菜单栏图标",
+    "en": "Read and organize menu bar icons using Accessibility.",
+    "zh-Hant": "透過輔助使用讀取並整理選單列圖示"
+  },
+  {
+    "source": "管理权限…",
+    "en": "Manage Permissions…",
+    "zh-Hant": "管理權限…"
+  },
+  {
+    "source": "登录项与后台服务",
+    "en": "Login Items & Background Services",
+    "zh-Hant": "登入項目與背景服務"
+  },
+  {
+    "source": "查看系统允许的登录项与后台活动",
+    "en": "Review allowed login items and background activity.",
+    "zh-Hant": "查看系統允許的登入項目與背景活動"
+  },
+  {
+    "source": "打开系统设置…",
+    "en": "Open System Settings…",
+    "zh-Hant": "開啟系統設定…"
+  },
+  {
+    "source": "提供风扇调节所需的后台控制能力",
+    "en": "Provides background control for fan adjustments.",
+    "zh-Hant": "提供風扇調節所需的背景控制能力"
+  },
+  {
+    "source": "服务管理",
+    "en": "Service Management",
+    "zh-Hant": "服務管理"
+  },
+  {
+    "source": "Ermi · 轻量的 Mac 状态与风扇管理工具",
+    "en": "Ermi · Lightweight Mac monitoring and fan control",
+    "zh-Hant": "Ermi · 輕巧的 Mac 狀態與風扇管理工具"
+  },
+  {
+    "source": "统一菜单栏面板、详情页与弹层的颜色",
+    "en": "Match colors across the menu panel, detail pages, and dialogs.",
+    "zh-Hant": "統一選單列面板、詳細頁面與彈出視窗的顏色"
+  },
+  {
+    "source": "主题预览",
+    "en": "Theme Preview",
+    "zh-Hant": "主題預覽"
+  },
+  {
+    "source": "背景与强调色的实际搭配",
+    "en": "Preview the background and accent together.",
+    "zh-Hant": "背景與強調色的實際搭配"
+  },
+  {
+    "source": "恢复默认",
+    "en": "Restore Default",
+    "zh-Hant": "回復預設"
+  },
+  {
+    "source": "保留",
+    "en": "Keep Visible",
+    "zh-Hant": "保留"
+  },
+  {
+    "source": "菜单栏显示温度",
+    "en": "Show temperature in menu bar",
+    "zh-Hant": "選單列顯示溫度"
+  },
+  {
+    "source": "关闭后仅显示白鼬图标，不影响温度监测与风扇控制。",
+    "en": "When off, only the Ermi icon is shown. Temperature monitoring and fan control are unaffected.",
+    "zh-Hant": "關閉後僅顯示白鼬圖示，不影響溫度監測與風扇控制。"
+  }
+]

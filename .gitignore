@@ -1,0 +1,26 @@
+# Swift 构建缓存与本机生成的安装包、截图、录屏。
+/.build/
+/output/
+
+# 浏览器自动化产生的本地调试记录。
+/.playwright-cli/
+/.playwright-mcp/
+
+# AI 会话上下文与设计探索稿，不属于应用源码。
+/CONTEXT.md
+/docs/design/
+
+# macOS 与编辑器的个人状态。
+.DS_Store
+xcuserdata/
+*.xcuserstate
+
+# 本地环境变量和签名私钥不进入公开仓库。
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.key
+
+sites/

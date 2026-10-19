@@ -1,65 +1,95 @@
-# Ermi
+<h1 align="center">Ermi</h1>
+<p align="center">Your Mac’s vitals, cooling, and menu bar — in one native app.</p>
+<p align="center">
+  <a href="https://github.com/lay215/Ermi/releases"><img src="https://img.shields.io/badge/download-Releases-blue" alt="Download releases"></a>
+  <img src="https://img.shields.io/badge/macOS-14%2B-black" alt="macOS 14 or later">
+  <img src="https://img.shields.io/badge/architecture-Apple%20Silicon-orange" alt="Apple Silicon">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
+</p>
+<p align="center">English · <a href="README.zh-CN.md">简体中文</a></p>
 
-开源的原生 macOS 菜单栏工具，使用 SwiftUI + AppKit，提供系统监控、风扇调节与图标整理。当前以本机 M1 Max 验证，开发基线 macOS 14；其他机型与系统版本仍需验证。
+Ermi is an open-source macOS menu bar app for system monitoring, fan control, and menu bar organization. Built with SwiftUI and AppKit, it keeps useful controls close without taking over your desktop.
 
-## 构建与运行
+## Preview
 
-需要 Xcode / Swift 6：
+<p align="center"><img src="docs/images/monitor.png" width="640" alt="Ermi system monitor"></p>
+
+| Fan control | Menu bar organization |
+| --- | --- |
+| ![Fan control](docs/images/fan.png) | ![Menu bar organization](docs/images/icons.png) |
+
+Screenshots show the running app; displayed readings are illustrative snapshots, not live data.
+
+## Features
+
+- **System monitoring** — CPU and memory usage, recent trends, memory pressure, disk space, battery, network traffic, uptime, and processes.
+- **Temperature and fans** — CPU/GPU temperatures and fan RPM on supported hardware; unavailable readings are shown explicitly.
+- **Cooling controls** — system-managed cooling, fixed RPM, two-point temperature control, and built-in or custom presets. Restore the last successfully applied configuration on launch or wake.
+- **A tidier menu bar** — keep or collapse icons, expand them temporarily, and access supported entries through a separate tray.
+- **Make it yours** — six built-in color themes, custom colors, English, Simplified Chinese, and Traditional Chinese.
+- **Native conveniences** — optional launch at login, reduced motion, and keyboard shortcuts for the four detail pages.
+
+## Download & install
+
+**[Get Ermi from GitHub Releases →](https://github.com/lay215/Ermi/releases)**
+
+| Platform | Package | Status |
+| --- | --- | --- |
+| macOS 14+, Apple Silicon | `Ermi-0.1.0-arm64-preview.dmg` | Preview; primarily validated on M1 Max |
+| Intel Mac | — | No binary provided |
+
+1. Open the release page and read its compatibility notes.
+2. Download the `.dmg`, open it, and drag **Ermi.app** into **Applications**.
+3. Launch Ermi and click the ermine icon in the menu bar.
+
+This preview uses a local signing identity and is **not notarized by Apple**. macOS may block the first launch. If you trust the download, use the system’s **Privacy & Security → Open Anyway** option when available. Do not disable Gatekeeper globally.
+
+For fan control, choose **Install / Update Authorization** on the fan page and complete the macOS administrator prompt. Installation establishes authorization; it does not apply a fan preset. Menu bar organization requires separate system permissions, as prompted by macOS.
+
+Each DMG includes a `.sha256` companion file. In the download directory, verify it with:
 
 ```sh
+shasum -a 256 -c Ermi-0.1.0-arm64-preview.dmg.sha256
+```
+
+## Build from source
+
+Requires an Apple Silicon Mac, macOS 14+, Xcode with Swift 6, Python 3, and OpenSSL for local signing setup.
+
+```sh
+git clone https://github.com/lay215/Ermi.git
+cd Ermi
+python3 scripts/setup-local-signing.py
 scripts/build-app.sh
 open output/native/Ermi.app
 ```
 
-点击菜单栏白鼬打开 340×480 pt 浮层，详情为 600×430 pt 的系统概览、风扇调节、图标整理三页，支持 ⌘1/2/3。App、菜单栏、面板沿用已选抬头白鼬图标。进程和图标整理显示真实 App 图标，未知应用使用通用图标。
-
-详情右上角齿轮打开设置：登录启动、减少页面切换动态效果、权限入口与版本信息。Tab 选中背景平滑移动、内容轻微位移淡入淡出，切换保留各页滚动和筛选状态；遵循系统减少动态效果设置。登录启动仅在用户明确打开开关时注册，以 macOS 返回状态为准。
-
-## 当前功能
-
-- CPU 差分使用率、内存占用、最近60秒趋势，2秒前台/5秒后台采样。
-- M1 Max 已验证映射的 CPU/GPU 温度和真实风扇 RPM；失败显示未知，不沿用过期值。
-- 系统内存压力独立读取，不由使用率推测；内存单位为 GiB。
-- 用户目录所在卷的总量和普通可用空间，十进制 GB，不混用可清除空间估算。
-- 内置电池电量、充电/外接供电状态；无电池与读取失败明确区分。
-- 活动物理 Wi-Fi/以太网接口64位流量差分，排除VPN重复计量；切换接口、计数回退、首帧和休眠长间隔重新建立基线。
-- 系统启动时长、硬件型号；当前用户可读进程 CPU/内存排序及退出/强制退出确认。操作前复核 PID、启动时间、UID，保护自身和祖先。
-- 系统管理、App 两点自动温控、固定 RPM；内置均衡/积极散热方案；自定义方案新建、独立弹层编辑、删除。保存/删除不改变当前运行配置；按 ID 原位更新，同名冲突拒绝覆盖。
-- 图标常驻/收起分组、临时展开、延时收起；独立展开栏展示每个真实 AX 菜单栏入口，点击请求原入口支持的 AXPress/AXShowMenu，不冒充应用启动器。第三方菜单在刘海下的实际响应仍待授权验证。
-
-## 风扇服务
-
-启动和系统睡眠唤醒时默认恢复上次成功应用的风扇配置，无需开关：记录完整固定 RPM、分风扇转速或两点温控参数；服务连接成功并确认处于系统控制后尝试一次。主动切回系统自动会清除恢复记录；正常退出和睡眠时临时交还系统控制不会覆盖记录，唤醒重新连接后尝试恢复一次。保存或编辑预设不改变恢复记录。旧安装尚无记录时保持系统控制，首次成功应用后开始记忆；未授权不自动弹窗，失败不循环重发调速。
-
-无 Developer ID 时，在风扇页服务信息中选择“安装 / 更新授权”，在终端输入 `INSTALL` 与管理员密码，再连接服务。安装仅建立授权，不应用预设。每次重新构建后须更新本机 App/helper 精确签名授权并重启 App；不能自动绕过授权。卸载入口输入 `UNINSTALL`，保留预设。
-
-旧构建已留下固定4000 RPM与恢复系统成功的本机记录；当前构建授权不匹配，不能据旧结果宣称新构建可调速。两点温控、强退、helper 重启、睡眠唤醒真实恢复仍需验收。详见 `docs/architecture/fan-control-validation-2026-10-16.md` 和 `docs/architecture/local-fan-control.md`。
-
-## 图标整理与权限
-
-macOS 27 的实验分支使用运行时 `MenuBarClientCore` 可见性接口；需要系统授予设备控制和数据访问权限（以本机实际提示为准）。只隐藏用户选中且本次发现的 App，系统控件和 Ermi 始终保留。停用、退出、显示器变化、App 启停先恢复显示。macOS 14–26 保留 ⌘ 拖动分隔线方案，尚未在旧系统实机验收。
-
-从图标整理页“打开展开栏”，或按 ⌥ 点击菜单栏收纳箭头打开。展开栏先恢复系统图标，再读取并逐项展示真实入口；没有 AX 操作的入口标为不支持。权限不足、入口失效、超时均明确反馈，不用坐标点击兜底。该能力有实现但还没有第三方菜单完整交互验收。
-
-## 验证与边界
+The setup script creates or reuses a stable local signing identity in your Keychain. Private keys are not included in the repository or app. To use another signing identity, set `ERMI_SIGNING_IDENTITY` when building.
 
 ```sh
 swift test
 output/native/Ermi.app/Contents/MacOS/Ermi --smoke-test
-output/native/Ermi.app/Contents/MacOS/Ermi --fan-service-status
-output/native/Ermi.app/Contents/MacOS/Ermi --capture-preview output/native/preview.png
+scripts/package-dmg.sh
 ```
 
-`--capture-preview` 默认读取本机真实数据；`--design-reference` 才是示例。`--detail-page monitor|presets|icons --include-chrome` 导出600×430 pt详情。测试仅结束自行创建的测试进程，不操作用户进程；风扇写入测试使用模拟设备。
+Build products and local debug captures are ignored by Git. DMGs belong in Releases, not source commits.
 
-2026-10-17 全量69项测试通过（68项 Swift Testing + 1项 XCTest），包含登录启动状态变化、睡眠期间在途风扇请求、图标扫描失效。桌面交互已验证 Tab 点击与快捷键、跨页保留滚动、新建方案取消和设置入口；授权后的图标/风扇验收仍未完成。最新清单见 `docs/architecture/refinement-2026-10-17.md`，此前记录保留在 `docs/architecture/completion-2026-10-16.md`。
+## Compatibility & current limits
 
-睡眠时暂停续租并阻止新的风扇应用，忙碌或恢复未确认时断开连接交由 Helper 恢复；唤醒重新连接后尝试恢复最后成功应用的方案，未确认的在途选择不会重放。此交错行为有模拟测试，真实睡眠/唤醒仍待授权后的硬件验收。
+- Hardware readings and fan control are primarily validated on **M1 Max**. Other models need verification; fanless Macs cannot offer fan control.
+- Menu bar organization depends on macOS behavior and permissions. The macOS 27 path uses experimental private APIs; the macOS 14–26 separator-based path still needs hardware validation.
+- Full third-party menu interaction and real sleep/wake fan recovery still need broader acceptance testing. Passing automated tests does not establish hardware compatibility.
+- No automatic updater, Intel package, or Apple-notarized distribution is currently provided.
 
-默认 ad-hoc 本机签名，可用 `ERMI_SIGNING_IDENTITY` 指定证书；没有 Developer ID 公证发行包。GPU利用率/功耗、电池健康、摄像头/麦克风、防休眠等仍是此前未纳入首版的候选，未凭本次“补齐”扩大范围。私有接口兼容性与其他机型不作未经验证的承诺。
+## Documentation & feedback
 
-用户已于2026-10-17明确自动更新、正式发行暂不做；本轮不新增更新源或发布流程。
+- [Release notes](docs/releases/v0.1.0.md)
+- [Local signing and fan service authorization](docs/architecture/local-signing-and-gui-install-2026-10-17.md)
+- [Fan control validation](docs/architecture/fan-control-validation-2026-10-16.md)
+- [Report a bug or request a feature](https://github.com/lay215/Ermi/issues)
 
-## 开源许可
+When reporting an issue, include your Mac model, macOS version, Ermi version, and steps to reproduce. Contributions are welcome; run the relevant tests and describe any hardware validation performed.
 
-Ermi 采用 [MIT License](LICENSE)。第三方参考内容保留其原有许可与版权声明；Hidden Bar 的 MIT 声明见 [hidden-bar-LICENSE](docs/research/hidden-bar-LICENSE)。
+## License
+
+[MIT](LICENSE). Third-party references retain their original notices, including [Hidden Bar’s MIT license](docs/research/hidden-bar-LICENSE).
