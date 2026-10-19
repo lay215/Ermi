@@ -30,7 +30,7 @@ Ermi 是一款开源的原生 macOS 菜单栏工具，集系统监控、风扇�
 
 | 平台 | 安装包 | 状态 |
 | --- | --- | --- |
-| macOS 14+，Apple Silicon | `Ermi-0.1.0-arm64-preview.dmg` | 预览版，主要在 M1 Max 上验证 |
+| macOS 14+，Apple Silicon | [Ermi-0.1.0-arm64-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.0/Ermi-0.1.0-arm64-preview.dmg) | 预览版，主要在 M1 Max 上验证 |
 | Intel Mac | — | 暂不提供安装包 |
 
 1. 打开 Releases，阅读该版本的兼容性说明。

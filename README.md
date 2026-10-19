@@ -35,7 +35,7 @@ Screenshots show the running app; displayed readings are illustrative snapshots,
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| macOS 14+, Apple Silicon | `Ermi-0.1.0-arm64-preview.dmg` | Preview; primarily validated on M1 Max |
+| macOS 14+, Apple Silicon | [Ermi-0.1.0-arm64-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.0/Ermi-0.1.0-arm64-preview.dmg) | Preview; primarily validated on M1 Max |
 | Intel Mac | — | No binary provided |
 
 1. Open the release page and read its compatibility notes.
