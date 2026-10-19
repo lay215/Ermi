@@ -36,7 +36,7 @@ Screenshots show the running app; displayed readings are illustrative snapshots,
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| macOS 14+, Intel & Apple Silicon | [Ermi-0.1.1-universal-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.1/Ermi-0.1.1-universal-preview.dmg) | Preview; primarily validated on M1 Max |
+| macOS 14+, Intel & Apple Silicon | [Ermi-0.1.2-universal-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.2/Ermi-0.1.2-universal-preview.dmg) | Preview; primarily validated on M1 Max |
 
 1. Open the release page and read its compatibility notes.
 2. Download the `.dmg`, open it, and drag **Ermi.app** into **Applications**.
@@ -46,10 +46,12 @@ This preview uses a local signing identity and is **not notarized by Apple**. ma
 
 For fan control, choose **Install / Update Authorization** on the fan page and complete the macOS administrator prompt. Installation establishes authorization; it does not apply a fan preset. Menu bar organization requires separate system permissions, as prompted by macOS.
 
+Known issue: M4 Pro CPU temperature can be underreported and affect automatic fan control. This release fixes helper installation, not temperature sampling; use system fan control until the temperature issue is resolved.
+
 Each DMG includes a `.sha256` companion file. In the download directory, verify it with:
 
 ```sh
-shasum -a 256 -c Ermi-0.1.1-universal-preview.dmg.sha256
+shasum -a 256 -c Ermi-0.1.2-universal-preview.dmg.sha256
 ```
 
 ## Build from source
@@ -83,7 +85,7 @@ Build products and local debug captures are ignored by Git. DMGs belong in Relea
 
 ## Documentation & feedback
 
-- [Release notes](docs/releases/v0.1.1.md)
+- [Release notes](docs/releases/v0.1.2.md)
 - [Local signing and fan service authorization](docs/architecture/local-signing-and-gui-install-2026-10-17.md)
 - [Fan control validation](docs/architecture/fan-control-validation-2026-10-16.md)
 - [Report a bug or request a feature](https://github.com/lay215/Ermi/issues)
