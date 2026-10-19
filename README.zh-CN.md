@@ -10,11 +10,9 @@ Ermi 是一款开源的原生 macOS 菜单栏工具，集系统监控、风扇�
 <p align="center"><img src="docs/images/popover.png" width="340" alt="菜单栏弹窗"></p>
 <p align="center">菜单栏弹窗</p>
 
-<p align="center"><img src="docs/images/monitor.png" width="640" alt="Ermi 系统概览"></p>
-
-| 风扇调节 | 图标整理 |
-| --- | --- |
-| ![风扇调节](docs/images/fan.png) | ![图标整理](docs/images/icons.png) |
+| 系统概览 | 风扇调节 | 图标整理 |
+| --- | --- | --- |
+| ![系统概览](docs/images/monitor.png) | ![风扇调节](docs/images/fan.png) | ![图标整理](docs/images/icons.png) |
 
 截图来自运行中的应用，画面数值为截图时状态。
 
