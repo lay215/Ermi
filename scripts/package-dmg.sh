@@ -3,10 +3,13 @@ set -euo pipefail
 cd "${0:A:h:h}"
 app="$PWD/output/native/Ermi.app"
 version=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Contents/Info.plist")
-destination="${1:-$PWD/output/native/Ermi-${version}-arm64-local.dmg}"
+destination="${1:-$PWD/output/native/Ermi-${version}-universal-local.dmg}"
 [[ ! -e "$destination" ]] || { print -u2 "安装包已存在：$destination"; exit 1; }
 # 使用已验收的 App，不在打包过程中重编译或改变风扇授权身份。
 /usr/bin/codesign --verify --deep --strict "$app"
+# 不能把遗留的 arm64 单架构构建包装成全架构安装包。
+/usr/bin/lipo "$app/Contents/MacOS/Ermi" -verify_arch arm64 x86_64
+/usr/bin/lipo "$app/Contents/MacOS/ErmiFanHelper" -verify_arch arm64 x86_64
 stage=$(/usr/bin/mktemp -d "${TMPDIR:-/tmp}/ermi-dmg.XXXXXX")
 trap '/bin/rm -r "$stage"' EXIT
 /usr/bin/ditto "$app" "$stage/Ermi.app"
@@ -14,7 +17,8 @@ trap '/bin/rm -r "$stage"' EXIT
 cat > "$stage/安装说明.txt" <<'TXT'
 Ermi 本机版
 
-适用：Apple Silicon Mac，macOS 14 或更新版本。
+适用：Intel 与 Apple Silicon Mac，macOS 14 或更新版本。
+温度和调速依设备实际提供的传感器与控制协议；无风扇机型仅监测，未知协议不执行写入。
 
 安装：退出正在运行的 Ermi，将 Ermi.app 拖入 Applications，然后从“应用程序”打开。
 风扇：首次使用时，在“风扇调节”点击“安装 / 更新授权”，在 macOS 弹窗中验证，无需终端输入。

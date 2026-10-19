@@ -36,8 +36,7 @@ Screenshots show the running app; displayed readings are illustrative snapshots,
 
 | Platform | Package | Status |
 | --- | --- | --- |
-| macOS 14+, Apple Silicon | [Ermi-0.1.0-arm64-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.0/Ermi-0.1.0-arm64-preview.dmg) | Preview; primarily validated on M1 Max |
-| Intel Mac | — | No binary provided |
+| macOS 14+, Intel & Apple Silicon | [Ermi-0.1.1-universal-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.1/Ermi-0.1.1-universal-preview.dmg) | Preview; primarily validated on M1 Max |
 
 1. Open the release page and read its compatibility notes.
 2. Download the `.dmg`, open it, and drag **Ermi.app** into **Applications**.
@@ -50,12 +49,12 @@ For fan control, choose **Install / Update Authorization** on the fan page and c
 Each DMG includes a `.sha256` companion file. In the download directory, verify it with:
 
 ```sh
-shasum -a 256 -c Ermi-0.1.0-arm64-preview.dmg.sha256
+shasum -a 256 -c Ermi-0.1.1-universal-preview.dmg.sha256
 ```
 
 ## Build from source
 
-Requires an Apple Silicon Mac, macOS 14+, Xcode with Swift 6, Python 3, and OpenSSL for local signing setup.
+Requires an Intel or Apple Silicon Mac, macOS 14+, Xcode with Swift 6, Python 3, and OpenSSL for local signing setup. The build script produces a Universal app and helper (arm64 + x86_64).
 
 ```sh
 git clone https://github.com/lay215/Ermi.git
@@ -77,14 +76,14 @@ Build products and local debug captures are ignored by Git. DMGs belong in Relea
 
 ## Compatibility & current limits
 
-- Hardware readings and fan control are primarily validated on **M1 Max**. Other models need verification; fanless Macs cannot offer fan control.
+- Current source supports chip-family temperature mappings and capability-based fan protocols for Intel and Apple Silicon, including single-fan and multi-fan Macs. Fanless devices retain monitoring; unknown protocols remain read-only. See [hardware compatibility](docs/architecture/hardware-compatibility.md) for sources, scope, and validation limits. Hardware validation remains primarily on **M1 Max**; code coverage does not mean every model has been tested.
 - Menu bar organization depends on macOS behavior and permissions. The macOS 27 path uses experimental private APIs; the macOS 14–26 separator-based path still needs hardware validation.
 - Full third-party menu interaction and real sleep/wake fan recovery still need broader acceptance testing. Passing automated tests does not establish hardware compatibility.
-- No automatic updater, Intel package, or Apple-notarized distribution is currently provided.
+- No automatic updater or Apple-notarized distribution is currently provided.
 
 ## Documentation & feedback
 
-- [Release notes](docs/releases/v0.1.0.md)
+- [Release notes](docs/releases/v0.1.1.md)
 - [Local signing and fan service authorization](docs/architecture/local-signing-and-gui-install-2026-10-17.md)
 - [Fan control validation](docs/architecture/fan-control-validation-2026-10-16.md)
 - [Report a bug or request a feature](https://github.com/lay215/Ermi/issues)

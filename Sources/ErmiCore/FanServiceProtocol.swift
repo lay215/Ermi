@@ -11,10 +11,13 @@ public enum FanServiceCommand: Codable, Sendable {
 }
 public struct FanServiceReply: Codable, Sendable {
     public var capabilities: [FanCapability]
+    // inspect 的空结果与 heartbeat 未携带能力是不同状态；可选字段兼容旧 helper 回包。
+    public var capabilityProbeCompleted: Bool?
     public var status: FanControlStatus
     public var error: String?
-    public init(capabilities: [FanCapability] = [], status: FanControlStatus = .init(phase: .system), error: String? = nil) {
+    public init(capabilities: [FanCapability] = [], status: FanControlStatus = .init(phase: .system), error: String? = nil, capabilityProbeCompleted: Bool? = nil) {
         self.capabilities = capabilities; self.status = status; self.error = error
+        self.capabilityProbeCompleted = capabilityProbeCompleted
     }
 }
 public enum FanServiceIdentity {

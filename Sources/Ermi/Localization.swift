@@ -83,7 +83,7 @@ struct TranslationCatalog {
                 usedPrintf[token] = occurrence + 1
                 let raw = ns.substring(with: match.range(at: index + 1))
                 // 只有明确的错误包装才递归翻译内层原因；其他占位符（用户名称等）一律原样保留。
-                let errorWrappers: Set<String> = ["无法更新登录启动：{0}", "收起失败，图标保持显示：{0}", "重新打开失败：{0}", "控制连接不可用：{0}", "删除失败：{0}", "无法结束：{0}", "恢复回读失败：{0}", "代码签名校验失败：{0}"]
+                let errorWrappers: Set<String> = ["无法更新登录启动：{0}", "收起失败，图标保持显示：{0}", "重新打开失败：{0}", "控制连接不可用：{0}", "风扇控制不可用：{0}", "删除失败：{0}", "无法结束：{0}", "恢复回读失败：{0}", "代码签名校验失败：{0}"]
                 let replacement = depth < 3 && errorWrappers.contains(entry.source) ? translate(raw, language: language, depth: depth + 1) : raw
                 values.append((range.range, replacement))
             }

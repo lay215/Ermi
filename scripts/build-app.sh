@@ -17,16 +17,20 @@ else
         exit 1
     fi
 fi
-swift build -c release --arch arm64
+# 同一安装包包含 Intel 与 Apple Silicon；helper 必须和 App 一起提供两种架构。
+swift build -c release --arch arm64 --arch x86_64
+BIN_PATH="$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)"
 APP="${PWD}/output/native/Ermi.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Library/LaunchDaemons"
 # 系统应用图标与菜单栏共用白鼬概念稿；生成完整尺寸，供 Finder 等系统入口使用。
 ICONSET="${PWD}/.build/Ermi.iconset"
 swift scripts/build-app-icon.swift Sources/Ermi/Resources/LogoStudy.png "$ICONSET"
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/Ermi.icns"
-cp .build/arm64-apple-macosx/release/ErmiFanHelper "$APP/Contents/MacOS/ErmiFanHelper"
-cp .build/arm64-apple-macosx/release/Ermi "$APP/Contents/MacOS/Ermi"
-cp -R .build/arm64-apple-macosx/release/Ermi_Ermi.bundle "$APP/Contents/Resources/"
+cp "$BIN_PATH/ErmiFanHelper" "$APP/Contents/MacOS/ErmiFanHelper"
+cp "$BIN_PATH/Ermi" "$APP/Contents/MacOS/Ermi"
+cp -R "$BIN_PATH/Ermi_Ermi.bundle" "$APP/Contents/Resources/"
+/usr/bin/lipo "$APP/Contents/MacOS/Ermi" -verify_arch arm64 x86_64
+/usr/bin/lipo "$APP/Contents/MacOS/ErmiFanHelper" -verify_arch arm64 x86_64
 cp scripts/local-fan-control.command "$APP/Contents/Resources/InstallLocalFanControl.command"
 cp scripts/local-fan-control.command "$APP/Contents/Resources/UninstallLocalFanControl.command"
 chmod 755 "$APP/Contents/Resources/InstallLocalFanControl.command" "$APP/Contents/Resources/UninstallLocalFanControl.command"
@@ -39,8 +43,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <key>CFBundleName</key><string>Ermi</string>
 <key>CFBundleIconFile</key><string>Ermi.icns</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.1.0</string>
-<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleShortVersionString</key><string>0.1.1</string>
+<key>CFBundleVersion</key><string>2</string>
 <key>LSMinimumSystemVersion</key><string>14.0</string>
 <key>LSUIElement</key><true/>
 <key>NSPrincipalClass</key><string>NSApplication</string>

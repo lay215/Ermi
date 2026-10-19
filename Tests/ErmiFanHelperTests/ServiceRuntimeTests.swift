@@ -32,7 +32,36 @@ private actor PausedFanDevice: FanDevice {
     }
 }
 
+private struct CapabilityProbeDevice: FanDevice {
+    let unavailable: Bool
+    func capabilities() throws -> [FanCapability] {
+        if unavailable { throw SMCFanError.rejected("当前设备未提供可验证的风扇控制协议") }
+        return []
+    }
+    func snapshot() -> FanDeviceSnapshot { .init(fans: [], cpuTemperature: nil, gpuTemperature: nil, sampledAt: 0) }
+    func setManualRPM(index: Int, rpm: Double) { Issue.record("无风扇设备不得写入") }
+    func restoreSystem(index: Int) { Issue.record("无接管记录不得恢复写入") }
+}
+
 struct ServiceRuntimeTests {
+    @Test func capabilityInspectionDistinguishesFanlessUnsupportedAndHeartbeat() async throws {
+        for unavailable in [false, true] {
+            let runtime = ServiceRuntime(device: CapabilityProbeDevice(unavailable: unavailable))
+            let client = UUID(), life = SessionLife()
+            let inspected = await runtime.execute(.inspect, client: client, life: life)
+            #expect(inspected.capabilityProbeCompleted == true)
+            #expect(inspected.capabilities.isEmpty)
+            #expect((inspected.error != nil) == unavailable)
+            let heartbeat = await runtime.execute(.heartbeat, client: client, life: life)
+            #expect(heartbeat.capabilityProbeCompleted == nil)
+            #expect(heartbeat.error == nil)
+        }
+        // 旧 helper 未携带新字段时仍能解码，不能凭默认空数组推断无风扇。
+        let data = try JSONEncoder().encode(FanServiceReply())
+        let decoded = try JSONDecoder().decode(FanServiceReply.self, from: data)
+        #expect(decoded.capabilityProbeCompleted == nil)
+    }
+
     @Test func applyWaitsForPeriodicTickInsteadOfReturningBusy() async throws {
         let device = PausedFanDevice()
         let runtime = ServiceRuntime(device: device)

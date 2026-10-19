@@ -30,6 +30,15 @@ import Testing
         #expect(catalog.translate("unknown error", language: .english) == "unknown error")
     }
 
+    @Test func fanCapabilityErrorsTranslateTheirNestedReason() {
+        let catalog = TranslationCatalog(entries: AppLocalization.loadEntries())
+        // 能力错误由服务包装协议原因，英文与繁体界面应同时翻译外层和内层。
+        #expect(catalog.translate("风扇控制不可用：未知 CPU 架构的风扇写入协议", language: .english)
+                == "Fan control unavailable: The fan write protocol is unknown for this CPU architecture")
+        #expect(catalog.translate("风扇控制不可用：恢复日志协议无效", language: .traditional)
+                == "風扇控制不可用：恢復記錄的協定無效")
+    }
+
     @Test func catalogHasValidUniqueTemplatesAndAllTranslations() throws {
         let entries = AppLocalization.loadEntries()
         #expect(entries.count > 400)

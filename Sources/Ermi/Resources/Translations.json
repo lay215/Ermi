@@ -2588,5 +2588,75 @@
     "source": "关闭后仅显示白鼬图标，不影响温度监测与风扇控制。",
     "en": "When off, only the Ermi icon is shown. Temperature monitoring and fan control are unaffected.",
     "zh-Hant": "關閉後僅顯示白鼬圖示，不影響溫度監測與風扇控制。"
+  },
+  {
+    "source": "此 Mac 没有风扇，无需调速。",
+    "en": "This Mac has no fans and needs no fan control.",
+    "zh-Hant": "此 Mac 沒有風扇，無需調速。"
+  },
+  {
+    "source": "风扇控制能力暂不可用，请重试连接。",
+    "en": "Fan control capabilities are unavailable. Retry the connection.",
+    "zh-Hant": "風扇控制能力暫不可用，請重試連線。"
+  },
+  {
+    "source": "风扇控制不可用：{0}",
+    "en": "Fan control unavailable: {0}",
+    "zh-Hant": "風扇控制不可用：{0}"
+  },
+  {
+    "source": "CPU 温度 · 可用传感器",
+    "en": "CPU temperature · Available sensors",
+    "zh-Hant": "CPU 溫度 · 可用感測器"
+  },
+  {
+    "source": "CPU 温度 %.1f°C · %d 个可用传感器\nAppleSMC: %@",
+    "en": "CPU temperature %.1f°C · %d available sensors\nAppleSMC: %@",
+    "zh-Hant": "CPU 溫度 %.1f°C · %d 個可用感測器\nAppleSMC: %@"
+  },
+  {
+    "source": "所有风扇使用相同目标值。",
+    "en": "All fans use the same target speed.",
+    "zh-Hant": "所有風扇使用相同目標值。"
+  },
+  {
+    "source": "请等待读取风扇范围，并填写每只风扇的有效目标转速。",
+    "en": "Wait for fan ranges and enter a valid target speed for each fan.",
+    "zh-Hant": "請等候讀取風扇範圍，並填寫每隻風扇的有效目標轉速。"
+  },
+  {
+    "source": "Ermi · CPU 温度 %.1f°C",
+    "en": "Ermi · CPU temperature %.1f°C",
+    "zh-Hant": "Ermi · CPU 溫度 %.1f°C"
+  },
+  {
+    "source": "恢复日志风扇编号不属于当前硬件",
+    "en": "The recovery journal contains a fan index that is not present on this Mac",
+    "zh-Hant": "恢復記錄中的風扇編號不屬於目前硬體"
+  },
+  {
+    "source": "恢复日志协议与当前硬件不一致",
+    "en": "The recovery journal protocol does not match this Mac’s hardware",
+    "zh-Hant": "恢復記錄的協定與目前硬體不一致"
+  },
+  {
+    "source": "风扇数量超出已验证的单字符 SMC 协议范围",
+    "en": "The fan count exceeds the verified single-character SMC protocol range",
+    "zh-Hant": "風扇數量超出已驗證的單字元 SMC 協定範圍"
+  },
+  {
+    "source": "未知 CPU 架构的风扇写入协议",
+    "en": "The fan write protocol is unknown for this CPU architecture",
+    "zh-Hant": "此 CPU 架構的風扇寫入協定未知"
+  },
+  {
+    "source": "恢复日志协议无效",
+    "en": "The recovery journal protocol is invalid",
+    "zh-Hant": "恢復記錄的協定無效"
+  },
+  {
+    "source": "旧恢复日志不能用于不同的风扇协议",
+    "en": "The legacy recovery journal cannot be used with a different fan protocol",
+    "zh-Hant": "舊恢復記錄不能用於不同的風扇協定"
   }
 ]

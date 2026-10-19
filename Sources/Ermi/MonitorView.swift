@@ -34,9 +34,9 @@ struct MonitorView: View {
                     HStack {
                         Text(L("风扇")).font(.system(size: 11))
                         Spacer()
-                        Text("\(model.fanRPM(0)) / \(model.fanRPM(1)) RPM")
+                        Text(model.fanRPMText)
                             .font(.system(size: 10)).monospacedDigit().foregroundStyle(ErmiTheme.link)
-                            .help("\(L(model.fanHelp(0)))\n\(L(model.fanHelp(1)))")
+                            .help(model.displayedFanIndices.map { L(model.fanHelp($0)) }.joined(separator: "\n"))
                     }
                     modeControl.frame(height: 33)
                     // 固定控制行保持各模式稳定，减少滑条上下空白且容纳两行错误提示。
@@ -151,7 +151,7 @@ struct MonitorView: View {
                         } label: {
                             Text(L(mode == .system ? "系统" : mode == .auto ? "自动调节" : "固定转速")).font(.system(size: 10, weight: mode == model.displayedFanMode ? .semibold : .regular))
                                 .foregroundStyle(mode == model.displayedFanMode ? .white : ErmiTheme.muted).frame(maxWidth: .infinity).frame(height: 27)
-                        }.buttonStyle(.plain).accessibilityAddTraits(mode == model.displayedFanMode ? [.isSelected] : [])
+                        }.buttonStyle(.plain).disabled(mode != .system && !model.canApplyFanControl).accessibilityAddTraits(mode == model.displayedFanMode ? [.isSelected] : [])
                     }
                 }.padding(3)
             }.animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: model.displayedFanMode)
@@ -162,7 +162,13 @@ struct MonitorView: View {
         Group {
             // 错误与未授权必须有可发现入口，不能在紧凑布局中被截断后静默隐藏。
             // 所有模式提交期间保留对应控件，不用加载文案替换；回包失败后仍展示真实错误。
-            if model.pendingFanMode == nil && model.controlNeedsAttention && !model.designPreview {
+            if let issue = model.fanCapabilityIssue, !model.designPreview {
+                HStack {
+                    Text(L(issue)).lineLimit(2).help(L(issue))
+                    Spacer(minLength: 3)
+                    if !model.isFanless { Button(L("详情 ↗")) { navigate(.presets) }.fixedSize().buttonStyle(ErmiPressStyle()) }
+                }
+            } else if model.pendingFanMode == nil && model.controlNeedsAttention && !model.designPreview {
                 HStack {
                     Text(L(model.controlNotice)).lineLimit(2).help(L(model.controlNotice))
                     Spacer(minLength: 3)

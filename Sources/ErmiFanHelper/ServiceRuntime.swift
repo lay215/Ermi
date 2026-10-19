@@ -20,38 +20,41 @@ actor ServiceRuntime {
 
     func execute(_ command: FanServiceCommand, client: UUID, life: SessionLife) async -> FanServiceReply {
         guard life.isAlive, !shuttingDown else { return .init(error: "连接已关闭或服务正在退出") }
-        do {
-            switch command {
-            case .inspect:
-                return .init(capabilities: try await device.capabilities(), status: await controller.status())
-            case .apply(let preset):
-                guard owner == nil || owner == client else { return .init(error: "另一个 Ermi 连接正在控制风扇") }
-                guard recovery == nil else { return .init(error: "正在恢复系统控制，请恢复完成后重新选择模式") }
-                // 定时采样不是用户操作冲突：等当前轮次结束再应用，避免正常切换被拒绝。
-                // 等待期间若断连、退出或发生恢复，必须放弃旧选择，不能重新接管。
-                let revision = recoveryRevision
-                while ticking {
-                    await withCheckedContinuation { tickWaiters.append($0) }
-                }
-                guard life.isAlive, !shuttingDown else { return .init(error: "连接已关闭或服务正在退出") }
-                guard revision == recoveryRevision else { return .init(error: "控制状态已变化，请重新选择模式") }
-                guard owner == nil || owner == client else { return .init(error: "另一个 Ermi 连接正在控制风扇") }
-                guard operation == nil, recovery == nil else { return .init(error: "正在处理上一条控制请求") }
-                let token = UUID(); operation = token
-                defer { if operation == token { operation = nil } }
-                owner = client
-                let status = await controller.apply(preset, leaseID: client, now: ProcessInfo.processInfo.systemUptime)
-                releaseOwnerIfRestored(status)
-                return .init(status: status)
-            case .heartbeat:
-                if owner == client, recovery == nil { _ = await controller.heartbeat(leaseID: client, now: ProcessInfo.processInfo.systemUptime) }
-                return .init(status: await controller.status())
-            case .restore:
-                guard owner == nil || owner == client else { return .init(error: "另一个 Ermi 连接正在控制风扇") }
-                // 不能因 tick 正在采样就拒绝恢复：控制器会等本轮结束并确认硬件恢复。
-                return .init(status: await restore())
+        switch command {
+        case .inspect:
+            // 明确返回能力探测结果：0只风扇属于正常硬件，协议缺失属于不可控制，均不伪装成连接故障。
+            do {
+                return .init(capabilities: try await device.capabilities(), status: await controller.status(), capabilityProbeCompleted: true)
+            } catch {
+                return .init(status: await controller.status(), error: "风扇控制不可用：\(error)", capabilityProbeCompleted: true)
             }
-        } catch { return .init(status: await controller.status(), error: String(describing: error)) }
+        case .apply(let preset):
+            guard owner == nil || owner == client else { return .init(error: "另一个 Ermi 连接正在控制风扇") }
+            guard recovery == nil else { return .init(error: "正在恢复系统控制，请恢复完成后重新选择模式") }
+            // 定时采样不是用户操作冲突：等当前轮次结束再应用，避免正常切换被拒绝。
+            // 等待期间若断连、退出或发生恢复，必须放弃旧选择，不能重新接管。
+            let revision = recoveryRevision
+            while ticking {
+                await withCheckedContinuation { tickWaiters.append($0) }
+            }
+            guard life.isAlive, !shuttingDown else { return .init(error: "连接已关闭或服务正在退出") }
+            guard revision == recoveryRevision else { return .init(error: "控制状态已变化，请重新选择模式") }
+            guard owner == nil || owner == client else { return .init(error: "另一个 Ermi 连接正在控制风扇") }
+            guard operation == nil, recovery == nil else { return .init(error: "正在处理上一条控制请求") }
+            let token = UUID(); operation = token
+            defer { if operation == token { operation = nil } }
+            owner = client
+            let status = await controller.apply(preset, leaseID: client, now: ProcessInfo.processInfo.systemUptime)
+            releaseOwnerIfRestored(status)
+            return .init(status: status)
+        case .heartbeat:
+            if owner == client, recovery == nil { _ = await controller.heartbeat(leaseID: client, now: ProcessInfo.processInfo.systemUptime) }
+            return .init(status: await controller.status())
+        case .restore:
+            guard owner == nil || owner == client else { return .init(error: "另一个 Ermi 连接正在控制风扇") }
+            // 不能因 tick 正在采样就拒绝恢复：控制器会等本轮结束并确认硬件恢复。
+            return .init(status: await restore())
+        }
     }
 
     private func releaseOwnerIfRestored(_ result: FanControlStatus) {

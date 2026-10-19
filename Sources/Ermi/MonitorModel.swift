@@ -51,6 +51,10 @@ final class MonitorModel {
     var usesLocalFanControl = false
     var localFanSetupMessage = ""
     var fanCapabilities: [FanCapability] = []
+    // 只有明确的探测结果才能判定不可控；尚未读取不等于无风扇。
+    private(set) var fanCapabilityIssue: String?
+    private(set) var isFanless = false
+    var canApplyFanControl: Bool { designPreview || fanCapabilityIssue == nil }
     var fanPresets: [FanPreset] = []
     var presetBusy = false
     var targetRPM = 3200.0
@@ -245,7 +249,16 @@ final class MonitorModel {
             await withTaskCancellationHandler {
                 let capabilities = await capabilitiesTask.value
                 guard let self, epoch == self.controlEpoch, !Task.isCancelled else { return }
-                if let capabilities, !self.receivedServiceCapabilities { self.fanCapabilities = capabilities }
+                if !self.receivedServiceCapabilities {
+                    if let capabilities {
+                        self.fanCapabilities = capabilities
+                        self.isFanless = capabilities.isEmpty
+                        self.fanCapabilityIssue = capabilities.isEmpty ? "此 Mac 没有风扇，无需调速。" : nil
+                    } else {
+                        self.isFanless = false
+                        self.fanCapabilityIssue = "风扇控制能力暂不可用，请重试连接。"
+                    }
+                }
                 let presets = await presetsTask.value
                 guard epoch == self.controlEpoch, !Task.isCancelled else { return }
                 // 连接期间用户可能已经保存或删除预设，旧磁盘快照不能覆盖较新的编辑结果。
@@ -331,7 +344,7 @@ final class MonitorModel {
             guard epoch == controlEpoch, !sleeping else { return }
             acceptFanReply(reply)
             helperReady = true
-            if fanCapabilities.isEmpty { controlNotice = "设备控制能力暂不可用" }
+
         } catch {
             guard epoch == controlEpoch, !sleeping else { return }
             helperReady = false; controlNotice = error.localizedDescription; controlNeedsAttention = true
@@ -379,6 +392,9 @@ final class MonitorModel {
     func selectFanMode(_ mode: FanMode) {
         cancelStartupRestore()
         if designPreview { fanMode = mode; return }
+        guard mode == .system || canApplyFanControl else {
+            controlNotice = fanCapabilityIssue ?? "设备控制能力暂不可用"; controlNeedsAttention = true; return
+        }
         // 连续切换只保留最后一次选择，硬件请求仍串行；授权、睡眠和失败路径不排队重放。
         if controlBusy, pendingFanMode != nil, helperReady, !sleeping {
             queuedFanMode = mode
@@ -426,6 +442,9 @@ final class MonitorModel {
     }
     func applyFanPreset(_ preset: FanPreset) {
         cancelStartupRestore()
+        guard canApplyFanControl else {
+            controlNotice = fanCapabilityIssue ?? "设备控制能力暂不可用"; controlNeedsAttention = true; return
+        }
         guard prepareExplicitFanControl() else { return }
         beginApplyingFanPreset(preset, restoringStartup: false)
     }
@@ -434,7 +453,7 @@ final class MonitorModel {
         guard startupRestorePending, reply.error == nil else { return }
         // 首个成功回包只决策一次：其他控制者或恢复故障存在时绝不等其变为 system 再接管。
         startupRestorePending = false
-        guard reply.status.phase == .system, !controlBusy, !installerOpening, !sleeping,
+        guard canApplyFanControl, reply.status.phase == .system, !controlBusy, !installerOpening, !sleeping,
               let data = defaults.data(forKey: Self.lastAppliedFanPresetKey),
               let preset = try? JSONDecoder().decode(FanPreset.self, from: data) else { return }
         // 直接复用已连接的 apply；helper 仍对当前硬件能力与参数完整校验，不触发授权安装。
@@ -516,9 +535,13 @@ final class MonitorModel {
     }
     // 只在 helper 回读后更新已确认模式；请求中的界面选中态独立，实际 RPM 来自监控采样。
     private func acceptFanReply(_ reply: FanServiceReply) {
-        if !reply.capabilities.isEmpty {
+        // heartbeat 的默认空数组不代表无风扇；只有 inspect 的明确标记可以清空旧能力。
+        // 旧 helper 的非空能力仍兼容，探测错误保留至下一次有效探测，防止心跳重新开放写入。
+        if reply.capabilityProbeCompleted == true || !reply.capabilities.isEmpty {
             receivedServiceCapabilities = true
             fanCapabilities = reply.capabilities
+            isFanless = reply.error == nil && reply.capabilities.isEmpty
+            fanCapabilityIssue = reply.error ?? (reply.capabilities.isEmpty ? "此 Mac 没有风扇，无需调速。" : nil)
         }
         if let error = reply.error { controlNotice = error; controlNeedsAttention = true; return }
         // 正常回读信息不遮住快捷控件；只有真实故障替换为详情入口。
@@ -540,6 +563,10 @@ final class MonitorModel {
             }
         case .failed: fanMode = .system; controlNotice = reply.status.message ?? "控制失败，已恢复系统控制"
         case .needsRecovery: controlNotice = reply.status.message ?? "系统控制尚未确认，正在重试恢复"
+        }
+        if let issue = fanCapabilityIssue, reply.status.phase == .system {
+            controlNotice = issue
+            controlNeedsAttention = true
         }
     }
     func restoreFanControl(clearRememberedConfiguration: Bool = false) async {

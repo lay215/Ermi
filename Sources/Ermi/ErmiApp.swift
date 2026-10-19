@@ -86,7 +86,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         item.length = ceil(max(temperatureWidth, button.cell?.cellSize.width ?? 0)) + 12
         if let temperature {
             button.title = " \(Int(temperature.rounded()))°"
-            button.toolTip = String(format: L("Ermi · CPU 核心平均温度 %.1f°C"), temperature)
+            button.toolTip = String(format: L("Ermi · CPU 温度 %.1f°C"), temperature)
         } else {
             button.toolTip = L("Ermi · 温度暂不可用")
         }

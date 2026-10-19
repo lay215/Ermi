@@ -1,5 +1,7 @@
 # AppleSMC 温度与风扇只读接入
 
+> 本文保留 2026-10-16 的历史验证记录。2026-10-19 已扩展跨机型实现，当前范围见 [硬件兼容说明](../architecture/hardware-compatibility.md)。
+
 2026-10-16。本机验证：MacBookPro18,4 / Apple M1 Max / macOS 27.0.1。此次仅接入读数，不安装 helper，不接管或修改风扇模式与转速。
 
 ## 数据契约与来源

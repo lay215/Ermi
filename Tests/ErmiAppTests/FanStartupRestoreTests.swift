@@ -41,7 +41,11 @@ import ErmiCore
         case .restore: status = .init(phase: .system)
         case .heartbeat: break
         }
-        return .init(status: status)
+        // 恢复测试模拟实际可控双风扇设备；空能力现在明确表示无风扇。
+        return .init(capabilities: [
+            .init(index: 0, name: "Fan 1", minimumRPM: 1000, maximumRPM: 6000),
+            .init(index: 1, name: "Fan 2", minimumRPM: 1000, maximumRPM: 6000)
+        ], status: status)
     }
 }
 

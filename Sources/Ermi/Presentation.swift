@@ -77,13 +77,22 @@ extension MonitorModel {
     var cpuTemperatureCaption: String {
         if designPreview { return "CPU 温度 · 示例" }
         if snapshot == nil { return "CPU 温度 · 正在读取" }
-        return snapshot?.hardware.cpuTemperature == nil ? "CPU 温度 · 暂不可用" : "CPU 温度 · 核心均值"
+        return snapshot?.hardware.cpuTemperature == nil ? "CPU 温度 · 暂不可用" : "CPU 温度 · 可用传感器"
     }
     var temperatureHelp: String {
         guard !designPreview, let reading = snapshot?.hardware.cpuTemperature else { return "温度来源：AppleSMC" }
-        return String(format: L("CPU 核心平均 %.1f°C · %d 个可用传感器\nAppleSMC: %@"), reading.celsius, reading.sensorKeys.count, reading.sensorKeys.joined(separator: ", "))
+        return String(format: L("CPU 温度 %.1f°C · %d 个可用传感器\nAppleSMC: %@"), reading.celsius, reading.sensorKeys.count, reading.sensorKeys.joined(separator: ", "))
     }
     var hasFanReadings: Bool { designPreview || snapshot?.hardware.fans.contains(where: { $0.rpm != nil }) == true }
+    // 读数与控制能力均按真实索引展示，不为单风扇或无风扇机器虚构第二只风扇。
+    var displayedFanIndices: [Int] {
+        if designPreview { return [0, 1] }
+        return Set((snapshot?.hardware.fans.map(\.index) ?? []) + fanCapabilities.map(\.index)).sorted()
+    }
+    var fanRPMText: String {
+        let values = displayedFanIndices.map { fanRPM($0) }
+        return values.isEmpty ? "— RPM" : values.joined(separator: " / ") + " RPM"
+    }
     func fanLabel(_ index: Int) -> String {
         if designPreview { return index == 0 ? "左" : "右" }
         // 实际描述为空时按设备编号展示；不从 F0/F1 推断物理左右位置。

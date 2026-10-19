@@ -70,7 +70,7 @@ final class SMCReadOnlyTransport: SMCKeyWriting {
     }
 
     func write(_ value: SMCValue) throws {
-        guard geteuid() == 0, value.key == "Ftst" || value.key.range(of: "^F[0-9](md|Md|Tg)$", options: .regularExpression) != nil else { throw SMCReadError.invalidKey }
+        guard geteuid() == 0, value.key == "Ftst" || value.key == "FS! " || value.key.range(of: "^F[0-9](md|Md|Tg)$", options: .regularExpression) != nil else { throw SMCReadError.invalidKey }
         // 重新读取metadata与payload，拒绝调用方改变驱动声明的类型或长度。
         let current = try read(value.key)
         guard current.type == value.type, current.bytes.count == value.bytes.count else { throw SMCReadError.malformedResponse }

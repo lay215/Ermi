@@ -17,8 +17,7 @@ struct ErmiDetailView: View {
     @State private var sensor = "CPU"
     @State private var startTemperature = "55"
     @State private var endTemperature = "80"
-    @State private var leftRPM = "3200"
-    @State private var rightRPM = "3200"
+    @State private var targetRPMs: [Int: String] = [:]
     @State private var localFeedback = ""
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("ermi.reduceMotion") private var prefersReducedMotion = false
@@ -134,16 +133,18 @@ struct ErmiDetailView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(L("当前转速")).font(.system(size: 8)).foregroundStyle(ErmiTheme.detailMuted)
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        fanReading(0)
-                        fanReading(1)
-                    }
+                    ScrollView(.horizontal) {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            ForEach(model.displayedFanIndices, id: \.self) { fanReading($0) }
+                            if model.displayedFanIndices.isEmpty { Text("— RPM") }
+                        }
+                    }.scrollIndicators(.hidden)
                 }
                 Spacer()
                 action("交还系统") { model.selectFanMode(.system) }
             }.padding(12).detailCard()
             // 模式选择复用面板的授权与排队入口；不绕开真实服务状态或另起控制链路。
-            ErmiSegmentedControl(options: FanMode.allCases, selection: Binding(
+            ErmiSegmentedControl(options: model.canApplyFanControl ? FanMode.allCases : [.system], selection: Binding(
                 get: { model.displayedFanMode },
                 set: { mode in
                     if model.designPreview { model.fanMode = mode }
@@ -152,8 +153,9 @@ struct ErmiDetailView: View {
             )) { mode in
                 mode == .system ? "系统" : mode == .auto ? "自动调节" : "固定转速"
             }
-            if !model.helperReady && !model.designPreview { serviceSetup }
-            if model.controlNeedsAttention && !model.controlNotice.isEmpty && !model.designPreview {
+            if (!model.helperReady || model.fanCapabilityIssue != nil) && !model.designPreview && !model.isFanless { serviceSetup }
+            if let issue = model.fanCapabilityIssue { Text(L(issue)).font(.system(size: 9)).foregroundStyle(ErmiTheme.detailMuted) }
+            if model.controlNeedsAttention && !model.controlNotice.isEmpty && model.controlNotice != model.fanCapabilityIssue && !model.designPreview {
                 Text(L(model.controlNotice)).font(.system(size: 9)).foregroundStyle(ErmiTheme.detailMuted).fixedSize(horizontal: false, vertical: true)
             }
             if model.displayedFanMode == .auto {
@@ -162,12 +164,12 @@ struct ErmiDetailView: View {
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(L("固定目标转速")).font(.system(size: 10, weight: .medium))
-                        Text(L("两个风扇使用相同目标值。")).font(.system(size: 8)).foregroundStyle(ErmiTheme.detailMuted)
+                        Text(L("所有风扇使用相同目标值。")).font(.system(size: 8)).foregroundStyle(ErmiTheme.detailMuted)
                     }
                     Spacer(minLength: 4)
                     R4Slider(value: $model.targetRPM, range: model.designPreview ? 2000...5600 : model.fanRPMRange) {
                         if !model.designPreview { model.applyFixedRPM() }
-                    }.frame(width: 145, height: 24).disabled(model.controlBusy)
+                    }.frame(width: 145, height: 24).disabled(model.controlBusy || !model.canApplyFanControl)
                     Text(model.independentTargets ?? "\(Int(model.targetRPM).formatted()) RPM").font(.system(size: 10)).monospacedDigit().fixedSize()
                 }.padding(12).detailCard()
             } else {
@@ -189,7 +191,7 @@ struct ErmiDetailView: View {
     private var serviceSetup: some View {
         // 正常连接时不展示维护卡片；显式重试仍走原授权入口，不自动重放调速操作。
         HStack(spacing: 10) {
-            Text(L(model.installerOpening ? "请在系统窗口完成授权…" : model.needsFanAuthorization ? "调节风扇前需要授权控制服务。" : "风扇服务暂未连接，正在自动重连。"))
+            Text(L(model.installerOpening ? "请在系统窗口完成授权…" : model.fanCapabilityIssue != nil ? "风扇控制能力暂不可用，请重试连接。" : model.needsFanAuthorization ? "调节风扇前需要授权控制服务。" : "风扇服务暂未连接，正在自动重连。"))
                 .font(.system(size: 11)).foregroundStyle(ErmiTheme.detailMuted)
             Spacer()
             action(model.fanServiceActionTitle, primary: true) { Task { await model.enableFanControl() } }
@@ -252,7 +254,7 @@ struct ErmiDetailView: View {
             Text(L(active ? "✓ 使用中" : "使用")).font(.system(size: 10)).frame(width: 56, height: 24)
                 .foregroundStyle(active ? Color(hex: 0x548d7c) : ErmiTheme.detailInk)
                 .background(active ? .clear : ErmiTheme.detailControl, in: RoundedRectangle(cornerRadius: 6))
-        }.buttonStyle(ErmiPressStyle()).disabled(active || model.controlBusy || model.designPreview)
+        }.buttonStyle(ErmiPressStyle()).disabled(active || model.controlBusy || model.designPreview || !model.canApplyFanControl)
     }
     private var editor: some View {
         VStack(spacing: 0) {
@@ -269,8 +271,14 @@ struct ErmiDetailView: View {
                 field("开始加速") { number($startTemperature, unit: "°C") }
                 field("达到全速") { number($endTemperature, unit: "°C") }
             } else {
-                field("\(model.fanLabel(0))目标") { number($leftRPM, unit: "RPM") }
-                field("\(model.fanLabel(1))目标") { number($rightRPM, unit: "RPM") }
+                // 不同 Mac 有不同数量和编号的风扇，独立目标以能力中的设备索引绑定。
+                ScrollView {
+                    ForEach(model.fanCapabilities.sorted { $0.index < $1.index }, id: \.index) { fan in
+                        field("\(fan.name)目标") {
+                            number(Binding(get: { targetRPMs[fan.index] ?? "" }, set: { targetRPMs[fan.index] = $0 }), unit: "RPM")
+                        }
+                    }
+                }
             }
             }.frame(height: 84, alignment: .top)
             // 校验信息预留两行，切换调节方式或报错均不改变弹层尺寸。
@@ -303,16 +311,16 @@ struct ErmiDetailView: View {
     }
     private func beginEdit(_ preset: FanPreset?) {
         editingID = preset?.id; originalRule = nil; presetName = preset?.name ?? L("我的方案"); editorFeedback = ""
-        kind = "自动调节"; sensor = "CPU"; startTemperature = "55"; endTemperature = "80"; leftRPM = "3200"; rightRPM = "3200"
+        kind = "自动调节"; sensor = "CPU"; startTemperature = "55"; endTemperature = "80"; targetRPMs = Dictionary(uniqueKeysWithValues: model.fanCapabilities.map { ($0.index, String(min(max(3200, $0.minimumRPM), $0.maximumRPM))) })
         if let preset {
             switch preset.configuration {
             case .thermal(let rule):
                 originalRule = rule; sensor = rule.sensor == .cpu ? "CPU" : rule.sensor == .gpu ? "GPU" : "CPU / GPU 最高"
                 startTemperature = String(rule.lowerTemperature); endTemperature = String(rule.upperTemperature)
-            case .fixed(let rpm): kind = "固定转速"; leftRPM = String(rpm); rightRPM = String(rpm)
+            case .fixed(let rpm): kind = "固定转速"; targetRPMs = Dictionary(uniqueKeysWithValues: model.fanCapabilities.map { ($0.index, String(rpm)) })
             case .fixedTargets(let targets):
                 kind = "固定转速"
-                let sorted = targets.sorted { $0.index < $1.index }; leftRPM = sorted.first.map { String($0.rpm) } ?? ""; rightRPM = sorted.dropFirst().first.map { String($0.rpm) } ?? ""
+                targetRPMs = Dictionary(uniqueKeysWithValues: targets.map { ($0.index, String($0.rpm)) })
             }
         }
         editing = true
@@ -329,8 +337,8 @@ struct ErmiDetailView: View {
             rule.lowerTemperature = start; rule.upperTemperature = end; configuration = .thermal(rule)
         } else {
             let capabilities = model.fanCapabilities.sorted { $0.index < $1.index }
-            guard capabilities.count == 2, let left = Double(leftRPM), let right = Double(rightRPM), left.isFinite, right.isFinite else { editorFeedback = "请等待读取两只风扇的范围，并填写有效目标转速。"; return }
-            let values = [left, right]
+            let values = capabilities.compactMap { Double(targetRPMs[$0.index] ?? "") }
+            guard !capabilities.isEmpty, values.count == capabilities.count, values.allSatisfy(\.isFinite) else { editorFeedback = "请等待读取风扇范围，并填写每只风扇的有效目标转速。"; return }
             for (fan, rpm) in zip(capabilities, values) {
                 guard rpm >= fan.minimumRPM, rpm <= fan.maximumRPM else { editorFeedback = "\(fan.name) 允许 \(Int(fan.minimumRPM))–\(Int(fan.maximumRPM)) RPM。"; return }
             }

@@ -60,7 +60,112 @@ private final class SMCWriteFixture: SMCKeyWriting, @unchecked Sendable {
     }
 }
 
+private final class JournalFixture: @unchecked Sendable {
+    var data: Data?
+    var denyWrites = false
+    func read() -> Data? { data }
+    func write(_ data: Data) throws {
+        if denyWrites { throw WriteFixtureError.denied }
+        self.data = data
+    }
+}
+
 struct SMCFanDeviceTests {
+    @Test func legacyJournalSurvivesPartialRestoreAndRestart() async throws {
+        let fixture = SMCWriteFixture(), journal = JournalFixture()
+        journal.data = Data(#"{"indices":[0,1],"unlock":false}"#.utf8)
+        fixture.byte("F0Md", 1); fixture.byte("F1Md", 1)
+        let first = SMCFanDevice(transport: fixture, journalReader: journal.read, journalWriter: journal.write)
+        try await first.restoreSystem(index: 0)
+        let second = SMCFanDevice(transport: fixture, journalReader: journal.read, journalWriter: journal.write)
+        try await second.recoverPreviousSession()
+        #expect(fixture.values["F1Md"]?.number == 0)
+        let contents = try #require(journal.data)
+        #expect(String(decoding: contents, as: UTF8.self).contains("\"indices\":[]"))
+    }
+
+    @Test func failedRestorePersistenceKeepsCandidateForRetry() async throws {
+        let fixture = SMCWriteFixture(), journal = JournalFixture()
+        let device = SMCFanDevice(transport: fixture, journalReader: journal.read, journalWriter: journal.write)
+        try await device.setManualRPM(index: 0, rpm: 3000)
+        journal.denyWrites = true
+        await #expect(throws: (any Error).self) { try await device.restoreSystem(index: 0) }
+        journal.denyWrites = false
+        try await device.recoverPreviousSession()
+        let contents = try #require(journal.data)
+        #expect(String(decoding: contents, as: UTF8.self).contains("\"indices\":[]"))
+    }
+
+    @Test func singleFanUnknownModelUsesProbedProtocol() async throws {
+        let fixture = SMCWriteFixture(); fixture.byte("FNum", 1)
+        let device = SMCFanDevice(transport: fixture, model: "Mac16,10", cpu: "Apple M4")
+        #expect(try await device.capabilities().count == 1)
+        try await device.setManualRPM(index: 0, rpm: 3000)
+        try await device.restoreSystem(index: 0)
+        #expect(fixture.values["F0Md"]?.number == 0)
+    }
+
+    @Test func fanlessAndEmptyRecoveryNeverRequireControlKeys() async throws {
+        let fixture = SMCWriteFixture(); fixture.values = [:]
+        let device = SMCFanDevice(transport: fixture, model: "Unknown", cpu: "Unknown")
+        try await device.recoverPreviousSession()
+        fixture.byte("FNum", 0)
+        #expect(try await device.capabilities().isEmpty)
+        #expect(fixture.writes.isEmpty)
+    }
+
+    @Test func intelMaskPreservesOtherFansAndDoesNotClearTargetOnRestore() async throws {
+        let fixture = SMCWriteFixture()
+        fixture.values["FS! "] = SMCValue(key: "FS! ", type: "ui16", bytes: [0, 2])
+        fixture.values.removeValue(forKey: "F0Md")
+        let device = SMCFanDevice(transport: fixture, model: "MacPro5,1", cpu: "Intel Xeon")
+        try await device.setManualRPM(index: 0, rpm: 3000)
+        #expect(fixture.values["FS! "]?.bytes == [0, 3])
+        try await device.restoreSystem(index: 0)
+        #expect(fixture.values["FS! "]?.bytes == [0, 2])
+        #expect(fixture.values["F0Tg"]?.number == 3000)
+        await #expect(throws: (any Error).self) { try await device.setManualRPM(index: 1, rpm: 3000) }
+    }
+
+    @Test func rejectsUnboundedFanCountAndMalformedMaskWithoutWrites() async throws {
+        let fixture = SMCWriteFixture(); fixture.byte("FNum", 11)
+        let device = SMCFanDevice(transport: fixture, cpu: "Intel Core i7")
+        await #expect(throws: (any Error).self) { try await device.capabilities() }
+        fixture.byte("FNum", 2)
+        fixture.values["FS! "] = SMCValue(key: "FS! ", type: "ui8 ", bytes: [0])
+        await #expect(throws: (any Error).self) { try await device.setManualRPM(index: 0, rpm: 3000) }
+        #expect(fixture.writes.isEmpty)
+    }
+
+    @Test func multipleFansAreDiscoveredAndHigherMaskBitIsPreserved() async throws {
+        let fixture = SMCWriteFixture(); fixture.byte("FNum", 4)
+        for index in 2..<4 {
+            fixture.byte("F\(index)Md", 0)
+            fixture.float("F\(index)Mn", 1000); fixture.float("F\(index)Mx", 5000)
+            fixture.float("F\(index)Tg", 0); fixture.float("F\(index)Ac", 2000)
+        }
+        fixture.values["FS! "] = SMCValue(key: "FS! ", type: "ui16", bytes: [2, 0])
+        let device = SMCFanDevice(transport: fixture, cpu: "Intel Xeon")
+        #expect(try await device.capabilities().count == 4)
+        try await device.setManualRPM(index: 3, rpm: 3000)
+        #expect(fixture.values["F3Md"]?.number == 1)
+        #expect(fixture.values["FS! "]?.bytes == [2, 8])
+        try await device.restoreSystem(index: 3)
+        #expect(fixture.values["FS! "]?.bytes == [2, 0])
+        #expect(fixture.values["F3Md"]?.number == 0)
+    }
+
+    @Test func intelDisagreementAndUnknownArchitectureCannotBeTakenOver() async throws {
+        let fixture = SMCWriteFixture()
+        fixture.values["FS! "] = SMCValue(key: "FS! ", type: "ui16", bytes: [0, 0])
+        fixture.byte("F0Md", 1)
+        let intel = SMCFanDevice(transport: fixture, cpu: "Intel Core i7")
+        await #expect(throws: (any Error).self) { try await intel.setManualRPM(index: 0, rpm: 3000) }
+        let unknown = SMCFanDevice(transport: fixture, cpu: "Unknown")
+        await #expect(throws: (any Error).self) { try await unknown.setManualRPM(index: 1, rpm: 3000) }
+        #expect(fixture.writes.isEmpty)
+    }
+
     @Test func delayedTargetReadbackWaitsWithoutRewriting() async throws {
         let fixture = SMCWriteFixture()
         fixture.delayedTargetReads = 3
@@ -143,12 +248,10 @@ struct SMCFanDeviceTests {
         #expect(fixture.writes.isEmpty)
     }
 
-    @Test func refusesNonRootUnknownDeviceInvalidRangeAndOtherOwner() async throws {
+    @Test func refusesNonRootInvalidRangeAndOtherOwner() async throws {
         let fixture = SMCWriteFixture()
         let nonRoot = SMCFanDevice(transport: fixture, isRoot: { false })
         await #expect(throws: (any Error).self) { try await nonRoot.setManualRPM(index: 0, rpm: 3000) }
-        let unknown = SMCFanDevice(transport: fixture, model: "Unknown")
-        await #expect(throws: (any Error).self) { try await unknown.setManualRPM(index: 0, rpm: 3000) }
         let device = SMCFanDevice(transport: fixture)
         for rpm in [1499.0, 5001, Double.nan, Double.infinity, 3000.5] {
             await #expect(throws: (any Error).self) { try await device.setManualRPM(index: 0, rpm: rpm) }

@@ -37,6 +37,7 @@ private final class StartupConnection: FanControlConnection {
     var requests: [FanServiceCommand] = []
     var refreshes = 0
     var failure = false
+    var replyOverride: FanServiceReply?
     let capability = FanCapability(index: 0, name: "service", minimumRPM: 1200, maximumRPM: 6000)
     func enable() throws {}
     func disconnect() {}
@@ -48,6 +49,7 @@ private final class StartupConnection: FanControlConnection {
             localSetupMessage = "授权已撤销"
             throw CocoaError(.fileReadNoPermission)
         }
+        if let replyOverride { return replyOverride }
         return .init(capabilities: [capability], status: .init(phase: .system))
     }
 }
@@ -60,6 +62,53 @@ struct FanStartupTests {
             try await Task.sleep(for: .milliseconds(10))
         }
         #expect(condition())
+    }
+
+    @Test(arguments: [false, true]) func confirmedUnavailableBlocksWritesButAllowsRestore(unsupported: Bool) async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = StartupConnection()
+        connection.replyOverride = .init(status: .init(phase: .system), error: unsupported ? "不支持写入协议" : nil, capabilityProbeCompleted: true)
+        let model = MonitorModel(fanClient: connection, defaults: defaults, loadLocalCapabilities: {
+            [.init(index: 0, name: "stale", minimumRPM: 1000, maximumRPM: 6000)]
+        }, loadLocalPresets: { [] })
+        defer { model.stop() }
+        model.start()
+        try await waitFor { model.helperReady }
+        #expect(model.fanCapabilities.isEmpty)
+        #expect(!model.canApplyFanControl)
+        #expect(model.isFanless == !unsupported)
+        let issue = model.fanCapabilityIssue
+        // 心跳和恢复默认携带空能力，不能抹掉 inspect 已确认的无风扇/不支持结果。
+        connection.replyOverride = .init(status: .init(phase: .system))
+        await model.restoreFanControl()
+        #expect(model.fanCapabilityIssue == issue)
+        #expect(connection.requests.contains { if case .restore = $0 { return true }; return false })
+        model.applyFixedRPM()
+        model.selectFanMode(.auto)
+        await Task.yield()
+        #expect(!connection.requests.contains { if case .apply = $0 { return true }; return false })
+        // 用户重试后有效能力可解除阻止，不需要重启应用。
+        connection.replyOverride = .init(capabilities: [connection.capability], status: .init(phase: .system), capabilityProbeCompleted: true)
+        await model.enableFanControl()
+        #expect(model.canApplyFanControl)
+        #expect(!model.isFanless)
+        #expect(model.fanCapabilities == [connection.capability])
+    }
+
+    @Test(arguments: [1, 2, 4]) func fanPresentationUsesActualCapabilityIndices(count: Int) {
+        let model = MonitorModel(fanClient: StartupConnection())
+        model.fanCapabilities = (0..<count).map { .init(index: $0, name: "Fan \($0)", minimumRPM: 1000, maximumRPM: 6000) }
+        #expect(model.displayedFanIndices == Array(0..<count))
+        #expect(model.fanRPMText == Array(repeating: "—", count: count).joined(separator: " / ") + " RPM")
+    }
+
+    @Test func unreadCapabilitiesAreNotTreatedAsFanless() {
+        let model = MonitorModel(fanClient: StartupConnection())
+        #expect(model.fanCapabilities.isEmpty)
+        #expect(model.fanCapabilityIssue == nil)
+        #expect(model.canApplyFanControl)
     }
 
     @Test func connectionFinishesWhileLocalLoadsAreBlockedAndKeepsServiceCapabilities() async throws {

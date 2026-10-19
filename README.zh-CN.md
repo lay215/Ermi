@@ -1,6 +1,6 @@
 <h1 align="center">Ermi</h1>
 <p align="center">随时了解 Mac 状态，调节散热，整理菜单栏。</p>
-<p align="center"><a href="https://github.com/lay215/Ermi/releases">下载 / Releases</a> · macOS 14+ · Apple Silicon · <a href="LICENSE">MIT</a></p>
+<p align="center"><a href="https://github.com/lay215/Ermi/releases">下载 / Releases</a> · macOS 14+ · Intel / Apple Silicon · <a href="LICENSE">MIT</a></p>
 <p align="center"><a href="README.md">English</a> · 简体中文</p>
 
 Ermi 是一款开源的原生 macOS 菜单栏工具，集系统监控、风扇调节与图标整理于一体，使用 SwiftUI + AppKit 构建。
@@ -31,8 +31,7 @@ Ermi 是一款开源的原生 macOS 菜单栏工具，集系统监控、风扇�
 
 | 平台 | 安装包 | 状态 |
 | --- | --- | --- |
-| macOS 14+，Apple Silicon | [Ermi-0.1.0-arm64-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.0/Ermi-0.1.0-arm64-preview.dmg) | 预览版，主要在 M1 Max 上验证 |
-| Intel Mac | — | 暂不提供安装包 |
+| macOS 14+，Intel 与 Apple Silicon | [Ermi-0.1.1-universal-preview.dmg](https://github.com/lay215/Ermi/releases/download/v0.1.1/Ermi-0.1.1-universal-preview.dmg) | 预览版，主要在 M1 Max 上验证 |
 
 1. 打开 Releases，阅读该版本的兼容性说明。
 2. 下载并打开 `.dmg`，将 **Ermi.app** 拖入 **Applications（应用程序）**。
@@ -45,12 +44,12 @@ Ermi 是一款开源的原生 macOS 菜单栏工具，集系统监控、风扇�
 安装包附带 `.sha256` 校验文件，在下载目录执行：
 
 ```sh
-shasum -a 256 -c Ermi-0.1.0-arm64-preview.dmg.sha256
+shasum -a 256 -c Ermi-0.1.1-universal-preview.dmg.sha256
 ```
 
 ## 从源码运行
 
-需要 Apple Silicon Mac、macOS 14+、带 Swift 6 的 Xcode，以及用于本机签名配置的 Python 3 和 OpenSSL。
+需要 Intel 或 Apple Silicon Mac、macOS 14+、带 Swift 6 的 Xcode，以及用于本机签名配置的 Python 3 和 OpenSSL。构建脚本生成包含 arm64 与 x86_64 的 Universal App 和 helper。
 
 ```sh
 git clone https://github.com/lay215/Ermi.git
@@ -72,14 +71,14 @@ scripts/package-dmg.sh
 
 ## 兼容性与当前限制
 
-- 温度读取和风扇控制主要在 **M1 Max** 验证，其他机型仍需验证；无风扇机型无法提供风扇调节。
+- 当前源码按芯片族提供温度映射，按实际能力适配 Intel 与 Apple Silicon 风扇协议，支持单风扇和多风扇；无风扇设备保留监测，未知协议只读。范围、来源和验证限制见[硬件兼容说明](docs/architecture/hardware-compatibility.md)。真机验证仍主要在 **M1 Max**，代码覆盖不等于所有机型已经实测。
 - 图标整理依赖系统版本及权限。macOS 27 路径使用实验性私有接口，macOS 14–26 的分隔线方案仍需实机验收。
 - 第三方菜单完整交互、真实睡眠唤醒后的风扇恢复仍需更广泛验收；自动化测试通过不代表所有硬件兼容。
-- 暂无自动更新、Intel 安装包或 Apple 公证发行包。
+- 暂无自动更新或 Apple 公证发行包。
 
 ## 文档与反馈
 
-- [版本说明](docs/releases/v0.1.0.md)
+- [版本说明](docs/releases/v0.1.1.md)
 - [本机签名与风扇授权](docs/architecture/local-signing-and-gui-install-2026-10-17.md)
 - [风扇控制验证记录](docs/architecture/fan-control-validation-2026-10-16.md)
 - [反馈问题或建议](https://github.com/lay215/Ermi/issues)
