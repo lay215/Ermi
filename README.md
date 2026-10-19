@@ -12,6 +12,9 @@ Ermi is an open-source macOS menu bar app for system monitoring, fan control, an
 
 ## Preview
 
+<p align="center"><img src="docs/images/popover.png" width="340" alt="Menu bar popover"></p>
+<p align="center">Menu bar popover</p>
+
 <p align="center"><img src="docs/images/monitor.png" width="640" alt="Ermi system monitor"></p>
 
 | Fan control | Menu bar organization |
