@@ -29,6 +29,37 @@ private final class SuspendedFanConnection: FanControlConnection {
 struct MonitorLifecycleTests {
     private let preset = FanPreset(name: "测试", configuration: .fixed(rpm: 3200))
 
+    @Test func temperatureCandidatesFollowVisibleSensorControls() {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let model = MonitorModel(fanClient: SuspendedFanConnection(), defaults: defaults)
+        model.temperatureSensorPanelVisible = true
+        model.fanMode = .auto
+        #expect(!model.shouldSampleTemperatureSensors)
+        model.isVisible = true
+        #expect(model.shouldSampleTemperatureSensors)
+        model.fanMode = .system
+        #expect(!model.shouldSampleTemperatureSensors)
+        // 弹窗改为显示具体键后，系统/固定模式也要刷新主温度；关闭弹窗后仍停止额外扫描。
+        model.selectDefaultFanTemperatureSource(.sensor, sensorKey: "Tp01")
+        #expect(model.shouldSampleTemperatureSensors)
+        model.fanMode = .fixed
+        #expect(model.shouldSampleTemperatureSensors)
+        model.temperatureSensorPanelVisible = false
+        #expect(!model.shouldSampleTemperatureSensors)
+        model.temperatureSensorDetailVisible = true
+        model.detailPage = .presets
+        #expect(model.shouldSampleTemperatureSensors)
+        model.detailPage = .monitor
+        #expect(!model.shouldSampleTemperatureSensors)
+        model.temperatureSensorEditorActive = true
+        #expect(model.shouldSampleTemperatureSensors)
+        model.isVisible = false
+        #expect(!model.shouldSampleTemperatureSensors)
+        model.stop()
+    }
+
     @Test func queuedApplyCannotStartAfterSleepAndWakeDoesNotReapply() async {
         let suite = UUID().uuidString
         let defaults = UserDefaults(suiteName: suite)!

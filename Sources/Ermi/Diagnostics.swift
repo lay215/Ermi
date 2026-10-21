@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+@preconcurrency import ApplicationServices
 import ErmiCore
 import ErmiMenuBarBridge
 
@@ -14,6 +15,14 @@ enum Diagnostics {
 
     // 导出与菜单栏共用的 SwiftUI 视图，便于无鼠标验证真实采样和布局。
     static func run(model: MonitorModel) async {
+        if let index = CommandLine.arguments.firstIndex(of: "--menu-entry-report") {
+            // 只读诊断必须在采样、收纳和风扇启动前结束；不请求授权，也不执行任何 AX 动作。
+            if CommandLine.arguments.indices.contains(index + 2) {
+                writeMenuEntryReport(bundleID: CommandLine.arguments[index + 1], path: CommandLine.arguments[index + 2])
+            }
+            finish()
+            return
+        }
         // 截图语言只影响当前诊断进程，不覆盖用户保存的界面语言。
         if let index = CommandLine.arguments.firstIndex(of: "--preview-language"), CommandLine.arguments.indices.contains(index + 1) {
             AppLocalization.shared.previewLanguage = AppLanguage(rawValue: CommandLine.arguments[index + 1])
@@ -21,6 +30,10 @@ enum Diagnostics {
         // 预览主题不写入偏好，避免视觉验收覆盖用户选择。
         if let index = CommandLine.arguments.firstIndex(of: "--preview-theme"), CommandLine.arguments.indices.contains(index + 1) {
             ErmiAppearance.shared.previewPreset = ErmiAppearancePreset(rawValue: CommandLine.arguments[index + 1])
+        }
+        // 系统材质的深浅色与 Ermi 配色独立；只在截图进程覆盖外观，不改系统或用户偏好。
+        if let appearance = previewOption("--preview-appearance"), ["light", "dark"].contains(appearance) {
+            NSApp.appearance = NSAppearance(named: appearance == "dark" ? .darkAqua : .aqua)
         }
         if CommandLine.arguments.contains("--fan-control-check") {
             await checkFanControl()
@@ -50,6 +63,7 @@ enum Diagnostics {
             finish()
             return
         }
+        let previewsIconTray = CommandLine.arguments.contains("--capture-preview") && CommandLine.arguments.contains("--preview-icon-tray")
         model.designPreview = CommandLine.arguments.contains("--design-reference")
         if model.designPreview {
             model.fanMode = .auto
@@ -58,7 +72,8 @@ enum Diagnostics {
         }
         if let index = CommandLine.arguments.firstIndex(of: "--detail-page"), CommandLine.arguments.indices.contains(index + 1),
            let page = DetailPage(rawValue: CommandLine.arguments[index + 1]) { model.detailPage = page }
-        if !model.designPreview || CommandLine.arguments.contains("--smoke-test") {
+        // 图标条截图只读取内存样本，不额外采样系统数据，避免预览入口启动无关工作。
+        if (!model.designPreview && !previewsIconTray) || CommandLine.arguments.contains("--smoke-test") {
             let sampler = SystemSampler()
             _ = await sampler.sample()
             try? await Task.sleep(for: .seconds(2))
@@ -73,33 +88,50 @@ enum Diagnostics {
             }
         }
         if let index = CommandLine.arguments.firstIndex(of: "--capture-preview"), CommandLine.arguments.indices.contains(index + 1) {
-            let detailed = CommandLine.arguments.contains("--detail-page")
+            let detailed = !previewsIconTray && CommandLine.arguments.contains("--detail-page")
             let chrome = detailed && CommandLine.arguments.contains("--include-chrome")
             // 列表视觉检查复用注入扫描，隔离偏好且不启动收纳服务，不改变本机图标或授权。
             let fixtureSuite = "app.ermi.preview." + UUID().uuidString
             var previewOrganizer: MenuBarOrganizer?
-            if model.designPreview && CommandLine.arguments.contains("--preview-icon-list"),
+            if !previewsIconTray && model.designPreview && CommandLine.arguments.contains("--preview-icon-list"),
                let defaults = UserDefaults(suiteName: fixtureSuite) {
                 defaults.set(true, forKey: "icons.enabled")
-                defaults.set(["preview.docker", "preview.dropbox", "preview.raycast"], forKey: "icons.folded")
+                defaults.set(["com.apple.Notes", "com.apple.Maps"], forKey: "icons.folded")
+                defaults.set(["com.apple.finder"], forKey: "icons.hidden")
+                // 排序预览只注入临时偏好，不投递系统拖动事件，也不写入用户真实顺序。
+                if CommandLine.arguments.contains("--preview-icon-order") {
+                    defaults.set(["com.apple.mail", "com.apple.Safari", "com.apple.Notes", "com.apple.Maps", "com.apple.finder"],
+                                 forKey: "icons.order")
+                }
                 let fixture = MenuBarOrganizer(defaults: defaults, permissionCheck: { true }, scanOverride: {
                     ([
-                        MenuBarApplication(id: "preview.wechat", name: "微信", count: 1),
-                        MenuBarApplication(id: "preview.lark", name: "Lark", count: 1),
-                        MenuBarApplication(id: "preview.docker", name: "Docker", count: 1),
-                        MenuBarApplication(id: "preview.dropbox", name: "Dropbox", count: 1),
-                        MenuBarApplication(id: "preview.raycast", name: "Raycast", count: 1)
+                        MenuBarApplication(id: "com.apple.Safari", name: "Safari", count: 2),
+                        MenuBarApplication(id: "com.apple.mail", name: "Mail", count: 1),
+                        MenuBarApplication(id: "com.apple.Notes", name: "Notes", count: 1),
+                        MenuBarApplication(id: "com.apple.Maps", name: "Maps", count: 1),
+                        MenuBarApplication(id: "com.apple.finder", name: "Finder", count: 1)
                     ], [:])
                 })
                 await fixture.refresh()
                 previewOrganizer = fixture
             }
             defer { UserDefaults.standard.removePersistentDomain(forName: fixtureSuite) }
-            let root = chrome ? AnyView(ErmiWindowContent(model: model, previewOrganizer: previewOrganizer)) : AnyView(MonitorView(model: model, detailed: detailed, openDetails: {}, previewDialog: CommandLine.arguments.contains("--show-process-dialog")))
+            let trayPreview = previewsIconTray ? await makeIconTrayPreview(state: previewOption("--tray-state")) : nil
+            let root: AnyView
+            if let trayPreview {
+                // 导出正式单行视图，只有数据来自样本；不启动面板、AX 扫描或菜单栏隐藏。
+                root = AnyView(MenuBarTrayView(tray: trayPreview.tray, width: trayPreview.frame.width))
+            } else {
+                root = chrome ? AnyView(ErmiWindowContent(model: model, previewOrganizer: previewOrganizer)) : AnyView(MonitorView(model: model, detailed: detailed, openDetails: {}, previewDialog: CommandLine.arguments.contains("--show-process-dialog")))
+            }
             let view = NSHostingView(rootView: root)
             // 所有详情页按同一窗口导出，便于与 Tab 设计对照；窄窗口参数仅影响诊断布局。
-            view.frame = detailed ? NSRect(x: 0, y: 0, width: 600, height: 430 - (chrome ? 0 : 35)) : NSRect(x: 0, y: 0, width: ErmiTheme.panelWidth, height: ErmiTheme.panelHeight)
+            view.frame = trayPreview?.frame ?? (detailed ? NSRect(x: 0, y: 0, width: 600, height: 430 - (chrome ? 0 : 35)) : NSRect(x: 0, y: 0, width: ErmiTheme.panelWidth, height: ErmiTheme.panelHeight))
             let window = NSWindow(contentRect: view.frame, styleMask: chrome ? [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView] : [.borderless], backing: .buffered, defer: false)
+            if previewsIconTray {
+                window.isOpaque = false
+                window.backgroundColor = .clear
+            }
             window.titleVisibility = .hidden
             window.titlebarAppearsTransparent = true
             window.contentView = view
@@ -134,8 +166,86 @@ enum Diagnostics {
                     try? png.write(to: URL(fileURLWithPath: CommandLine.arguments[index + 1]))
                 }
             }
+            if let trayPreview, CommandLine.arguments.contains("--show-icon-tray-preview") {
+                // 系统玻璃依赖 WindowServer 合成，离屏 PNG 只用于布局；显式预览真实面板并自动关闭。
+                trayPreview.tray.show(anchor: nil)
+                try? await Task.sleep(for: .seconds(30))
+                trayPreview.tray.close(clearEntries: false)
+            }
+            if let trayPreview, CommandLine.arguments.contains("--check-icon-tray-window") {
+                // 使用样本入口验证真实 NSPanel 生命周期；不创建隐藏断言、不触发任何第三方菜单。
+                let tray = trayPreview.tray
+                let entryIDs = tray.entries.map(\.id)
+                var dismissals = 0
+                tray.onDismiss = { dismissals += 1 }
+                let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 800, height: 600)
+                let anchor = NSRect(x: screen.maxX - 80, y: screen.maxY, width: 24, height: 24)
+                tray.show(anchor: anchor)
+                try? await Task.sleep(for: .milliseconds(150))
+                precondition(tray.isPresented && NSApp.keyWindow is ErmiStatusPanel)
+                NSApp.keyWindow?.cancelOperation(nil)
+                precondition(!tray.isPresented && dismissals == 1)
+                tray.show(anchor: anchor)
+                try? await Task.sleep(for: .milliseconds(150))
+                precondition(tray.isPresented && tray.entries.map(\.id) == entryIDs)
+                tray.dismissFromUser()
+                precondition(!tray.isPresented && dismissals == 2)
+                tray.show(anchor: anchor)
+                tray.close()
+                precondition(!tray.isPresented && tray.entries.isEmpty && dismissals == 2)
+                print("ICON TRAY window-open-escape-reopen-close=passed")
+            }
         }
         finish()
+    }
+
+    private static func makeIconTrayPreview(state: String?) async -> (tray: MenuBarTray, frame: NSRect) {
+        let authorized = state != "permission"
+        let iconMode = previewOption("--tray-icons") ?? "status"
+        let applications = [
+            ("com.apple.Safari", "Safari", "safari"),
+            ("com.apple.mail", "Mail", "envelope"),
+            ("com.apple.Notes", "Notes", "note.text"),
+            ("com.apple.Maps", "Maps", "map"),
+            ("com.apple.finder", "Finder", "folder"),
+            ("com.apple.Safari", "Safari", "safari")
+        ]
+        let count = state == "empty" || !authorized ? 0 : (state == "overflow" ? 36 : 6)
+        // 无效 PID 只构造 AX 类型占位，不读取任何实际 App；所有扫描和点击均替换为内存实现。
+        let element = AXUIElementCreateApplication(-1)
+        let entries = (0..<count).map { index in
+            let app = applications[index % applications.count]
+            // 模板只是视觉样本，不宣称是这些 App 的真实状态图标；fallback 走正式灰度 App 占位。
+            var icon = iconMode == "fallback" || (iconMode == "mixed" && index.isMultiple(of: 2))
+                ? nil : NSImage(systemSymbolName: app.2, accessibilityDescription: app.1)
+            if iconMode == "wide", index == 0 {
+                icon = NSImage(size: NSSize(width: 96, height: 18), flipped: false) { _ in
+                    NSAttributedString(string: "42% · 63°", attributes: [
+                        .font: NSFont.monospacedSystemFont(ofSize: 14, weight: .medium),
+                        .foregroundColor: NSColor.labelColor
+                    ]).draw(at: NSPoint(x: 2, y: 0))
+                    return true
+                }
+            }
+            return MenuBarTrayEntry(
+                pid: -1, bundleID: app.0, name: app.1, label: "菜单栏入口 · \(index + 1)",
+                element: element, action: kAXPressAction,
+                frame: CGRect(x: CGFloat(index * 24), y: 0, width: 24, height: 24), icon: icon
+            )
+        }
+        let tray = MenuBarTray(
+            permissionCheck: { authorized }, permissionRequest: { authorized }, identityCheck: { _, _ in false },
+            scanOverride: { (entries, [:]) }, actionOverride: { _, _ in AXError.notImplemented.rawValue },
+            screenCapturePermissionCheck: { iconMode != "fallback" }, screenCapturePermissionRequest: { false }
+        )
+        await tray.prepare(scope: .applications(Set(entries.map(\.bundleID))))
+        // 窄屏样本沿用正式宽度钳制，验证大量入口保持横向一行，不另写预览排版。
+        let screen = NSRect(x: 0, y: 0, width: state == "overflow" ? 436 : 800, height: 600)
+        let frame = MenuBarTray.layout(anchor: nil, screen: screen, visible: screen,
+                                       entryCount: entries.count, showsMessage: entries.isEmpty || !authorized,
+                                       showsIconPermission: iconMode == "fallback",
+                                       entriesWidth: tray.entries.reduce(0) { $0 + $1.buttonWidth + 4 })
+        return (tray, NSRect(origin: .zero, size: frame.size))
     }
 
     private static func checkFanControl() async {
@@ -183,6 +293,58 @@ enum Diagnostics {
             } catch { print("FAN CHECK restore-unconfirmed=\(error)") }
         }
         client.disconnect()
+    }
+
+    private static func writeMenuEntryReport(bundleID: String, path: String) {
+        func attribute(_ element: AXUIElement, _ key: String) -> CFTypeRef? {
+            var value: CFTypeRef?
+            return AXUIElementCopyAttributeValue(element, key as CFString, &value) == .success ? value : nil
+        }
+        let displays = NSScreen.screens.compactMap { screen -> CGDirectDisplayID? in
+            (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+        }
+        let apps = NSWorkspace.shared.runningApplications.filter { $0.bundleIdentifier == bundleID }
+        let reports: [[String: Any]] = apps.map { app in
+            let root = AXUIElementCreateApplication(app.processIdentifier)
+            AXUIElementSetMessagingTimeout(root, 0.3)
+            var raw: CFTypeRef?
+            let status = AXUIElementCopyAttributeValue(root, "AXExtrasMenuBar" as CFString, &raw)
+            var items: [AXUIElement] = []
+            if status == .success, let raw, CFGetTypeID(raw) == AXUIElementGetTypeID() {
+                items = attribute(unsafeBitCast(raw, to: AXUIElement.self), kAXChildrenAttribute) as? [AXUIElement] ?? []
+            }
+            let managed = MenuBarEntryFilter.managedItems(items, bundleID: bundleID)
+            let entries: [[String: Any]] = items.enumerated().map { index, item in
+                AXUIElementSetMessagingTimeout(item, 0.3)
+                var row: [String: Any] = ["index": index,
+                    "includedInOrganizer": managed.contains { CFEqual($0, item) },
+                    "sameElementAs": items.indices.filter { $0 < index && CFEqual(items[$0], item) }]
+                // 不导出菜单内容或 VPN 配置名；身份、动作和坐标足以区分真实入口、重复引用及屏幕副本。
+                for key in [kAXRoleAttribute, kAXSubroleAttribute, kAXIdentifierAttribute] {
+                    if let value = attribute(item, key) as? String { row[key] = value }
+                }
+                var actions: CFArray?
+                if AXUIElementCopyActionNames(item, &actions) == .success { row["actions"] = actions as? [String] ?? [] }
+                var point = CGPoint.zero, size = CGSize.zero
+                if let position = attribute(item, kAXPositionAttribute), let extent = attribute(item, kAXSizeAttribute),
+                   CFGetTypeID(position) == AXValueGetTypeID(), CFGetTypeID(extent) == AXValueGetTypeID(),
+                   AXValueGetValue(unsafeBitCast(position, to: AXValue.self), .cgPoint, &point),
+                   AXValueGetValue(unsafeBitCast(extent, to: AXValue.self), .cgSize, &size) {
+                    row["frame"] = ["x": point.x, "y": point.y, "width": size.width, "height": size.height]
+                    let midpoint = CGPoint(x: point.x + size.width / 2, y: point.y + size.height / 2)
+                    row["displays"] = displays.filter { CGDisplayBounds($0).contains(midpoint) }
+                }
+                return row
+            }
+            return ["pid": app.processIdentifier, "bundleID": bundleID, "extrasStatus": status.rawValue,
+                    "entryCount": items.count, "managedEntryCount": managed.count, "entries": entries]
+        }
+        let report: [String: Any] = ["authorized": AXIsProcessTrusted(), "applications": reports,
+            "displayCount": displays.count]
+        do {
+            try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])
+                .write(to: URL(fileURLWithPath: path), options: .atomic)
+        } catch { fputs("Menu entry report failed: \(error)\n", stderr) }
     }
 
     private static func finish() {

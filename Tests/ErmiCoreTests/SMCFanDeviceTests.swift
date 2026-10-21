@@ -6,6 +6,12 @@ private enum WriteFixtureError: Error { case denied }
 private final class SMCWriteFixture: SMCKeyWriting, @unchecked Sendable {
     var values: [String: SMCValue] = [:]
     var writes: [SMCValue] = []
+    var requested: [String] = []
+    var enumerationCount = 0
+    func allKeys() throws -> [String] {
+        enumerationCount += 1
+        return Array(values.keys)
+    }
     var requiresUnlock = false
     var deniedKey: String?
     var delayedModeReads = 0
@@ -30,6 +36,7 @@ private final class SMCWriteFixture: SMCKeyWriting, @unchecked Sendable {
         values[key] = SMCValue(key: key, type: "flt ", bytes: (0..<4).map { UInt8((bits >> ($0 * 8)) & 255) })
     }
     func read(_ key: String) throws -> SMCValue {
+        requested.append(key)
         if let pendingTarget, pendingTarget.key == key {
             if delayedTargetReads > 0 { delayedTargetReads -= 1 }
             else { values[key] = pendingTarget; self.pendingTarget = nil }
@@ -71,6 +78,57 @@ private final class JournalFixture: @unchecked Sendable {
 }
 
 struct SMCFanDeviceTests {
+    @Test func selectedSensorIsReadFreshWithoutEnumeratingOrChangingAggregates() async throws {
+        let fixture = SMCWriteFixture()
+        fixture.float("Txyz", 73); fixture.float("Tabs", 91)
+        let device = SMCFanDevice(transport: fixture, clock: { 123 })
+        let ordinary = try await device.snapshot()
+        #expect(ordinary.sensorTemperatures.isEmpty)
+        #expect(!fixture.requested.contains("Txyz"))
+        let selected = try await device.snapshot(sensorKey: "Txyz")
+        #expect(selected.sensorTemperatures == ["Txyz": 73])
+        #expect(selected.cpuTemperature == ordinary.cpuTemperature)
+        #expect(selected.gpuTemperature == ordinary.gpuTemperature)
+        #expect(selected.fans == ordinary.fans)
+        #expect(selected.sampledAt == 123)
+        #expect(!fixture.requested.contains("Tabs"))
+        #expect(fixture.enumerationCount == 0)
+        #expect(fixture.writes.isEmpty)
+        fixture.float("Txyz", 81)
+        #expect(try await device.snapshot(sensorKey: "Txyz").sensorTemperatures == ["Txyz": 81])
+        fixture.values.removeValue(forKey: "Txyz")
+        #expect(try await device.snapshot(sensorKey: "Txyz").sensorTemperatures.isEmpty)
+        #expect(try await device.snapshot(sensorKey: nil).sensorTemperatures.isEmpty)
+    }
+
+    @Test func selectedSensorRejectsInvalidKeysTypesAndValuesAndRecoveryNeedsNoTemperature() async throws {
+        let fixture = SMCWriteFixture()
+        let device = SMCFanDevice(transport: fixture)
+        for key in ["TxyzZ", "Té00", "T_00", "txxx", "T", "FS! "] {
+            fixture.float(key, 60)
+            #expect(try await device.snapshot(sensorKey: key).sensorTemperatures.isEmpty)
+            #expect(!fixture.requested.contains(key))
+        }
+        for value: Float in [0, -1, 151, .nan, .infinity] {
+            fixture.float("Txyz", value)
+            #expect(try await device.snapshot(sensorKey: "Txyz").sensorTemperatures.isEmpty)
+        }
+        fixture.byte("Txyz", 60)
+        #expect(try await device.snapshot(sensorKey: "Txyz").sensorTemperatures.isEmpty)
+        fixture.values["Txyz"] = SMCValue(key: "Txyz", type: "sp78", bytes: [0x3f, 0x80])
+        #expect(try await device.snapshot(sensorKey: "Txyz").sensorTemperatures == ["Txyz": 63.5])
+        fixture.float("Txyz", 150)
+        #expect(try await device.snapshot(sensorKey: "Txyz").sensorTemperatures == ["Txyz": 150])
+        #expect(fixture.writes.isEmpty)
+        try await device.setManualRPM(index: 0, rpm: 3000)
+        fixture.values = fixture.values.filter { !$0.key.hasPrefix("T") }
+        fixture.requested.removeAll()
+        try await device.restoreSystem(index: 0)
+        #expect(fixture.values["F0Md"]?.number == 0)
+        #expect(!fixture.requested.contains { $0.hasPrefix("T") })
+        #expect(fixture.enumerationCount == 0)
+    }
+
     @Test func legacyJournalSurvivesPartialRestoreAndRestart() async throws {
         let fixture = SMCWriteFixture(), journal = JournalFixture()
         journal.data = Data(#"{"indices":[0,1],"unlock":false}"#.utf8)

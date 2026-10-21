@@ -32,7 +32,12 @@ struct MonitorView: View {
                 divider
                 VStack(spacing: 6) {
                     HStack {
-                        Text(L("风扇")).font(.system(size: 11))
+                        Button { navigate(.presets) } label: {
+                            HStack(spacing: 4) {
+                                Text(L("风扇")).font(.system(size: 11))
+                                Image(systemName: "arrow.up.right").font(.system(size: 8))
+                            }
+                        }.buttonStyle(ErmiPressStyle()).help(L("管理方案 ↗")).accessibilityLabel(L("风扇调节"))
                         Spacer()
                         Text(model.fanRPMText)
                             .font(.system(size: 10)).monospacedDigit().foregroundStyle(ErmiTheme.link)
@@ -68,18 +73,22 @@ struct MonitorView: View {
     }
     private var hero: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 HStack(alignment: .top, spacing: 0) {
-                    Text(model.cpuTemperatureText).font(.system(size: 39, weight: .regular)).tracking(-1.5)
+                    Text(model.panelTemperatureText).font(.system(size: 39, weight: .regular)).tracking(-1.5)
                     Text("°C").font(.system(size: 18)).padding(.top, 4)
                 }.frame(height: 40)
+                // 来源是整个温度读数的说明，独占下方一行；避免挤在单位旁，也容纳最高值和具体键标签。
+                Text(model.panelTemperatureSourceTitle).font(.system(size: 9))
+                    .foregroundStyle(ErmiTheme.ice).lineLimit(1)
+                    .frame(maxWidth: 120, alignment: .leading)
             }.help(L(model.temperatureHelp))
             Spacer()
             VStack(alignment: .trailing, spacing: 7) {
                 HStack(spacing: 5) { Circle().fill(thermalColor).frame(width: 5, height: 5); Text(L(model.thermalText)) }
-                Text("CPU \(model.cpuText)% · GPU \(model.gpuTemperatureText)°C").foregroundStyle(ErmiTheme.ice)
+                Text(model.panelTemperatureSummary).foregroundStyle(ErmiTheme.ice)
             }.font(.system(size: 10))
-        }.foregroundStyle(ErmiTheme.header).padding(.horizontal, 21).padding(.bottom, 12)
+        }.foregroundStyle(ErmiTheme.header).padding(.horizontal, 21).padding(.bottom, 6)
     }
     private var thermalColor: Color {
         if model.designPreview { return ErmiTheme.green }
@@ -177,11 +186,14 @@ struct MonitorView: View {
             } else if model.displayedFanMode == .auto {
                 HStack {
                     R4ChoiceMenu(selection: Binding(get: { model.strategyTitle }, set: { selection in
-                        model.strategy = selection == "日常均衡" ? "均衡" : selection
-                        if !model.designPreview { model.selectFanMode(.auto) }
+                        let name = selection == "日常均衡" ? "均衡" : selection
+                        // 明确应用内置方案，不能按名称误选同名自定义方案；标题等待服务确认后更新。
+                        if model.designPreview { model.strategy = name }
+                        else { model.applyFanPreset(model.builtinFanPreset(named: name)) }
                     }), options: ["日常均衡", "积极散热"], bordered: false).disabled(model.controlBusy)
-                    Spacer()
-                    Button(L("管理方案 ↗")) { navigate(.presets) }.buttonStyle(ErmiPressStyle())
+                    Spacer(minLength: 4)
+                    // 默认方案直接选源；管理入口移到风扇标题，保持菜单栏面板的原有高度。
+                    DefaultFanTemperatureSourcePicker(model: model, compact: true).frame(maxWidth: 168, alignment: .trailing)
                 }
             } else if model.displayedFanMode == .fixed {
                 HStack(spacing: 10) {
@@ -206,6 +218,53 @@ struct MonitorView: View {
     private func navigate(_ page: DetailPage) {
         model.detailPage = page
         if let openPage { openPage(page) } else { openDetails() }
+    }
+}
+
+// 两个自动温控入口共用同一选择和候选列表，避免弹窗与详情页分别维护默认传感器。
+struct DefaultFanTemperatureSourcePicker: View {
+    @Bindable var model: MonitorModel
+    var compact = false
+
+    private var selection: Binding<String> {
+        Binding(get: {
+            model.defaultFanTemperatureSource == .sensor
+                ? model.defaultFanTemperatureSensorKey ?? ""
+                : model.defaultFanTemperatureSource.rawValue
+        }, set: { value in
+            // 聚合来源用既有枚举值，具体 SMC 键以 T 开头，不会与这三个值混淆。
+            if let source = FanTemperatureSource(rawValue: value), source != .sensor {
+                model.selectDefaultFanTemperatureSource(source)
+            } else {
+                model.selectDefaultFanTemperatureSource(.sensor, sensorKey: value)
+            }
+        })
+    }
+
+    var body: some View {
+        Picker(L("内置方案温度来源"), selection: selection) {
+            Text(L(compact ? "CPU" : "CPU（推荐映射）")).tag(FanTemperatureSource.cpu.rawValue)
+            Text(L(compact ? "GPU" : "GPU（推荐映射）")).tag(FanTemperatureSource.gpu.rawValue)
+            Text(L("CPU / GPU 最高")).tag(FanTemperatureSource.maxCPUAndGPU.rawValue)
+            Divider()
+            // 已选但暂时缺失的键保留可见，不能因为刷新或重新打开窗口就回退到其他来源。
+            if let key = model.defaultFanTemperatureSensorKey,
+               model.defaultFanTemperatureSource == .sensor,
+               !model.temperatureSensors.contains(where: { $0.key == key }) {
+                Text(key + " · " + L("不可用")).tag(key).disabled(true)
+            }
+            ForEach(model.temperatureSensors) { reading in
+                Text(reading.key + " · " + (reading.celsius.map { String(format: "%.1f°C", $0) } ?? L("不可用")))
+                    .tag(reading.key).disabled(reading.celsius == nil)
+            }
+            if model.temperatureSensors.isEmpty {
+                Text(L("等待读取温度传感器…")).disabled(true)
+            }
+        }
+        .labelsHidden().pickerStyle(.menu).controlSize(.small)
+        .accessibilityLabel(L("内置方案温度来源"))
+        .help(L("用于日常均衡与积极散热；自定义方案保留各自的温度来源。"))
+        .disabled(model.controlBusy || model.installerOpening || model.designPreview)
     }
 }
 

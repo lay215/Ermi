@@ -14,7 +14,8 @@ struct ErmiDetailView: View {
     @State private var originalRule: FanThermalRule?
     @State private var presetName = "我的方案"
     @State private var kind = "自动调节"
-    @State private var sensor = "CPU"
+    @State private var sensor: FanTemperatureSource = .cpu
+    @State private var sensorKey = ""
     @State private var startTemperature = "55"
     @State private var endTemperature = "80"
     @State private var targetRPMs: [Int: String] = [:]
@@ -47,6 +48,8 @@ struct ErmiDetailView: View {
             editor.frame(width: 460).padding(16)
                 .background(ErmiTheme.detailBackground).foregroundStyle(ErmiTheme.detailInk)
                 .interactiveDismissDisabled(model.presetBusy)
+                .onAppear { model.temperatureSensorEditorActive = true }
+                .onDisappear { model.temperatureSensorEditorActive = false }
         }
         .alert(L("删除“\(deleting?.name ?? "")”？"), isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), presenting: deleting) { preset in
             Button(L("取消"), role: .cancel) { deleting = nil }
@@ -158,6 +161,8 @@ struct ErmiDetailView: View {
             if model.controlNeedsAttention && !model.controlNotice.isEmpty && model.controlNotice != model.fanCapabilityIssue && !model.designPreview {
                 Text(L(model.controlNotice)).font(.system(size: 9)).foregroundStyle(ErmiTheme.detailMuted).fixedSize(horizontal: false, vertical: true)
             }
+            // 系统或固定模式也能先选来源；传感器失效退回系统后，仍可在这里改回有效来源。
+            if !model.isFanless { defaultTemperatureSource }
             if model.displayedFanMode == .auto {
                 planList
             } else if model.displayedFanMode == .fixed {
@@ -198,12 +203,34 @@ struct ErmiDetailView: View {
                 .disabled(model.controlBusy || model.installerOpening)
         }.padding(10).detailCard()
     }
+    private var defaultTemperatureSource: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(L("内置方案温度来源")).font(.system(size: 10, weight: .medium))
+                Spacer(minLength: 8)
+                // 原生菜单保留自身固有宽度；外层右对齐，避免在预留宽度内居中而偏离卡片右边缘。
+                DefaultFanTemperatureSourcePicker(model: model).frame(width: 240, alignment: .trailing)
+            }
+            Text(L("用于日常均衡与积极散热；自定义方案保留各自的温度来源。"))
+                .font(.system(size: 8)).foregroundStyle(ErmiTheme.detailMuted)
+            if model.pendingFanMode == .auto {
+                Text(L("正在应用…")).font(.system(size: 9)).foregroundStyle(ErmiTheme.detailMuted)
+            } else if model.fanStatus.phase == .applied, case .thermal(let rule) = model.fanStatus.preset?.configuration {
+                // 实际来源只读服务确认配置，默认选择或在途请求不能冒充当前生效值。
+                Text(L("当前温控来源：\(sourceTitle(rule))")).font(.system(size: 9)).foregroundStyle(ErmiTheme.detailMuted)
+            }
+            if model.defaultFanTemperatureSource == .sensor {
+                Text(L("用途未确认，请观察读数变化后选择。弹窗温度同步显示所选来源。"))
+                    .font(.system(size: 8)).foregroundStyle(ErmiTheme.detailMuted).fixedSize(horizontal: false, vertical: true)
+            }
+        }.padding(12).detailCard()
+    }
     private var planList: some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
-                builtin("日常均衡", name: "均衡", subtitle: "日常办公、浏览网页", symbol: "leaf", upper: 80)
+                builtin("日常均衡", name: "均衡", subtitle: "日常办公、浏览网页")
                 SettingsDivider()
-                builtin("积极散热", name: "积极散热", subtitle: "更早加速，适合持续高负载；风声更明显", symbol: "wind", upper: 70)
+                builtin("积极散热", name: "积极散热", subtitle: "更早加速，适合持续高负载；风声更明显")
             }.detailCard()
             HStack {
                 Text(L("我的方案")).font(.system(size: 11))
@@ -237,8 +264,8 @@ struct ErmiDetailView: View {
             }
         }
     }
-    private func builtin(_ title: String, name: String, subtitle: String, symbol: String, upper: Double) -> some View {
-        let preset = FanPreset(name: name, configuration: .thermal(.init(sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: upper)))
+    private func builtin(_ title: String, name: String, subtitle: String) -> some View {
+        let preset = model.builtinFanPreset(named: name)
         return HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(L(title)).font(.system(size: 10, weight: .semibold))
@@ -249,7 +276,10 @@ struct ErmiDetailView: View {
     }
     private func useButton(_ preset: FanPreset) -> some View {
         // 使用中只依据服务已确认的配置，不能将选中或保存状态当成硬件成功。
-        let active = model.fanStatus.phase == .applied && model.fanStatus.preset?.configuration == preset.configuration
+        let samePreset = model.fanStatus.preset.map { applied in
+            applied.id == preset.id || (model.isBuiltinFanPreset(applied) && model.isBuiltinFanPreset(preset) && applied.name == preset.name)
+        } ?? false
+        let active = model.fanStatus.phase == .applied && samePreset && model.fanStatus.preset?.configuration == preset.configuration
         return Button { model.applyFanPreset(preset) } label: {
             Text(L(active ? "✓ 使用中" : "使用")).font(.system(size: 10)).frame(width: 56, height: 24)
                 .foregroundStyle(active ? Color(hex: 0x548d7c) : ErmiTheme.detailInk)
@@ -267,7 +297,15 @@ struct ErmiDetailView: View {
             field("调节方式") { Picker(L("调节方式"), selection: $kind) { Text(L("自动调节")).tag("自动调节"); Text(L("固定转速")).tag("固定转速") }.labelsHidden().frame(width: 180) }
             VStack(spacing: 0) {
             if kind == "自动调节" {
-                field("温度来源") { Picker(L("温度来源"), selection: $sensor) { ForEach(["CPU", "GPU", "CPU / GPU 最高"], id: \.self) { Text(L($0)) } }.labelsHidden().frame(width: 180) }
+                field("温度来源") {
+                    Picker(L("温度来源"), selection: $sensor) {
+                        Text(L("CPU（推荐映射）")).tag(FanTemperatureSource.cpu)
+                        Text(L("GPU（推荐映射）")).tag(FanTemperatureSource.gpu)
+                        Text(L("CPU / GPU 最高")).tag(FanTemperatureSource.maxCPUAndGPU)
+                        Text(L("自定义传感器")).tag(FanTemperatureSource.sensor)
+                    }.labelsHidden().frame(width: 200)
+                }
+                if sensor == .sensor { sensorSelection }
                 field("开始加速") { number($startTemperature, unit: "°C") }
                 field("达到全速") { number($endTemperature, unit: "°C") }
             } else {
@@ -280,7 +318,7 @@ struct ErmiDetailView: View {
                     }
                 }
             }
-            }.frame(height: 84, alignment: .top)
+            }.frame(height: kind == "自动调节" && sensor == .sensor ? 172 : 84, alignment: .top)
             // 校验信息预留两行，切换调节方式或报错均不改变弹层尺寸。
             Text(L(editorFeedback)).font(.system(size: 10)).foregroundStyle(ErmiTheme.detailMuted)
                 .frame(maxWidth: .infinity, alignment: .leading).frame(height: 32)
@@ -293,6 +331,43 @@ struct ErmiDetailView: View {
         }.padding(12).detailCard().disabled(model.presetBusy)
             .onExitCommand { if !model.presetBusy { editing = false } }
     }
+    private var sensorSelection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            field("传感器") {
+                Picker(L("传感器"), selection: $sensorKey) {
+                    Text(L("请选择传感器")).tag("")
+                    // 已保存但当前缺失的键保留选中，不能在采样刷新时悄悄改用第一项。
+                    if !sensorKey.isEmpty && !model.temperatureSensors.contains(where: { $0.key == sensorKey }) {
+                        Text(sensorKey + " · " + L("不可用")).tag(sensorKey)
+                    }
+                    ForEach(model.temperatureSensors) { reading in
+                        Text(sensorLabel(reading)).tag(reading.key)
+                    }
+                }.labelsHidden().frame(width: 240)
+            }
+            Text(selectedSensorValue).font(.system(size: 10, weight: .medium)).monospacedDigit()
+            Text(L("用途未确认，请观察读数变化后选择。失效时恢复系统控制；不改变面板主温度。"))
+                .font(.system(size: 10)).foregroundStyle(ErmiTheme.detailMuted).fixedSize(horizontal: false, vertical: true)
+        }.frame(height: 88, alignment: .top)
+    }
+    private func sensorLabel(_ reading: TemperatureSensorReading) -> String {
+        let value = reading.celsius.map { String(format: "%.1f°C", $0) } ?? L("不可用")
+        return reading.key + " · " + value
+    }
+    private var selectedSensorValue: String {
+        guard let reading = model.temperatureSensors.first(where: { $0.key == sensorKey }) else {
+            return L(sensorKey.isEmpty ? "等待读取温度传感器…" : "所选传感器当前不可用，应用时将重新检查。")
+        }
+        return L("当前读数") + " · " + sensorLabel(reading)
+    }
+    private func sourceTitle(_ rule: FanThermalRule) -> String {
+        switch rule.sensor {
+        case .cpu: return "CPU"
+        case .gpu: return "GPU"
+        case .maxCPUAndGPU: return L("CPU / GPU 最高")
+        case .sensor: return rule.sensorKey ?? L("自定义传感器")
+        }
+    }
     private func field<Content: View>(_ label: String, @ViewBuilder content: () -> Content) -> some View {
         HStack { Text(L(label)); Spacer(); content() }.font(.system(size: 11)).frame(height: 28).overlay(alignment: .bottom) { Divider().opacity(0.4) }
     }
@@ -304,18 +379,18 @@ struct ErmiDetailView: View {
     }
     private func presetSummary(_ preset: FanPreset) -> String {
         switch preset.configuration {
-        case .thermal(let rule): return "\(rule.sensor == .cpu ? "CPU" : rule.sensor == .gpu ? "GPU" : "CPU / GPU") · \(Int(rule.lowerTemperature))°C 开始，\(Int(rule.upperTemperature))°C 全速"
+        case .thermal(let rule): return "\(sourceTitle(rule)) · \(Int(rule.lowerTemperature))°C 开始，\(Int(rule.upperTemperature))°C 全速"
         case .fixed(let rpm): return "固定目标 · \(Int(rpm)) RPM"
         case .fixedTargets(let targets): return targets.sorted { $0.index < $1.index }.map { "\(Int($0.rpm))" }.joined(separator: " / ") + " RPM"
         }
     }
     private func beginEdit(_ preset: FanPreset?) {
         editingID = preset?.id; originalRule = nil; presetName = preset?.name ?? L("我的方案"); editorFeedback = ""
-        kind = "自动调节"; sensor = "CPU"; startTemperature = "55"; endTemperature = "80"; targetRPMs = Dictionary(uniqueKeysWithValues: model.fanCapabilities.map { ($0.index, String(min(max(3200, $0.minimumRPM), $0.maximumRPM))) })
+        kind = "自动调节"; sensor = .cpu; sensorKey = ""; startTemperature = "55"; endTemperature = "80"; targetRPMs = Dictionary(uniqueKeysWithValues: model.fanCapabilities.map { ($0.index, String(min(max(3200, $0.minimumRPM), $0.maximumRPM))) })
         if let preset {
             switch preset.configuration {
             case .thermal(let rule):
-                originalRule = rule; sensor = rule.sensor == .cpu ? "CPU" : rule.sensor == .gpu ? "GPU" : "CPU / GPU 最高"
+                originalRule = rule; sensor = rule.sensor; sensorKey = rule.sensorKey ?? ""
                 startTemperature = String(rule.lowerTemperature); endTemperature = String(rule.upperTemperature)
             case .fixed(let rpm): kind = "固定转速"; targetRPMs = Dictionary(uniqueKeysWithValues: model.fanCapabilities.map { ($0.index, String(rpm)) })
             case .fixedTargets(let targets):
@@ -333,7 +408,11 @@ struct ErmiDetailView: View {
             guard let start = Double(startTemperature), let end = Double(endTemperature), start.isFinite, end.isFinite, start >= 0, end <= 150, start < end else { editorFeedback = "温度须在 0–150°C 内，开始温度低于全速温度。"; return }
             // 编辑保留既有的 RPM 限制和爬升速率，界面未呈现的安全参数不能被默认值覆盖。
             var rule = originalRule ?? FanThermalRule(sensor: .cpu, lowerTemperature: start, upperTemperature: end)
-            rule.sensor = sensor == "GPU" ? .gpu : sensor == "CPU" ? .cpu : .maxCPUAndGPU
+            guard sensor != .sensor || FanThermalRule.isValidSensorKey(sensorKey) else {
+                editorFeedback = "请选择有效的温度传感器。"; return
+            }
+            rule.sensor = sensor
+            rule.sensorKey = sensor == .sensor ? sensorKey : nil
             rule.lowerTemperature = start; rule.upperTemperature = end; configuration = .thermal(rule)
         } else {
             let capabilities = model.fanCapabilities.sorted { $0.index < $1.index }

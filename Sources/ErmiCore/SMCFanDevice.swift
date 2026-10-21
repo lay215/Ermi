@@ -6,7 +6,7 @@ public enum SMCFanError: Error, CustomStringConvertible {
     public var description: String { switch self { case .rejected(let reason): return reason } }
 }
 
-/// 仅helper实例能够写硬件；actor串行化解锁、目标写入及恢复，调用方不能指定SMC key。
+/// 仅helper实例能够写硬件；actor串行化解锁、目标写入及恢复，写入 key 始终由设备内部决定。
 public actor SMCFanDevice: FanDevice {
     private let transport: any SMCKeyWriting
     private let model: String
@@ -63,6 +63,17 @@ public actor SMCFanDevice: FanDevice {
         let hardware = HardwareSensorReader(transport: transport, model: model, cpuBrand: cpu).sample()
         // 时间戳取本轮采样完成时的单调时钟，不能借用App传入的旧now伪装采样时间。
         return FanDeviceSnapshot(fans: states, cpuTemperature: hardware.cpuTemperature?.celsius, gpuTemperature: hardware.gpuTemperature?.celsius, sampledAt: clock())
+    }
+
+    public func snapshot(sensorKey: String?) async throws -> FanDeviceSnapshot {
+        let ordinary = try snapshot()
+        guard let sensorKey, FanThermalRule.isValidSensorKey(sensorKey) else { return ordinary }
+        // helper 只在本轮普通快照之后读取选中键，不枚举候选、不复用 App 读数，也不回退 CPU/GPU。
+        // 缺失、类型错误或越界值省略，由控制器拒绝；恢复路径始终不依赖温度。
+        let temperature = try? transport.read(sensorKey).temperatureCelsius
+        return FanDeviceSnapshot(fans: ordinary.fans, cpuTemperature: ordinary.cpuTemperature,
+                                 gpuTemperature: ordinary.gpuTemperature, sampledAt: clock(),
+                                 sensorTemperatures: temperature.map { [sensorKey: $0] } ?? [:])
     }
 
     public func setManualRPM(index: Int, rpm requested: Double) throws {

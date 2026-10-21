@@ -16,6 +16,12 @@ private actor FakeFanDevice: FanDevice {
     var states = [FanDeviceState(index: 0, mode: .system, targetRPM: nil, actualRPM: 2100), FanDeviceState(index: 1, mode: .system, targetRPM: nil, actualRPM: 2200)]
     var temperature: Double? = 65
     var sampledAt: Double = 100
+    var sensorTemperatures: [String: Double] = [:]
+    var requestedSensorKeys: [String?] = []
+    var ordinarySnapshots = 0
+    func sampleSensors(_ temperatures: [String: Double], at: Double) {
+        sensorTemperatures = temperatures; sampledAt = at
+    }
     var failWrite: Int?
     var failRestore: Int?
     var ignoreWrite = false
@@ -33,7 +39,17 @@ private actor FakeFanDevice: FanDevice {
         states[1] = FanDeviceState(index: 1, mode: .manual, targetRPM: 2500, actualRPM: 2500)
     }
     func capabilities() -> [FanCapability] { limits }
-    func snapshot() -> FanDeviceSnapshot { FanDeviceSnapshot(fans: states, cpuTemperature: temperature, gpuTemperature: temperature, sampledAt: sampledAt) }
+    func snapshot() -> FanDeviceSnapshot {
+        ordinarySnapshots += 1
+        return FanDeviceSnapshot(fans: states, cpuTemperature: temperature, gpuTemperature: temperature, sampledAt: sampledAt)
+    }
+    func snapshot(sensorKey: String?) -> FanDeviceSnapshot {
+        requestedSensorKeys.append(sensorKey)
+        // 普通采样不提供具体键；定向快照保留其他温度，验证控制器不会误取另一传感器。
+        let selected = sensorKey == nil ? [:] : sensorTemperatures
+        return FanDeviceSnapshot(fans: states, cpuTemperature: temperature, gpuTemperature: temperature,
+                                 sampledAt: sampledAt, sensorTemperatures: selected)
+    }
     func setManualRPM(index: Int, rpm: Double) async throws {
         if paused { await withCheckedContinuation { writeWaiter = $0 } }
         completionClock?.set(120)
@@ -57,6 +73,146 @@ struct FanControlTests {
     private func thermal(ramp: Double? = nil) -> FanPreset {
         FanPreset(name: "两点", configuration: .thermal(FanThermalRule(sensor: .cpu, lowerTemperature: 50, upperTemperature: 80, rampRPMPerSecond: ramp)))
     }
+    private func sensorPreset(key: String? = "TC0P") -> FanPreset {
+        FanPreset(name: "指定传感器", configuration: .thermal(FanThermalRule(
+            sensor: .sensor, lowerTemperature: 50, upperTemperature: 80, sensorKey: key)))
+    }
+    @Test func selectedSensorDrivesApplyAndTickIndependentlyOfCPUAndGPU() async {
+        let fake = FakeFanDevice()
+        await fake.sampleSensors(["TC0P": 50, "TG0P": 80], at: 100)
+        let controller = FanController(device: fake, clock: { 100 })
+        let applied = await controller.apply(sensorPreset(), leaseID: UUID(), now: 100)
+        #expect(applied.phase == .applied)
+        #expect(applied.targets == [0: 1000, 1: 1500])
+        await fake.sampleSensors(["TC0P": 80, "TG0P": 50], at: 101)
+        #expect(await controller.tick(now: 101).targets == [0: 5000, 1: 6000])
+        #expect(await fake.requestedSensorKeys == ["TC0P", "TC0P"])
+        #expect(await controller.restoreSystem().phase == .system)
+        #expect(await fake.ordinarySnapshots == 3)
+    }
+    @Test func invalidSensorKeysAndSourceCombinationsNeverWrite() async {
+        let invalidKeys: [String?] = [nil, "", "TC0", "TC0PX", "XC0P", "tc0p", "Té0", "T_0P", "T 0P", "T\u{0000}0P"]
+        var presets = invalidKeys.map { sensorPreset(key: $0) }
+        for source in [FanTemperatureSource.cpu, .gpu, .maxCPUAndGPU] {
+            presets.append(FanPreset(name: "非法组合", configuration: .thermal(FanThermalRule(
+                sensor: source, lowerTemperature: 50, upperTemperature: 80, sensorKey: "TC0P"))))
+        }
+        for preset in presets {
+            let fake = FakeFanDevice()
+            if case .thermal(let rule) = preset.configuration, let key = rule.sensorKey {
+                await fake.sampleSensors([key: 65], at: 100)
+            }
+            let controller = FanController(device: fake, clock: { 100 })
+            #expect(await controller.apply(preset, leaseID: UUID(), now: 100).phase == .failed)
+            #expect(await fake.writeCount == 0)
+            #expect(await fake.restores.isEmpty)
+        }
+    }
+    @Test func storeRejectsInvalidSensorSelectionsAndPreservesExistingPresets() async throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let store = FanPresetStore(url: folder.appendingPathComponent("presets.json"))
+        try await store.save([fixed])
+        let invalidKeys: [String?] = [nil, "", "TC0", "TC0PX", "XC0P", "tc0p", "Té0", "T_0P", "T 0P", "T\u{0000}0P"]
+        var invalid = invalidKeys.map { sensorPreset(key: $0) }
+        for source in [FanTemperatureSource.cpu, .gpu, .maxCPUAndGPU] {
+            invalid.append(FanPreset(name: "非法组合", configuration: .thermal(FanThermalRule(
+                sensor: source, lowerTemperature: 50, upperTemperature: 80, sensorKey: "TC0P"))))
+        }
+        for preset in invalid {
+            await #expect(throws: FanPresetStoreError.self) { try await store.save([preset]) }
+            #expect(try await store.load() == [fixed])
+        }
+    }
+    @Test func storeRejectsInvalidSensorSelectionsWhenLoading() async throws {
+        struct Document: Encodable { let version = 1; let presets: [FanPreset] }
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let url = folder.appendingPathComponent("presets.json")
+        let invalid = [sensorPreset(key: nil), sensorPreset(key: "T_0P"), FanPreset(
+            name: "旧来源夹带键", configuration: .thermal(FanThermalRule(
+                sensor: .cpu, lowerTemperature: 50, upperTemperature: 80, sensorKey: "TC0P")))]
+        let store = FanPresetStore(url: url)
+        for preset in invalid {
+            let data = try JSONEncoder().encode(Document(presets: [preset]))
+            try data.write(to: url)
+            await #expect(throws: FanPresetStoreError.self) { try await store.load() }
+            await #expect(throws: FanPresetStoreError.self) { try await store.save([fixed]) }
+            #expect(try Data(contentsOf: url) == data)
+        }
+    }
+    @Test func selectedSensorFailureRestoresWithoutFallingBackToOtherTemperatures() async {
+        let invalidReadings: [Double?] = [nil, .nan, .infinity, -.infinity, 0, -1, 150.1]
+        for reading in invalidReadings {
+            let fake = FakeFanDevice()
+            await fake.sampleSensors(["TC0P": 65], at: 100)
+            let controller = FanController(device: fake, clock: { 100 })
+            #expect(await controller.apply(sensorPreset(), leaseID: UUID(), now: 100).phase == .applied)
+            var readings = ["TG0P": 80.0]
+            readings["TC0P"] = reading
+            await fake.sampleSensors(readings, at: 101)
+            #expect(await controller.tick(now: 101).phase == .failed)
+            #expect(await fake.writeCount == 2)
+            #expect(await fake.restores == [0, 1])
+            #expect(await fake.states.allSatisfy { $0.mode == .system })
+        }
+    }
+    @Test func selectedSensorRejectsStaleFutureAndNonFiniteSamplingTimes() async {
+        for sampledAt in [90.0, 102.0, .nan, .infinity] {
+            let fake = FakeFanDevice()
+            await fake.sampleSensors(["TC0P": 65], at: 100)
+            let controller = FanController(device: fake, clock: { 100 })
+            #expect(await controller.apply(sensorPreset(), leaseID: UUID(), now: 100).phase == .applied)
+            await fake.sampleSensors(["TC0P": 80], at: sampledAt)
+            #expect(await controller.tick(now: 101).phase == .failed)
+            #expect(await fake.writeCount == 2)
+            #expect(await fake.states.allSatisfy { $0.mode == .system })
+        }
+    }
+    @Test func selectedSensorAcceptsAlphanumericKeyAndMaximumValidTemperature() async {
+        let fake = FakeFanDevice()
+        await fake.sampleSensors(["Ta9Z": 150], at: 100)
+        let controller = FanController(device: fake, clock: { 100 })
+        let applied = await controller.apply(sensorPreset(key: "Ta9Z"), leaseID: UUID(), now: 100)
+        #expect(applied.phase == .applied)
+        #expect(applied.targets == [0: 5000, 1: 6000])
+    }
+    @Test func legacyConfigurationsRequestNoSpecificSensor() async {
+        for preset in [fixed, thermal()] {
+            let fake = FakeFanDevice()
+            let controller = FanController(device: fake, clock: { 100 })
+            #expect(await controller.apply(preset, leaseID: UUID(), now: 100).phase == .applied)
+            #expect(await controller.tick(now: 101).phase == .applied)
+            #expect(await fake.requestedSensorKeys == [nil, nil])
+        }
+    }
+    @Test func legacyPresetJSONWithoutSensorKeyRemainsReadable() async throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let url = folder.appendingPathComponent("presets.json")
+        let data = Data("""
+        {"version":1,"presets":[{"id":"D9C20CA4-E3AF-4E6A-A184-650710D323F7","name":"旧温控",
+        "configuration":{"thermal":{"_0":{"sensor":"cpu","lowerTemperature":50,"upperTemperature":80}}}}]}
+        """.utf8)
+        try data.write(to: url)
+        let store = FanPresetStore(url: url)
+        let presets = try await store.load()
+        let preset = try #require(presets.first)
+        guard case .thermal(let rule) = preset.configuration else { Issue.record("应保留旧温控策略"); return }
+        #expect(rule.sensor == .cpu)
+        #expect(rule.sensorKey == nil)
+        #expect(rule.lowerTemperature == 50 && rule.upperTemperature == 80)
+        try await store.save(presets)
+        #expect(try await store.load() == presets)
+    }
+    @Test func specificSourceWireValueIsRejectedByLegacySourceDecoder() throws {
+        enum LegacySource: String, Decodable { case cpu, gpu, maxCPUAndGPU }
+        let encoded = try JSONEncoder().encode(FanTemperatureSource.sensor)
+        #expect(String(decoding: encoded, as: UTF8.self) == "\"sensor\"")
+        #expect(throws: DecodingError.self) { try JSONDecoder().decode(LegacySource.self, from: encoded) }
+    }
     @Test func startupAndSavingDoNotTakeOwnership() async throws {
         let fake = FakeFanDevice()
         let controller = FanController(device: fake, clock: { 100 })
@@ -65,7 +221,7 @@ struct FanControlTests {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: folder) }
         let store = FanPresetStore(url: folder.appendingPathComponent("presets.json"))
-        let presets = [fixed, thermal()]
+        let presets = [fixed, thermal(), sensorPreset()]
         try await store.save(presets)
         #expect(try await store.load() == presets)
         #expect(await fake.writeCount == 0)

@@ -10,6 +10,7 @@ import ErmiCore
     var status = FanControlStatus(phase: .system)
     var applications: [FanPreset] = []
     var applyReply: FanServiceReply?
+    var sensorSelectionSupport: Bool? = true
     var enables = 0
     var inspections = 0
     var blockedInspection: CheckedContinuation<Void, Never>?
@@ -45,7 +46,7 @@ import ErmiCore
         return .init(capabilities: [
             .init(index: 0, name: "Fan 1", minimumRPM: 1000, maximumRPM: 6000),
             .init(index: 1, name: "Fan 2", minimumRPM: 1000, maximumRPM: 6000)
-        ], status: status)
+        ], status: status, supportsTemperatureSensorSelection: sensorSelectionSupport)
     }
 }
 
@@ -60,6 +61,276 @@ import ErmiCore
     }
     private func model(_ connection: RestoreConnection, _ defaults: UserDefaults) -> MonitorModel {
         MonitorModel(fanClient: connection, defaults: defaults, loadLocalCapabilities: { [] }, loadLocalPresets: { [] })
+    }
+    @Test func builtinRulesKeepTheirOriginalDefaultsWithoutSavedSelection() {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let first = model(RestoreConnection(), defaults)
+        #expect(first.defaultFanTemperatureSource == .maxCPUAndGPU)
+        #expect(first.defaultFanTemperatureSensorKey == nil)
+        #expect(first.builtinFanPreset(named: "均衡").configuration == .thermal(.init(
+            sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: 80)))
+        #expect(first.builtinFanPreset(named: "积极散热").configuration == .thermal(.init(
+            sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: 70)))
+    }
+
+    @Test(arguments: [false, true])
+    func directSelectionUpdatesActiveBuiltinAndIsSharedByBothRules(legacy: Bool) async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = RestoreConnection()
+        let first = model(connection, defaults)
+        defer { first.stop() }
+        await first.enableFanControl()
+        let original = legacy ? FanPreset(name: "均衡", configuration: .thermal(.init(
+            sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: 80))) : first.builtinFanPreset(named: "均衡")
+        if legacy {
+            first.start()
+            try await waitFor { first.isBuiltinFanPreset(original) && first.canApplyFanControl }
+        }
+        first.applyFanPreset(original)
+        try await waitFor { !first.controlBusy }
+        first.selectDefaultFanTemperatureSource(.cpu)
+        try await waitFor { !first.controlBusy }
+        #expect(first.defaultFanTemperatureSource == .cpu)
+        #expect(first.fanStatus.preset?.configuration == .thermal(.init(sensor: .cpu, lowerTemperature: 50, upperTemperature: 80)))
+        first.applyFanPreset(first.builtinFanPreset(named: "积极散热"))
+        try await waitFor { !first.controlBusy }
+        #expect(first.fanStatus.preset?.configuration == .thermal(.init(sensor: .cpu, lowerTemperature: 50, upperTemperature: 70)))
+        first.selectDefaultFanTemperatureSource(.sensor, sensorKey: "Tp01")
+        try await waitFor { !first.controlBusy }
+        #expect(first.fanStatus.preset?.configuration == .thermal(.init(sensor: .sensor, lowerTemperature: 50, upperTemperature: 70, sensorKey: "Tp01")))
+        #expect(first.builtinFanPreset(named: "均衡").configuration == .thermal(.init(sensor: .sensor, lowerTemperature: 50, upperTemperature: 80, sensorKey: "Tp01")))
+        let nextLaunch = model(RestoreConnection(), defaults)
+        #expect(nextLaunch.defaultFanTemperatureSource == .sensor)
+        #expect(nextLaunch.defaultFanTemperatureSensorKey == "Tp01")
+    }
+
+    @Test(arguments: ["system", "fixed", "custom", "sameNameCustom"])
+    func inactiveBuiltinSelectionOnlySavesPreference(mode: String) async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = RestoreConnection()
+        let first = model(connection, defaults)
+        defer { first.stop() }
+        await first.enableFanControl()
+        var original: FanPreset?
+        if mode == "fixed" { original = .init(name: "固定", configuration: .fixed(rpm: 3000)) }
+        else if mode == "custom" || mode == "sameNameCustom" {
+            original = .init(name: mode == "sameNameCustom" ? "均衡" : "个人规则", configuration: .thermal(.init(
+                sensor: mode == "sameNameCustom" ? .maxCPUAndGPU : .gpu, lowerTemperature: 50,
+                upperTemperature: mode == "sameNameCustom" ? 80 : 75)))
+            // 同名且参数恰好相同的已保存用户方案仍以 ID 判定，不能冒充内置方案。
+            first.fanPresets = [original!]
+        }
+        if let original {
+            first.applyFanPreset(original)
+            try await waitFor { !first.controlBusy }
+        }
+        let applications = connection.applications
+        let remembered = defaults.data(forKey: key)
+        first.selectDefaultFanTemperatureSource(.sensor, sensorKey: "Tp01")
+        #expect(connection.applications == applications)
+        #expect(first.fanStatus.preset == original)
+        #expect(defaults.data(forKey: key) == remembered)
+        #expect(first.defaultFanTemperatureSource == .sensor)
+        #expect(first.defaultFanTemperatureSensorKey == "Tp01")
+        #expect(first.builtinFanPreset(named: "积极散热").configuration == .thermal(.init(
+            sensor: .sensor, lowerTemperature: 50, upperTemperature: 70, sensorKey: "Tp01")))
+        if mode == "custom" || mode == "sameNameCustom" {
+            first.selectFanMode(.fixed)
+            try await waitFor { !first.controlBusy }
+            first.selectFanMode(.auto)
+            try await waitFor { !first.controlBusy }
+            #expect(first.fanStatus.preset == original)
+        }
+    }
+
+    @Test(arguments: [false, true])
+    func returningToAutoUsesBalancedWhenCustomRuleWasDeletedOrChangedToFixed(changedToFixed: Bool) async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = RestoreConnection()
+        let first = model(connection, defaults)
+        defer { first.stop() }
+        await first.enableFanControl()
+        let original = FanPreset(name: "均衡", configuration: .thermal(.init(
+            sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: 80)))
+        first.fanPresets = [original]
+        first.applyFanPreset(original)
+        try await waitFor { !first.controlBusy }
+        first.fanPresets = changedToFixed ? [FanPreset(id: original.id, name: original.name, configuration: .fixed(rpm: 3500))] : []
+        first.selectFanMode(.fixed)
+        try await waitFor { !first.controlBusy }
+        first.selectFanMode(.auto)
+        try await waitFor { !first.controlBusy }
+        #expect(first.fanMode == .auto)
+        #expect(first.fanStatus.preset == first.builtinFanPreset(named: "均衡"))
+    }
+
+    @Test(arguments: ["error", "mismatch", "failed", "oldHelper"])
+    func failedActiveBuiltinSelectionDoesNotPolluteSavedPreference(kind: String) async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = RestoreConnection()
+        if kind == "oldHelper" { connection.sensorSelectionSupport = nil }
+        let first = model(connection, defaults)
+        defer { first.stop() }
+        await first.enableFanControl()
+        first.applyFanPreset(first.builtinFanPreset(named: "均衡"))
+        try await waitFor { !first.controlBusy }
+        let remembered = defaults.data(forKey: key)
+        if kind != "oldHelper" {
+            connection.applyReply = .init(status: .init(phase: kind == "failed" ? .failed : .applied,
+                preset: kind == "mismatch" ? .init(name: "其他", configuration: .thermal(.init(
+                    sensor: .gpu, lowerTemperature: 55, upperTemperature: 85))) : first.fanStatus.preset),
+                error: kind == "error" ? "被拒绝" : nil)
+        }
+        first.selectDefaultFanTemperatureSource(.sensor, sensorKey: "Tp01")
+        try await waitFor { !first.controlBusy }
+        #expect(connection.applications.count == (kind == "oldHelper" ? 1 : 2))
+        #expect(first.defaultFanTemperatureSource == .maxCPUAndGPU)
+        #expect(first.defaultFanTemperatureSensorKey == nil)
+        #expect(defaults.data(forKey: key) == remembered)
+        let nextLaunch = model(RestoreConnection(), defaults)
+        #expect(nextLaunch.defaultFanTemperatureSource == .maxCPUAndGPU)
+        #expect(nextLaunch.defaultFanTemperatureSensorKey == nil)
+        if kind == "oldHelper" { #expect(first.controlNotice.contains("安装 / 更新授权")) }
+    }
+
+    @Test func pendingBuiltinSelectionWaitsForDeviceConfirmationBeforeSaving() async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = RestoreConnection()
+        let first = model(connection, defaults)
+        defer { first.stop() }
+        await first.enableFanControl()
+        first.applyFanPreset(first.builtinFanPreset(named: "均衡"))
+        try await waitFor { !first.controlBusy }
+        connection.blockApply = true
+        first.selectDefaultFanTemperatureSource(.gpu)
+        try await waitFor { connection.blockedApply != nil }
+        #expect(first.defaultFanTemperatureSource == .maxCPUAndGPU)
+        #expect(model(RestoreConnection(), defaults).defaultFanTemperatureSource == .maxCPUAndGPU)
+        connection.blockedApply?.resume()
+        connection.blockedApply = nil
+        try await waitFor { !first.controlBusy }
+        #expect(first.defaultFanTemperatureSource == .gpu)
+        #expect(model(RestoreConnection(), defaults).defaultFanTemperatureSource == .gpu)
+    }
+
+    @Test func selectedBuiltinSourceSurvivesStartupAndModeReturns() async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let first = model(RestoreConnection(), defaults)
+        await first.enableFanControl()
+        first.selectDefaultFanTemperatureSource(.sensor, sensorKey: "Tp01")
+        first.applyFanPreset(first.builtinFanPreset(named: "积极散热"))
+        try await waitFor { !first.controlBusy }
+        let original = first.fanStatus.preset
+        first.stop()
+        let connection = RestoreConnection()
+        let second = model(connection, defaults)
+        defer { second.stop() }
+        second.start()
+        try await waitFor { !connection.applications.isEmpty && !second.controlBusy }
+        #expect(second.fanStatus.preset == original)
+        #expect(second.defaultFanTemperatureSensorKey == "Tp01")
+        for mode in [FanMode.fixed, .system] {
+            second.selectFanMode(mode)
+            try await waitFor { !second.controlBusy }
+            if mode == .system { #expect(defaults.data(forKey: key) == nil) }
+            second.selectFanMode(.auto)
+            try await waitFor { !second.controlBusy }
+            #expect(second.fanStatus.preset == original)
+        }
+    }
+
+    @Test func failedSensorCanBeReplacedWhileSystemControlsFans() async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = RestoreConnection()
+        let first = model(connection, defaults)
+        defer { first.stop() }
+        await first.enableFanControl()
+        first.selectDefaultFanTemperatureSource(.sensor, sensorKey: "Tp01")
+        first.selectFanMode(.auto)
+        try await waitFor { !first.controlBusy }
+        // helper 温度失效后恢复系统控制；修正来源本身不重新接管，用户再次选自动才提交。
+        connection.status = .init(phase: .failed, message: "传感器不可用")
+        await first.enableFanControl()
+        #expect(first.fanMode == .system)
+        first.selectDefaultFanTemperatureSource(.maxCPUAndGPU)
+        #expect(connection.applications.count == 1)
+        first.selectFanMode(.auto)
+        try await waitFor { !first.controlBusy }
+        #expect(first.fanStatus.preset?.configuration == .thermal(.init(
+            sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: 80)))
+        #expect(connection.applications.count == 2)
+    }
+
+    @Test func inspectingOtherControllerDoesNotOverwriteLocalBuiltinPreference() async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let connection = RestoreConnection()
+        let first = model(connection, defaults)
+        defer { first.stop() }
+        first.selectDefaultFanTemperatureSource(.cpu)
+        var external = first.builtinFanPreset(named: "均衡")
+        external.configuration = .thermal(.init(sensor: .gpu, lowerTemperature: 50, upperTemperature: 80))
+        connection.status = .init(phase: .applied, preset: external)
+        await first.enableFanControl()
+        #expect(first.defaultFanTemperatureSource == .gpu)
+        #expect(connection.applications.isEmpty)
+        let nextLaunch = model(RestoreConnection(), defaults)
+        #expect(nextLaunch.defaultFanTemperatureSource == .cpu)
+        #expect(defaults.data(forKey: key) == nil)
+        first.applyFanPreset(first.builtinFanPreset(named: "积极散热"))
+        try await waitFor { !first.controlBusy }
+        #expect(first.fanStatus.preset?.configuration == .thermal(.init(sensor: .gpu, lowerTemperature: 50, upperTemperature: 70)))
+        #expect(model(RestoreConnection(), defaults).defaultFanTemperatureSource == .gpu)
+    }
+
+    @Test func delayedLocalPresetLoadDoesNotMisidentifyRestoredCustomRuleAsBuiltin() async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let preferenceWriter = model(RestoreConnection(), defaults)
+        preferenceWriter.selectDefaultFanTemperatureSource(.gpu)
+        let custom = FanPreset(name: "均衡", configuration: .thermal(.init(
+            sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: 80)))
+        defaults.set(try JSONEncoder().encode(custom), forKey: key)
+        let gate = StartupLoadGate()
+        defer { gate.release(); #expect(!gate.timedOut) }
+        let connection = RestoreConnection()
+        let first = MonitorModel(fanClient: connection, defaults: defaults, loadLocalCapabilities: {
+            gate.wait()
+            return []
+        }, loadLocalPresets: {
+            gate.wait()
+            return [custom]
+        })
+        defer { first.stop() }
+        first.start()
+        try await waitFor { connection.applications == [custom] && !first.controlBusy }
+        #expect(first.fanPresets.isEmpty)
+        #expect(!first.isBuiltinFanPreset(custom))
+        #expect(first.defaultFanTemperatureSource == .gpu)
+        #expect(model(RestoreConnection(), defaults).defaultFanTemperatureSource == .gpu)
+        gate.release()
+        try await waitFor { first.fanPresets == [custom] }
+        #expect(!first.isBuiltinFanPreset(custom))
+        #expect(first.fanStatus.preset == custom)
+        #expect(first.defaultFanTemperatureSource == .gpu)
     }
     @Test(arguments: [
         FanControlConfiguration.fixed(rpm: 3200),

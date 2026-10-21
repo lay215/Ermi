@@ -7,6 +7,16 @@ public struct TemperatureReading: Sendable, Codable {
     public let aggregation: String
 }
 
+/// 独立 SMC 候选只保留硬件 key，不据名称猜测 CPU、GPU 或物理位置。
+public struct TemperatureSensorReading: Sendable, Codable, Equatable, Identifiable {
+    public let key: String
+    public let celsius: Double?
+    public var id: String { key }
+    public init(key: String, celsius: Double?) {
+        self.key = key; self.celsius = celsius
+    }
+}
+
 public struct FanReading: Identifiable, Sendable, Codable {
     public let index: Int
     public let name: String
@@ -21,6 +31,11 @@ public struct HardwareSnapshot: Sendable, Codable {
     public let gpuTemperature: TemperatureReading?
     public let fans: [FanReading]
     public let source: String
+    public let temperatureSensors: [TemperatureSensorReading]
+    public init(deviceModel: String, cpuTemperature: TemperatureReading?, gpuTemperature: TemperatureReading?, fans: [FanReading], source: String, temperatureSensors: [TemperatureSensorReading] = []) {
+        self.deviceModel = deviceModel; self.cpuTemperature = cpuTemperature; self.gpuTemperature = gpuTemperature
+        self.fans = fans; self.source = source; self.temperatureSensors = temperatureSensors
+    }
 }
 
 // 按芯片族选择有上游依据的温度语义；机型和风扇数量不决定温度映射。
@@ -28,13 +43,17 @@ final class HardwareSensorReader {
     private let transport: any SMCKeyReading
     private let model: String
     private let cpuBrand: String
-    init(transport: any SMCKeyReading = SMCReadOnlyTransport(), model: String? = nil, cpuBrand: String? = nil) {
+    private var temperatureKeys: [String]?
+    private var discoveryRetryAfter: TimeInterval = 0
+    private let clock: () -> TimeInterval
+    init(transport: any SMCKeyReading = SMCReadOnlyTransport(), model: String? = nil, cpuBrand: String? = nil, clock: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }) {
         self.transport = transport
+        self.clock = clock
         self.model = model ?? Self.sysctlString("hw.model")
         self.cpuBrand = cpuBrand ?? Self.sysctlString("machdep.cpu.brand_string")
     }
 
-    func sample() -> HardwareSnapshot {
+    func sample(includeTemperatureSensors: Bool = false) -> HardwareSnapshot {
         let profile = Self.temperatureProfile(cpuBrand: cpuBrand)
         // Intel 优先核心均值；仅核心全缺失才使用 package/diode，散热片与邻近温度不冒充芯片温度。
         let cpu = profile.flatMap { profile in
@@ -54,7 +73,39 @@ final class HardwareSensorReader {
                 fans.append(FanReading(index: index, name: name, rpm: rpm, sourceKey: key))
             }
         }
-        return HardwareSnapshot(deviceModel: model, cpuTemperature: cpu, gpuTemperature: gpu, fans: fans, source: "AppleSMC · read-only")
+        return HardwareSnapshot(deviceModel: model, cpuTemperature: cpu, gpuTemperature: gpu, fans: fans, source: "AppleSMC · read-only",
+                                temperatureSensors: includeTemperatureSensors ? sampleTemperatureSensors() : [])
+    }
+
+    private func sampleTemperatureSensors() -> [TemperatureSensorReading] {
+        // 候选发现与既有聚合独立；只缓存 key，每轮重读，失效读数不沿用上轮温度。
+        if temperatureKeys == nil {
+            guard clock() >= discoveryRetryAfter else { return [] }
+            let keys: [String]
+            do { keys = try transport.allKeys() }
+            catch {
+                // 启动/唤醒时连接可能暂不可用；退避后重试，避免每轮枚举或永久缓存失败。
+                discoveryRetryAfter = clock() + 30
+                return []
+            }
+            let discovered = Set(keys.prefix(4096).filter(FanThermalRule.isValidSensorKey))
+            // 枚举结果和每轮 payload 都有上限，避免异常固件使普通采样无界增长。
+            // 首次读取失败仍缓存为待确认键，下轮重试类型校验；临时断连不能永久丢失候选。
+            let candidates = Array(discovered.sorted().prefix(256))
+            let readings = candidates.compactMap { key -> TemperatureSensorReading? in
+                guard let value = try? transport.read(key), value.isTemperature else { return nil }
+                return TemperatureSensorReading(key: key, celsius: value.temperatureCelsius)
+            }
+            temperatureKeys = candidates
+            return readings
+        }
+        return (temperatureKeys ?? []).compactMap { key in
+            guard let value = try? transport.read(key) else {
+                return TemperatureSensorReading(key: key, celsius: nil)
+            }
+            guard value.isTemperature else { return nil }
+            return TemperatureSensorReading(key: key, celsius: value.temperatureCelsius)
+        }
     }
 
     private func temperature(keys: [String], aggregation: String = "mean of available core sensors", useMaximum: Bool = false) -> TemperatureReading? {

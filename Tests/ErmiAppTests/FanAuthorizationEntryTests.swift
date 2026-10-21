@@ -11,6 +11,7 @@ private final class AuthorizationFanConnection: FanControlConnection {
     var enables = 0
     var applications = 0
     var restores = 0
+    var sensorSelectionSupport: Bool?
     func enable() throws { enables += 1; ready = true }
     func disconnect() {}
     func request(_ command: FanServiceCommand) async throws -> FanServiceReply {
@@ -19,12 +20,54 @@ private final class AuthorizationFanConnection: FanControlConnection {
         case .restore: restores += 1
         default: break
         }
+        if case .inspect = command {
+            return .init(capabilities: [.init(index: 0, name: "Fan", minimumRPM: 1000, maximumRPM: 5000)],
+                         capabilityProbeCompleted: true, supportsTemperatureSensorSelection: sensorSelectionSupport)
+        }
         return .init(status: .init(phase: .system))
     }
 }
 
 @MainActor
 struct FanAuthorizationEntryTests {
+    @Test func customSensorRequiresServiceSupportButSavingNeverApplies() async throws {
+        let suite = UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer {
+            defaults.removePersistentDomain(forName: suite)
+            try? FileManager.default.removeItem(at: directory)
+        }
+        let connection = AuthorizationFanConnection()
+        connection.ready = true
+        let model = MonitorModel(fanClient: connection, defaults: defaults,
+                                 presetStore: FanPresetStore(url: directory.appendingPathComponent("presets.json")))
+        let preset = FanPreset(name: "选定温度", configuration: .thermal(.init(
+            sensor: .sensor, lowerTemperature: 40, upperTemperature: 80, sensorKey: "Tp01")))
+        await model.enableFanControl()
+        #expect(model.helperReady)
+        _ = await model.saveFanPreset(preset)
+        #expect(model.fanPresets.contains(preset))
+        #expect(connection.applications == 0)
+        model.applyFanPreset(preset)
+        for _ in 0..<20 { await Task.yield() }
+        #expect(connection.applications == 0)
+        #expect(model.controlNotice.contains("安装 / 更新授权"))
+        // 新服务明确支持之后，同一份已保存方案才可以提交；不启动真实采样器。
+        connection.sensorSelectionSupport = true
+        await model.enableFanControl()
+        model.applyFanPreset(preset)
+        for _ in 0..<20 { await Task.yield() }
+        #expect(connection.applications == 1)
+        // 下一次握手缺少支持字段时必须清除旧能力，不能沿用上一服务的支持缓存。
+        connection.sensorSelectionSupport = nil
+        await model.enableFanControl()
+        model.applyFanPreset(preset)
+        for _ in 0..<20 { await Task.yield() }
+        #expect(connection.applications == 1)
+        model.stop()
+    }
+
     @Test func unreadyControlsOpenInstallerWithoutWritingOrReplaying() async {
         let suite = UUID().uuidString
         let defaults = UserDefaults(suiteName: suite)!

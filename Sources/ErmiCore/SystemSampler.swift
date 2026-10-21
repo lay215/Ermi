@@ -15,7 +15,7 @@ public actor SystemSampler {
 
     public init() {}
 
-    public func sample() -> SystemSnapshot {
+    public func sample(includeTemperatureSensors: Bool = false) -> SystemSnapshot {
         let timestamp = Date()
         let cpu: Double?
         if let ticks = readTicks() {
@@ -30,7 +30,7 @@ public actor SystemSampler {
         history.append(HistoryPoint(timestamp: timestamp, cpuPercent: cpu, memoryPercent: memory?.usedPercent))
         // 仅保留最近一分钟；睡眠唤醒不会把过期样本当成当前趋势。
         history.removeAll { $0.timestamp < timestamp.addingTimeInterval(-60) }
-        return SystemSnapshot(timestamp: timestamp, cpuPercent: cpu, memory: memory, processes: processes, history: history, logicalCPUCount: ProcessInfo.processInfo.activeProcessorCount, thermalState: thermalState(), hardware: hardwareReader.sample(), disk: SystemMetricsReader.readDisk(), battery: SystemMetricsReader.readBattery(), network: metricsReader.readNetwork(), memoryPressure: SystemMetricsReader.readMemoryPressure(), bootTime: SystemMetricsReader.readBootTime(), hardwareModel: SystemMetricsReader.readHardwareModel())
+        return SystemSnapshot(timestamp: timestamp, cpuPercent: cpu, memory: memory, processes: processes, history: history, logicalCPUCount: ProcessInfo.processInfo.activeProcessorCount, thermalState: thermalState(), hardware: hardwareReader.sample(includeTemperatureSensors: includeTemperatureSensors), disk: SystemMetricsReader.readDisk(), battery: SystemMetricsReader.readBattery(), network: metricsReader.readNetwork(), memoryPressure: SystemMetricsReader.readMemoryPressure(), bootTime: SystemMetricsReader.readBootTime(), hardwareModel: SystemMetricsReader.readHardwareModel())
     }
 
     // 操作前重读启动时间，避免 PID 回收后把用户选中的旧进程误认成新进程。

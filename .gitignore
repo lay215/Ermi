@@ -24,3 +24,6 @@ xcuserdata/
 *.key
 
 sites/
+
+# 本机 Agent 指引不属于发布源码。
+/CLAUDE.md

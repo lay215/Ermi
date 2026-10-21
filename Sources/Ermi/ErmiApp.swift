@@ -43,7 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
         item.button?.target = self
         item.button?.action = #selector(toggle)
-        if CommandLine.arguments.contains("--smoke-test") || CommandLine.arguments.contains("--capture-preview") || CommandLine.arguments.contains("--icon-smoke-test") || CommandLine.arguments.contains("--fan-service-status") || CommandLine.arguments.contains("--fan-control-check") {
+        if CommandLine.arguments.contains("--menu-entry-report") || CommandLine.arguments.contains("--smoke-test") || CommandLine.arguments.contains("--capture-preview") || CommandLine.arguments.contains("--icon-smoke-test") || CommandLine.arguments.contains("--fan-service-status") || CommandLine.arguments.contains("--fan-control-check") {
             Task { await Diagnostics.run(model: model) }
             return
         }
@@ -72,7 +72,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         // 关闭摘要时同步回收文字占位；采样刷新也走此入口，避免下一帧重新显示温度。
         guard showTemperature else {
             button.title = ""
-            item.length = NSStatusItem.squareLength
+            // 仅 Logo 时用 24pt 宽度容纳 19pt 图像，避免随菜单栏高度增加两侧留白。
+            item.length = 24
             button.toolTip = "Ermi"
             return
         }
@@ -152,10 +153,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         panel.setFrame(NSRect(x: x, y: y, width: ErmiTheme.panelWidth, height: height), display: false)
         panel.makeKeyAndOrderFront(nil)
         model.isVisible = true
+        model.temperatureSensorPanelVisible = true
     }
 
     private func hidePanel() {
         panel?.orderOut(nil)
+        model.temperatureSensorPanelVisible = false
         model.isVisible = detail?.isVisible == true
     }
 
@@ -180,6 +183,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         detail?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         model.isVisible = true
+        model.temperatureSensorDetailVisible = true
     }
 
     private func statusLogo() -> NSImage {
@@ -192,13 +196,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
 
-    func windowDidBecomeKey(_ notification: Notification) { model.isVisible = true }
-    func windowWillClose(_ notification: Notification) { model.isVisible = panel?.isVisible == true }
-    func windowDidMiniaturize(_ notification: Notification) { model.isVisible = panel?.isVisible == true }
-    func windowDidDeminiaturize(_ notification: Notification) { model.isVisible = true }
+    // SwiftUI 缓存页不会随窗口隐藏而消失，按真实窗口生命周期决定是否额外读取传感器列表。
+    func windowDidBecomeKey(_ notification: Notification) {
+        model.isVisible = true
+        model.temperatureSensorDetailVisible = true
+    }
+    func windowWillClose(_ notification: Notification) {
+        model.isVisible = panel?.isVisible == true
+        model.temperatureSensorDetailVisible = false
+    }
+    func windowDidMiniaturize(_ notification: Notification) {
+        model.isVisible = panel?.isVisible == true
+        model.temperatureSensorDetailVisible = false
+    }
+    func windowDidDeminiaturize(_ notification: Notification) {
+        model.isVisible = true
+        model.temperatureSensorDetailVisible = true
+    }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         // 诊断启动在 model.start 前返回，从未接管风扇；直接退出，避免异步确认嵌套事件循环。
-        if CommandLine.arguments.contains("--smoke-test") || CommandLine.arguments.contains("--capture-preview") || CommandLine.arguments.contains("--icon-smoke-test") || CommandLine.arguments.contains("--fan-service-status") || CommandLine.arguments.contains("--fan-control-check") {
+        if CommandLine.arguments.contains("--menu-entry-report") || CommandLine.arguments.contains("--smoke-test") || CommandLine.arguments.contains("--capture-preview") || CommandLine.arguments.contains("--icon-smoke-test") || CommandLine.arguments.contains("--fan-service-status") || CommandLine.arguments.contains("--fan-control-check") {
             return .terminateNow
         }
         Task {

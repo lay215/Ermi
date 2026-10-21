@@ -5,6 +5,14 @@ import Testing
 private final class SensorFixture: SMCKeyReading {
     var values: [String: SMCValue] = [:]
     var requested: [String] = []
+    var keys: [String] = []
+    var enumerationCount = 0
+    var enumerationFails = false
+    func allKeys() throws -> [String] {
+        enumerationCount += 1
+        if enumerationFails { throw SMCReadError.unavailable }
+        return keys
+    }
     func read(_ key: String) throws -> SMCValue {
         requested.append(key)
         guard let value = values[key] else { throw SMCReadError.missingKey }
@@ -17,6 +25,133 @@ private final class SensorFixture: SMCKeyReading {
 }
 
 struct HardwareSensorTests {
+    @Test func discoversIndependentCandidatesOnlyWhenRequestedAndCachesKeys() throws {
+        let fixture = SensorFixture()
+        fixture.keys = ["Txyz", "Tp09", "Txyz"]
+        fixture.set("Txyz", 72); fixture.set("Tp09", 40); fixture.set("Tp01", 80)
+        let reader = HardwareSensorReader(transport: fixture, model: "Mac", cpuBrand: "Apple M1 Max")
+        let ordinary = reader.sample()
+        #expect(ordinary.temperatureSensors.isEmpty)
+        #expect(fixture.enumerationCount == 0)
+        #expect(!fixture.requested.contains("Txyz"))
+
+        let discovered = reader.sample(includeTemperatureSensors: true)
+        #expect(discovered.temperatureSensors == [
+            TemperatureSensorReading(key: "Tp09", celsius: 40),
+            TemperatureSensorReading(key: "Txyz", celsius: 72)
+        ])
+        #expect(discovered.cpuTemperature?.celsius == ordinary.cpuTemperature?.celsius)
+        #expect(discovered.cpuTemperature?.sensorKeys == ordinary.cpuTemperature?.sensorKeys)
+        #expect(discovered.temperatureSensors.last?.id == "Txyz")
+
+        fixture.values.removeValue(forKey: "Txyz")
+        fixture.set("Tp09", 65)
+        let refreshed = reader.sample(includeTemperatureSensors: true)
+        #expect(fixture.enumerationCount == 1)
+        #expect(refreshed.temperatureSensors == [
+            TemperatureSensorReading(key: "Tp09", celsius: 65),
+            TemperatureSensorReading(key: "Txyz", celsius: nil)
+        ])
+        let decoded = try JSONDecoder().decode(HardwareSnapshot.self, from: JSONEncoder().encode(refreshed))
+        #expect(decoded.temperatureSensors == refreshed.temperatureSensors)
+    }
+
+    @Test func candidatesRequireTemperatureKeysAndTypesAndNeverPublishInvalidValues() {
+        let fixture = SensorFixture()
+        fixture.keys = ["Tflt", "Tsp7", "Tbad", "Tnan", "Tinf", "Tzer", "Tneg", "Thot", "Tmax", "F0Ac", "Té00", "T_00", "Tx", "Tlong", "tlow"]
+        for key in fixture.keys { fixture.set(key, 60) }
+        fixture.values["Tsp7"] = SMCValue(key: "Tsp7", type: "sp78", bytes: [0x3f, 0x80])
+        fixture.values["Tbad"] = SMCValue(key: "Tbad", type: "ui8 ", bytes: [60])
+        fixture.set("Tnan", .nan); fixture.set("Tinf", .infinity)
+        fixture.set("Tzer", 0); fixture.set("Tneg", -1); fixture.set("Thot", 151); fixture.set("Tmax", 150)
+        let reader = HardwareSensorReader(transport: fixture, model: "FutureMac", cpuBrand: "Unknown")
+        let sample = reader.sample(includeTemperatureSensors: true)
+        #expect(sample.cpuTemperature == nil)
+        #expect(sample.gpuTemperature == nil)
+        #expect(sample.temperatureSensors.map(\.key) == ["Tflt", "Thot", "Tinf", "Tmax", "Tnan", "Tneg", "Tsp7", "Tzer"])
+        #expect(sample.temperatureSensors.first(where: { $0.key == "Tsp7" })?.celsius == 63.5)
+        #expect(sample.temperatureSensors.first(where: { $0.key == "Tmax" })?.celsius == 150)
+        #expect(sample.temperatureSensors.filter { $0.celsius != nil }.count == 3)
+        #expect(!fixture.requested.contains("Té00"))
+        #expect(!fixture.requested.contains("T_00"))
+        #expect(!fixture.requested.contains("F0Ac"))
+        fixture.values["Tflt"] = SMCValue(key: "Tflt", type: "ui8 ", bytes: [60])
+        #expect(reader.sample(includeTemperatureSensors: true).temperatureSensors.first(where: { $0.key == "Tflt" })?.celsius == nil)
+    }
+
+    @Test func candidatePayloadReadsAreBoundedAndDefaultSamplingStaysCheap() {
+        let fixture = SensorFixture()
+        fixture.keys = (0..<1000).map { String(format: "T%03d", $0) }
+        for key in fixture.keys { fixture.set(key, 50) }
+        let reader = HardwareSensorReader(transport: fixture, model: "FutureMac", cpuBrand: "Unknown")
+        let sample = reader.sample(includeTemperatureSensors: true)
+        #expect(sample.temperatureSensors.count == 256)
+        #expect(fixture.requested.count == 257)
+        fixture.requested.removeAll()
+        _ = reader.sample(includeTemperatureSensors: true)
+        #expect(fixture.requested.count == 257)
+        #expect(fixture.enumerationCount == 1)
+        fixture.requested.removeAll()
+        #expect(reader.sample().temperatureSensors.isEmpty)
+        #expect(fixture.requested == ["FNum"])
+    }
+
+    @Test func failedDiscoveryRetriesAfterBackoffAndUnavailableCandidateCanRecover() {
+        let fixture = SensorFixture()
+        fixture.enumerationFails = true
+        fixture.keys = ["Txyz"]
+        var now = 100.0
+        let reader = HardwareSensorReader(transport: fixture, model: "Unknown", cpuBrand: "Unknown", clock: { now })
+        #expect(reader.sample(includeTemperatureSensors: true).temperatureSensors.isEmpty)
+        fixture.enumerationFails = false
+        fixture.set("Txyz", 0)
+        #expect(reader.sample(includeTemperatureSensors: true).temperatureSensors.isEmpty)
+        #expect(fixture.enumerationCount == 1)
+        now = 130
+        #expect(reader.sample(includeTemperatureSensors: true).temperatureSensors == [TemperatureSensorReading(key: "Txyz", celsius: nil)])
+        fixture.set("Txyz", 70)
+        #expect(reader.sample(includeTemperatureSensors: true).temperatureSensors == [TemperatureSensorReading(key: "Txyz", celsius: 70)])
+        #expect(fixture.enumerationCount == 2)
+    }
+
+    @Test func initiallyUnreadableCandidateCanRecoverWithoutRestart() {
+        let fixture = SensorFixture()
+        fixture.keys = ["Txyz"]
+        let reader = HardwareSensorReader(transport: fixture, model: "Unknown", cpuBrand: "Unknown")
+        #expect(reader.sample(includeTemperatureSensors: true).temperatureSensors.first?.celsius == nil)
+        fixture.set("Txyz", 65)
+        #expect(reader.sample(includeTemperatureSensors: true).temperatureSensors == [TemperatureSensorReading(key: "Txyz", celsius: 65)])
+        #expect(fixture.enumerationCount == 1)
+    }
+
+    @Test func transportEnumeratesDocumentedSMCIndexCommandWithBoundedCount() throws {
+        var indices: [UInt32] = []
+        let transport = SMCReadOnlyTransport(exchange: { request in
+            var response = [UInt8](repeating: 0, count: 80)
+            switch request[42] {
+            case 9:
+                #expect(Array(request[0..<4]) == [0x59, 0x45, 0x4b, 0x23]) // #KEY 的主机序 UInt32
+                response[28] = 4
+                response.replaceSubrange(32..<36, with: [0x32, 0x33, 0x69, 0x75]) // ui32
+            case 5:
+                response.replaceSubrange(48..<52, with: [0, 0, 0x20, 0]) // 固件报告 8192 项
+            case 8:
+                #expect(Array(request[0..<4]) == [0, 0, 0, 0])
+                let index = (0..<4).reduce(UInt32(0)) { $0 | UInt32(request[44 + $1]) << ($1 * 8) }
+                indices.append(index)
+                if index == 0 { response.replaceSubrange(0..<4, with: [0x7a, 0x79, 0x78, 0x54]) } // Txyz
+                else { response[40] = 0x84 }
+            default:
+                Issue.record("枚举不应发送其他命令，尤其不能写入")
+            }
+            return response
+        })
+        #expect(try transport.allKeys() == ["Txyz"])
+        #expect(indices.count == 4096)
+        #expect(indices.first == 0)
+        #expect(indices.last == 4095)
+    }
+
     @Test func decodesWireValuesAndRejectsMalformedData() {
         #expect(SMCValue(key: "test", type: "flt ", bytes: [0, 0, 0x7c, 0x42]).number == 63)
         #expect(SMCValue(key: "test", type: "fpe2", bytes: [0x24, 0x58]).number == 2326)

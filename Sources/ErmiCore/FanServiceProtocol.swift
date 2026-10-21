@@ -13,11 +13,14 @@ public struct FanServiceReply: Codable, Sendable {
     public var capabilities: [FanCapability]
     // inspect 的空结果与 heartbeat 未携带能力是不同状态；可选字段兼容旧 helper 回包。
     public var capabilityProbeCompleted: Bool?
+    // 旧 helper 缺少此字段；新 App 必须明确获知支持后才提交具体传感器温控。
+    public var supportsTemperatureSensorSelection: Bool?
     public var status: FanControlStatus
     public var error: String?
-    public init(capabilities: [FanCapability] = [], status: FanControlStatus = .init(phase: .system), error: String? = nil, capabilityProbeCompleted: Bool? = nil) {
+    public init(capabilities: [FanCapability] = [], status: FanControlStatus = .init(phase: .system), error: String? = nil, capabilityProbeCompleted: Bool? = nil, supportsTemperatureSensorSelection: Bool? = nil) {
         self.capabilities = capabilities; self.status = status; self.error = error
         self.capabilityProbeCompleted = capabilityProbeCompleted
+        self.supportsTemperatureSensorSelection = supportsTemperatureSensorSelection
     }
 }
 public enum FanServiceIdentity {

@@ -24,9 +24,9 @@ actor ServiceRuntime {
         case .inspect:
             // 明确返回能力探测结果：0只风扇属于正常硬件，协议缺失属于不可控制，均不伪装成连接故障。
             do {
-                return .init(capabilities: try await device.capabilities(), status: await controller.status(), capabilityProbeCompleted: true)
+                return .init(capabilities: try await device.capabilities(), status: await controller.status(), capabilityProbeCompleted: true, supportsTemperatureSensorSelection: true)
             } catch {
-                return .init(status: await controller.status(), error: "风扇控制不可用：\(error)", capabilityProbeCompleted: true)
+                return .init(status: await controller.status(), error: "风扇控制不可用：\(error)", capabilityProbeCompleted: true, supportsTemperatureSensorSelection: true)
             }
         case .apply(let preset):
             guard owner == nil || owner == client else { return .init(error: "另一个 Ermi 连接正在控制风扇") }

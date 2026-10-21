@@ -26,8 +26,10 @@ public struct FanDeviceSnapshot: Sendable, Codable {
     public let cpuTemperature: Double?
     public let gpuTemperature: Double?
     public let sampledAt: Double
-    public init(fans: [FanDeviceState], cpuTemperature: Double?, gpuTemperature: Double?, sampledAt: Double) {
+    public let sensorTemperatures: [String: Double]
+    public init(fans: [FanDeviceState], cpuTemperature: Double?, gpuTemperature: Double?, sampledAt: Double, sensorTemperatures: [String: Double] = [:]) {
         self.fans = fans; self.cpuTemperature = cpuTemperature; self.gpuTemperature = gpuTemperature; self.sampledAt = sampledAt
+        self.sensorTemperatures = sensorTemperatures
     }
 }
 
@@ -35,11 +37,17 @@ public struct FanDeviceSnapshot: Sendable, Codable {
 public protocol FanDevice: Sendable {
     func capabilities() async throws -> [FanCapability]
     func snapshot() async throws -> FanDeviceSnapshot
+    func snapshot(sensorKey: String?) async throws -> FanDeviceSnapshot
     func setManualRPM(index: Int, rpm: Double) async throws
     func restoreSystem(index: Int) async throws
 }
 
-public enum FanTemperatureSource: String, Sendable, Codable { case cpu, gpu, maxCPUAndGPU }
+public extension FanDevice {
+    // 保持既有设备实现兼容；未实现定向读取的设备会因缺少具体温度而安全拒绝温控。
+    func snapshot(sensorKey: String?) async throws -> FanDeviceSnapshot { try await snapshot() }
+}
+
+public enum FanTemperatureSource: String, Sendable, Codable { case cpu, gpu, maxCPUAndGPU, sensor }
 public struct FanThermalRule: Sendable, Codable, Equatable {
     public var sensor: FanTemperatureSource
     public var lowerTemperature: Double
@@ -47,9 +55,22 @@ public struct FanThermalRule: Sendable, Codable, Equatable {
     public var lowerRPM: Double?
     public var upperRPM: Double?
     public var rampRPMPerSecond: Double?
-    public init(sensor: FanTemperatureSource, lowerTemperature: Double, upperTemperature: Double, lowerRPM: Double? = nil, upperRPM: Double? = nil, rampRPMPerSecond: Double? = nil) {
+    public var sensorKey: String?
+    public init(sensor: FanTemperatureSource, lowerTemperature: Double, upperTemperature: Double, lowerRPM: Double? = nil, upperRPM: Double? = nil, rampRPMPerSecond: Double? = nil, sensorKey: String? = nil) {
         self.sensor = sensor; self.lowerTemperature = lowerTemperature; self.upperTemperature = upperTemperature
         self.lowerRPM = lowerRPM; self.upperRPM = upperRPM; self.rampRPMPerSecond = rampRPMPerSecond
+        self.sensorKey = sensorKey
+    }
+    public static func isValidSensorKey(_ key: String) -> Bool {
+        // SMC温度键固定为四字节ASCII，首字节必须为T，其余仅允许英文字母和数字。
+        let bytes = Array(key.utf8)
+        return bytes.count == 4 && bytes.first == 84 && bytes.allSatisfy {
+            (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0)
+        }
+    }
+    var hasValidSensorSelection: Bool {
+        // 旧策略不能夹带具体键，避免新旧helper对同一预设产生不同解释。
+        sensor == .sensor ? sensorKey.map(Self.isValidSensorKey) == true : sensorKey == nil
     }
 }
 public struct FanRPMTarget: Sendable, Codable, Equatable {
@@ -126,7 +147,7 @@ public actor FanController {
             // 首个await前建立租约，设备调用期间的有效心跳不能被旧的调用起点覆盖。
             self.leaseID = leaseID; lastHeartbeat = now
             let capabilities = try await checkedCapabilities()
-            let snapshot = try await device.snapshot()
+            let snapshot = try await device.snapshot(sensorKey: requestedSensorKey(for: preset.configuration))
             // 在任何写入候选登记前检查已有控制，避免把别人的manual误记为我们的待恢复风扇。
             guard capabilities.allSatisfy({ fan in
                 let states = snapshot.fans.filter { $0.index == fan.index }
@@ -161,7 +182,7 @@ public actor FanController {
         do {
             let capabilities = try await checkedCapabilities()
             guard Set(capabilities.map(\.index)) == Set(current.targets.keys) else { throw FanControlError.invalid("风扇能力集合发生变化") }
-            let snapshot = try await device.snapshot()
+            let snapshot = try await device.snapshot(sensorKey: requestedSensorKey(for: preset.configuration))
             try confirm(snapshot, targets: current.targets)
             let sampledNow = try operationTime(startedAt: now)
             try checkLease(now: sampledNow)
@@ -214,6 +235,12 @@ public actor FanController {
         guard owned.isSubset(of: Set(capabilities.map(\.index))) else { throw FanControlError.invalid("已接管风扇不在当前能力集合中") }
         return capabilities
     }
+    private func requestedSensorKey(for configuration: FanControlConfiguration) throws -> String? {
+        // 定向读取前校验组合；写后确认和恢复仍用普通快照，不依赖温度可用性。
+        guard case .thermal(let rule) = configuration else { return nil }
+        guard rule.hasValidSensorSelection else { throw FanControlError.invalid("温控传感器选择无效") }
+        return rule.sensorKey
+    }
     private func makeTargets(_ configuration: FanControlConfiguration, capabilities: [FanCapability], snapshot: FanDeviceSnapshot, now: Double, ramp: Bool) throws -> [Int: Double] {
         var desired: Double = 0
         var thermalFraction: Double?
@@ -243,6 +270,9 @@ public actor FanController {
             switch rule.sensor {
             case .cpu: temperature = snapshot.cpuTemperature
             case .gpu: temperature = snapshot.gpuTemperature
+            case .sensor:
+                // 精确匹配用户选择的键；缺失或失效时由下方检查触发恢复，禁止回退到CPU/GPU。
+                temperature = rule.sensorKey.flatMap { snapshot.sensorTemperatures[$0] }
             case .maxCPUAndGPU:
                 // 最大值策略依赖两个传感器，任何一项缺失均不能悄悄改为另一项。
                 if let cpu = snapshot.cpuTemperature, let gpu = snapshot.gpuTemperature,

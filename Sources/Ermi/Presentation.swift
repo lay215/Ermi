@@ -79,9 +79,55 @@ extension MonitorModel {
         if snapshot == nil { return "CPU 温度 · 正在读取" }
         return snapshot?.hardware.cpuTemperature == nil ? "CPU 温度 · 暂不可用" : "CPU 温度 · 可用传感器"
     }
+    var panelTemperatureCelsius: Double? {
+        func valid(_ value: Double?) -> Double? {
+            guard let value, value.isFinite, value > 0, value <= 150 else { return nil }
+            return value
+        }
+        // 弹窗与默认来源选择共用同一来源；CPU/GPU 直接使用既有推荐映射结果，不另猜 SMC 键。
+        // 自定义方案编辑不改这个默认值；菜单栏摘要和概览的 CPU/GPU 指标保持原有含义。
+        let cpu = valid(designPreview ? 62 : snapshot?.hardware.cpuTemperature?.celsius)
+        let gpu = valid(designPreview ? 58 : snapshot?.hardware.gpuTemperature?.celsius)
+        switch defaultFanTemperatureSource {
+        case .cpu: return cpu
+        case .gpu: return gpu
+        case .maxCPUAndGPU:
+            // 与温控规则一致：两项都有效才能比较，缺失时不静默切换为另一来源。
+            guard let cpu, let gpu else { return nil }
+            return max(cpu, gpu)
+        case .sensor:
+            guard let key = defaultFanTemperatureSensorKey else { return nil }
+            return valid(temperatureSensors.first(where: { $0.key == key })?.celsius)
+        }
+    }
+    var panelTemperatureText: String {
+        panelTemperatureCelsius.map { String(format: "%.0f", $0) } ?? "—"
+    }
+    var panelTemperatureSummary: String {
+        // 右侧对照项统一使用本轮 CPU/GPU 温度；使用率百分比不能放在这里冒充 CPU 温度。
+        "CPU \(cpuTemperatureText)°C · GPU \(gpuTemperatureText)°C"
+    }
+    var panelTemperatureSourceTitle: String {
+        switch defaultFanTemperatureSource {
+        case .cpu: return "CPU"
+        case .gpu: return "GPU"
+        case .maxCPUAndGPU: return L("CPU / GPU 最高")
+        case .sensor: return defaultFanTemperatureSensorKey ?? L("自定义传感器")
+        }
+    }
     var temperatureHelp: String {
-        guard !designPreview, let reading = snapshot?.hardware.cpuTemperature else { return "温度来源：AppleSMC" }
-        return String(format: L("CPU 温度 %.1f°C · %d 个可用传感器\nAppleSMC: %@"), reading.celsius, reading.sensorKeys.count, reading.sensorKeys.joined(separator: ", "))
+        let value = panelTemperatureCelsius.map { String(format: "%.1f°C", $0) } ?? L("温度暂不可用")
+        let keys: [String]
+        switch defaultFanTemperatureSource {
+        case .cpu: keys = snapshot?.hardware.cpuTemperature?.sensorKeys ?? []
+        case .gpu: keys = snapshot?.hardware.gpuTemperature?.sensorKeys ?? []
+        case .maxCPUAndGPU:
+            keys = (snapshot?.hardware.cpuTemperature?.sensorKeys ?? []) + (snapshot?.hardware.gpuTemperature?.sensorKeys ?? [])
+        case .sensor: keys = defaultFanTemperatureSensorKey.map { [$0] } ?? []
+        }
+        // 悬停说明与大字温度一起切源，避免显示 GPU/具体键时仍标成 CPU。
+        return L("温度来源：\(panelTemperatureSourceTitle)") + " · " + value +
+            (keys.isEmpty ? "" : "\nAppleSMC: " + keys.joined(separator: ", "))
     }
     var hasFanReadings: Bool { designPreview || snapshot?.hardware.fans.contains(where: { $0.rpm != nil }) == true }
     // 读数与控制能力均按真实索引展示，不为单风扇或无风扇机器虚构第二只风扇。

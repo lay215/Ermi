@@ -69,7 +69,8 @@ public actor FanPresetStore {
             return !targets.isEmpty && Set(targets.map(\.index)).count == targets.count
                 && targets.allSatisfy { $0.index >= 0 && $0.rpm.isFinite && $0.rpm >= 0 }
         case .thermal(let rule):
-            return rule.lowerTemperature.isFinite && rule.upperTemperature.isFinite
+            // 与控制器共用来源和键组合校验；旧来源只接受无键，新来源必须有合法温度键。
+            return rule.hasValidSensorSelection && rule.lowerTemperature.isFinite && rule.upperTemperature.isFinite
                 && rule.lowerTemperature >= 0 && rule.upperTemperature <= 150 && rule.upperTemperature > rule.lowerTemperature
                 && (rule.lowerRPM.map { $0.isFinite && $0 >= 0 } ?? true)
                 && (rule.upperRPM.map { $0.isFinite && $0 >= 0 } ?? true)

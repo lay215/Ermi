@@ -50,6 +50,7 @@ struct ServiceRuntimeTests {
             let client = UUID(), life = SessionLife()
             let inspected = await runtime.execute(.inspect, client: client, life: life)
             #expect(inspected.capabilityProbeCompleted == true)
+            #expect(inspected.supportsTemperatureSensorSelection == true)
             #expect(inspected.capabilities.isEmpty)
             #expect((inspected.error != nil) == unavailable)
             let heartbeat = await runtime.execute(.heartbeat, client: client, life: life)
@@ -60,6 +61,7 @@ struct ServiceRuntimeTests {
         let data = try JSONEncoder().encode(FanServiceReply())
         let decoded = try JSONDecoder().decode(FanServiceReply.self, from: data)
         #expect(decoded.capabilityProbeCompleted == nil)
+        #expect(decoded.supportsTemperatureSensorSelection == nil)
     }
 
     @Test func applyWaitsForPeriodicTickInsteadOfReturningBusy() async throws {

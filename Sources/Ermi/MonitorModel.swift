@@ -55,7 +55,33 @@ final class MonitorModel {
     private(set) var fanCapabilityIssue: String?
     private(set) var isFanless = false
     var canApplyFanControl: Bool { designPreview || fanCapabilityIssue == nil }
-    var fanPresets: [FanPreset] = []
+    // 候选扫描由真实窗口可见性约束，SwiftUI 缓存的页面不能令后台持续扫描所有温度键。
+    var temperatureSensorEditorActive = false
+    var temperatureSensorPanelVisible = false
+    var temperatureSensorDetailVisible = false
+    var shouldSampleTemperatureSensors: Bool {
+        // 具体传感器也用于弹窗主温度；系统或固定模式下打开弹窗仍需刷新该读数，隐藏后停止额外扫描。
+        isVisible && (temperatureSensorEditorActive || (temperatureSensorPanelVisible &&
+            (displayedFanMode == .auto || defaultFanTemperatureSource == .sensor)) ||
+            (temperatureSensorDetailVisible && detailPage == .presets))
+    }
+    private(set) var supportsTemperatureSensorSelection = false
+    var temperatureSensors: [TemperatureSensorReading] { snapshot?.hardware.temperatureSensors ?? [] }
+    // 展示以服务确认的内置规则为准；回读其他控制者状态不会修改本机保存的内置来源偏好。
+    var defaultFanTemperatureSource: FanTemperatureSource { activeBuiltinThermalRule?.sensor ?? savedDefaultFanTemperatureSelection.source }
+    var defaultFanTemperatureSensorKey: String? {
+        if let rule = activeBuiltinThermalRule { return rule.sensorKey }
+        return savedDefaultFanTemperatureSelection.sensorKey
+    }
+    private var savedDefaultFanTemperatureSelection: DefaultFanTemperatureSelection
+    var fanPresets: [FanPreset] = [] {
+        didSet {
+            // 已识别为用户方案的 ID 即使后来被删除，也不能重新被旧内置规则兼容逻辑认领。
+            knownCustomFanPresetIDs.formUnion(fanPresets.map(\.id))
+        }
+    }
+    private var knownCustomFanPresetIDs: Set<UUID> = []
+    private var localFanPresetsLoaded = false
     var presetBusy = false
     var targetRPM = 3200.0
     var strategy = "均衡"
@@ -77,6 +103,18 @@ final class MonitorModel {
     private var controlRevision = 0
     // 仅记住本客户端实际成功应用的完整配置；预设列表和其他连接的状态不作为恢复来源。
     private static let lastAppliedFanPresetKey = "ermi.lastAppliedFanPreset"
+    private static let defaultFanTemperatureSelectionKey = "ermi.defaultFanTemperatureSelection"
+    private static let balancedFanPresetID = UUID(uuidString: "934731CE-DF92-4ABA-B2FC-6F421CE7C001")!
+    private static let coolingFanPresetID = UUID(uuidString: "934731CE-DF92-4ABA-B2FC-6F421CE7C002")!
+    // 从固定/系统模式返回时保留已确认规则身份，名称相同的自定义方案不能替代内置方案。
+    private var lastConfirmedThermalPreset: FanPreset?
+    private struct DefaultFanTemperatureSelection: Codable, Equatable {
+        let source: FanTemperatureSource
+        let sensorKey: String?
+        var isValid: Bool {
+            source == .sensor ? sensorKey.map(FanThermalRule.isValidSensorKey) == true : sensorKey == nil
+        }
+    }
     private var startupRestorePending = true
     private var startupRestoreToken = UUID()
     private var startupApplyTask: Task<Void, Never>?
@@ -128,6 +166,13 @@ final class MonitorModel {
              try await LocalFanInstallerClient.run(uninstall: uninstall)
          }) {
         self.defaults = defaults
+        if let data = defaults.data(forKey: Self.defaultFanTemperatureSelectionKey),
+           let selection = try? JSONDecoder().decode(DefaultFanTemperatureSelection.self, from: data), selection.isValid {
+            savedDefaultFanTemperatureSelection = selection
+        } else {
+            // 旧安装没有选源设置时，保持原有 CPU/GPU 较高温度及 50→80/70°C 规则。
+            savedDefaultFanTemperatureSelection = .init(source: .maxCPUAndGPU, sensorKey: nil)
+        }
         // 缺少设置的旧安装沿用原来的显示行为；显式关闭必须跨启动保留。
         showMenuBarTemperature = defaults.object(forKey: "ermi.showMenuBarTemperature") as? Bool ?? true
         self.fanClient = fanClient
@@ -158,7 +203,7 @@ final class MonitorModel {
         task = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { break }
-                self.snapshot = await self.sampler.sample()
+                self.snapshot = await self.sampler.sample(includeTemperatureSensors: self.shouldSampleTemperatureSensors)
                 try? await Task.sleep(for: .seconds(self.isVisible ? 2 : 5))
             }
         }
@@ -264,7 +309,9 @@ final class MonitorModel {
                 // 连接期间用户可能已经保存或删除预设，旧磁盘快照不能覆盖较新的编辑结果。
                 guard startupPresetRevision == self.presetRevision else { return }
                 switch presets {
-                case .success(let presets): self.fanPresets = presets
+                case .success(let presets):
+                    self.fanPresets = presets
+                    self.localFanPresetsLoaded = true
                 case .failure(let error):
                     // 后台预设失败不能遮盖授权操作或已经出现的控制错误。
                     if !self.installerOpening && !self.controlBusy && !self.controlNeedsAttention {
@@ -415,13 +462,73 @@ final class MonitorModel {
             return
         }
         if mode == .fixed { applyFixedRPM(); return }
-        // 返回自动模式时保留用户最近选择的自定义温控规则，不能套用内置参数但沿用旧名称。
+        // 返回自动模式按已确认身份恢复；内置方案共用保存来源，自定义方案保留自身完整规则。
+        if let previous = lastConfirmedThermalPreset, previous.name == strategy {
+            if let name = builtinPresetName(for: previous) { applyFanPreset(builtinFanPreset(named: name)) }
+            else if let preset = fanPresets.first(where: { $0.id == previous.id }), case .thermal = preset.configuration {
+                applyFanPreset(preset)
+            } else {
+                // 删除方案或将其改为固定转速后，返回自动必须回到均衡，不能重放已删除或非温控规则。
+                strategy = "均衡"
+                applyFanPreset(builtinFanPreset(named: strategy))
+            }
+            return
+        }
         if let preset = fanPresets.first(where: { $0.name == strategy }), case .thermal = preset.configuration {
             applyFanPreset(preset); return
         }
         if strategy != "积极散热" { strategy = "均衡" }
-        let upper = strategy == "积极散热" ? 70.0 : 80.0
-        applyFanPreset(FanPreset(name: strategy, configuration: .thermal(.init(sensor: .maxCPUAndGPU, lowerTemperature: 50, upperTemperature: upper))))
+        applyFanPreset(builtinFanPreset(named: strategy))
+    }
+    func builtinFanPreset(named name: String) -> FanPreset {
+        // 切换内置曲线沿用当前显示且已确认的来源；外部回读只影响本次构造，显式应用成功才保存。
+        let selection = activeBuiltinThermalRule.map { DefaultFanTemperatureSelection(source: $0.sensor, sensorKey: $0.sensorKey) }
+            ?? savedDefaultFanTemperatureSelection
+        return builtinFanPreset(named: name, selection: selection)
+    }
+    private func builtinFanPreset(named name: String, selection: DefaultFanTemperatureSelection) -> FanPreset {
+        let cooling = name == "积极散热"
+        return FanPreset(id: cooling ? Self.coolingFanPresetID : Self.balancedFanPresetID,
+                         name: cooling ? "积极散热" : "均衡",
+                         configuration: .thermal(.init(sensor: selection.source, lowerTemperature: 50,
+                                                       upperTemperature: cooling ? 70 : 80, sensorKey: selection.sensorKey)))
+    }
+    func isBuiltinFanPreset(_ preset: FanPreset) -> Bool { builtinPresetName(for: preset) != nil }
+    private func builtinPresetName(for preset: FanPreset) -> String? {
+        guard !knownCustomFanPresetIDs.contains(preset.id),
+              preset.name == "均衡" || preset.name == "积极散热", case .thermal(let rule) = preset.configuration,
+              rule.lowerTemperature == 50, rule.upperTemperature == (preset.name == "积极散热" ? 70 : 80),
+              rule.lowerRPM == nil, rule.upperRPM == nil, rule.rampRPMPerSecond == nil else { return nil }
+        let expectedID = preset.name == "积极散热" ? Self.coolingFanPresetID : Self.balancedFanPresetID
+        // 新内置方案用稳定 ID；旧版随机 ID 必须等本地列表成功读取、排除用户方案后再兼容。
+        // 启动恢复可早于磁盘读取，未知期间不能把同名同规则的用户方案当内置并覆盖来源偏好。
+        guard preset.id == expectedID || (localFanPresetsLoaded && rule.sensor == .maxCPUAndGPU && rule.sensorKey == nil) else { return nil }
+        return preset.name
+    }
+    private var activeBuiltinThermalRule: FanThermalRule? {
+        guard fanStatus.phase == .applied, let preset = fanStatus.preset, isBuiltinFanPreset(preset),
+              case .thermal(let rule) = preset.configuration else { return nil }
+        return rule
+    }
+    func selectDefaultFanTemperatureSource(_ source: FanTemperatureSource, sensorKey: String? = nil) {
+        guard !designPreview, !controlBusy, !installerOpening, !sleeping else { return }
+        let selection = DefaultFanTemperatureSelection(source: source, sensorKey: source == .sensor ? sensorKey : nil)
+        guard selection.isValid else {
+            controlNotice = "请选择有效的温度传感器。"; controlNeedsAttention = true; return
+        }
+        cancelStartupRestore()
+        if fanStatus.phase == .applied, let preset = fanStatus.preset, let name = builtinPresetName(for: preset) {
+            // 正在运行的内置方案必须经过既有能力检查和 helper 确认，失败时保存来源保持不变。
+            applyFanPreset(builtinFanPreset(named: name, selection: selection))
+        } else {
+            // 系统、固定转速或自定义方案中只设置下次内置方案的来源，不写硬件、不改自定义规则。
+            persistDefaultFanTemperatureSelection(selection)
+        }
+    }
+    private func persistDefaultFanTemperatureSelection(_ selection: DefaultFanTemperatureSelection) {
+        guard selection.isValid, let data = try? JSONEncoder().encode(selection) else { return }
+        defaults.set(data, forKey: Self.defaultFanTemperatureSelectionKey)
+        savedDefaultFanTemperatureSelection = selection
     }
     func applyFixedRPM() {
         applyFanPreset(FanPreset(name: "固定转速", configuration: .fixed(rpm: targetRPM)))
@@ -461,6 +568,13 @@ final class MonitorModel {
     }
 
     private func beginApplyingFanPreset(_ preset: FanPreset, restoringStartup: Bool) {
+        // 旧服务不理解具体传感器；显式阻止提交，也覆盖启动时恢复上次方案的路径。
+        if case .thermal(let rule) = preset.configuration, rule.sensor == .sensor, !supportsTemperatureSensorSelection {
+            controlNotice = "当前风扇服务不支持自定义传感器，请先安装 / 更新授权。"
+            controlNeedsAttention = true
+            if restoringStartup { startupRestoreFailureNotice = controlNotice }
+            return
+        }
         controlRevision += 1
         controlBusy = true
         switch preset.configuration {
@@ -483,6 +597,9 @@ final class MonitorModel {
                 let confirmed = reply.error == nil && reply.status.phase == .applied && reply.status.preset == preset
                 if confirmed, let data = try? JSONEncoder().encode(preset) {
                     defaults.set(data, forKey: Self.lastAppliedFanPresetKey)
+                    if isBuiltinFanPreset(preset), case .thermal(let rule) = preset.configuration {
+                        persistDefaultFanTemperatureSelection(.init(source: rule.sensor, sensorKey: rule.sensorKey))
+                    }
                 }
                 if restoringStartup && !confirmed {
                     if !controlNeedsAttention {
@@ -516,6 +633,7 @@ final class MonitorModel {
         do {
             // Store 按稳定 ID 原位更新，并在落盘前拒绝重名；不会删除另一份用户方案。
             fanPresets = try await presetStore.upsert(preset)
+            localFanPresetsLoaded = true
             presetRevision += 1
             return "已保存预设，点击应用后生效。"
         } catch { return error.localizedDescription }
@@ -529,12 +647,16 @@ final class MonitorModel {
             // 删除只改持久化列表；正在运行的配置仍由 helper 持有，不自动恢复或改写风扇。
             let remaining = try await presetStore.remove(id: preset.id)
             fanPresets = remaining
+            localFanPresetsLoaded = true
             presetRevision += 1
             return "已删除“\(preset.name)”，当前风扇运行不变。"
         } catch { return "删除失败：\(error.localizedDescription)" }
     }
     // 只在 helper 回读后更新已确认模式；请求中的界面选中态独立，实际 RPM 来自监控采样。
     private func acceptFanReply(_ reply: FanServiceReply) {
+        if reply.capabilityProbeCompleted == true || !reply.capabilities.isEmpty {
+            supportsTemperatureSensorSelection = reply.supportsTemperatureSensorSelection == true
+        }
         // heartbeat 的默认空数组不代表无风扇；只有 inspect 的明确标记可以清空旧能力。
         // 旧 helper 的非空能力仍兼容，探测错误保留至下一次有效探测，防止心跳重新开放写入。
         if reply.capabilityProbeCompleted == true || !reply.capabilities.isEmpty {
@@ -553,7 +675,9 @@ final class MonitorModel {
         case .applied:
             if let preset = reply.status.preset {
                 switch preset.configuration {
-                case .thermal: fanMode = .auto; strategy = preset.name
+                case .thermal:
+                    fanMode = .auto; strategy = preset.name
+                    lastConfirmedThermalPreset = preset
                 case .fixed(let rpm):
                     fanMode = .fixed
                     if changedPreset { targetRPM = rpm }

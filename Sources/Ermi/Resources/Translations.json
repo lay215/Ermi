@@ -1,5 +1,10 @@
 [
   {
+    "source": "每个菜单栏入口单独显示。同一 App 的入口一起排序、保留、收起或隐藏。隐藏组收纳后不出现在菜单栏与展开栏，可在此移回。停用或退出 Ermi 会恢复显示。",
+    "en": "Each menu-bar entry is shown separately. Entries from the same app move, stay visible, collapse, or hide together. Hidden entries appear in neither the menu bar nor the tray; restore them here. Disabling or quitting Ermi restores visibility.",
+    "zh-Hant": "每個選單列入口單獨顯示。同一 App 的入口一起排序、保留、收起或隱藏。隱藏組收納後不出現在選單列與展開列，可在此移回。停用或退出 Ermi 會恢復顯示。"
+  },
+  {
     "source": "风扇",
     "en": "Fans",
     "zh-Hant": "風扇"
@@ -411,7 +416,7 @@
   },
   {
     "source": "收起",
-    "en": "Hidden",
+    "en": "Folded",
     "zh-Hant": "收起"
   },
   {
@@ -485,11 +490,6 @@
     "zh-Hant": "按住 ⌘ 拖動圖示分組"
   },
   {
-    "source": "将分隔线 │ 放到收起箭头左侧，再把需要收纳的图标拖到分隔线左侧。常用图标与 Ermi 留在右侧。",
-    "en": "Move the divider │ left of the collapse arrow, then drag icons to its left. Keep frequently used icons and Ermi on the right.",
-    "zh-Hant": "將分隔線 │ 放到收起箭頭左側，再把需要收納的圖示拖到分隔線左側。常用圖示與 Ermi 留在右側。"
-  },
-  {
     "source": "打开展开栏 ↗",
     "en": "Open Icon Tray ↗",
     "zh-Hant": "開啟展開欄 ↗"
@@ -528,11 +528,6 @@
     "source": "位置由 macOS 保存，新图标可能进入收纳区；展开后可重新拖动。刘海遮挡的图标可能仍不可见。停用或退出 Ermi 会恢复显示。",
     "en": "macOS saves icon positions. New icons may enter the hidden area; expand and drag to rearrange. Icons behind the notch may remain invisible. Disabling or quitting Ermi restores visibility.",
     "zh-Hant": "位置由 macOS 儲存，新圖示可能進入收納區；展開後可重新拖動。劉海遮擋的圖示可能仍不可見。停用或退出 Ermi 會恢復顯示。"
-  },
-  {
-    "source": "自动收起从临时展开后计时。展开栏以真实 App 图标显示菜单栏入口，点击调用该入口；也可 ⌥ 点击菜单栏箭头打开。",
-    "en": "Auto-hide starts after temporarily expanding. The tray shows real app icons; click to activate each menu item. You can also ⌥-click the menu bar arrow.",
-    "zh-Hant": "自動收起從臨時展開後計時。展開欄以真實 App 圖示顯示選單列入口，點擊調用該入口；也可 ⌥ 點擊選單列箭頭開啟。"
   },
   {
     "source": "允许读取菜单栏图标",
@@ -915,14 +910,9 @@
     "zh-Hant": " 系統讀取結果：{0}。"
   },
   {
-    "source": "已读取 {0} 个 App。分组更改后保持展开，点击收起应用。",
-    "en": "Read {0} apps. Icons stay expanded after grouping; click Hide to apply.",
-    "zh-Hant": "已讀取 {0} 個 App。分組更改後保持展開，點擊收起應用。"
-  },
-  {
-    "source": "请按住 ⌘，将分隔线拖到收起箭头左侧，再重试。",
-    "en": "Hold ⌘ and drag the divider left of the collapse arrow, then retry.",
-    "zh-Hant": "請按住 ⌘，將分隔線拖到收起箭頭左側，再重試。"
+    "source": "已读取 {0} 个 App。分组更改后自动应用。",
+    "en": "Found {0} apps. Group changes apply automatically.",
+    "zh-Hant": "已讀取 {0} 個 App。分組變更後自動套用。"
   },
   {
     "source": "请从构建后的 Ermi.app 启动图标整理。",
@@ -963,16 +953,6 @@
     "source": "收起收纳图标",
     "en": "Hide Grouped Icons",
     "zh-Hant": "收起收納圖示"
-  },
-  {
-    "source": "Ermi · 点击展开图标；⌥ 点击打开展开栏",
-    "en": "Ermi · Click to expand; ⌥-click to open the tray",
-    "zh-Hant": "Ermi · 點擊展開圖示；⌥ 點擊開啟展開欄"
-  },
-  {
-    "source": "Ermi · 点击收起图标；⌥ 点击打开展开栏",
-    "en": "Ermi · Click to hide; ⌥-click to open the tray",
-    "zh-Hant": "Ermi · 點擊收起圖示；⌥ 點擊開啟展開欄"
   },
   {
     "source": "运行 App 已变化，已展开全部图标；可刷新列表后再次收起。",
@@ -2658,5 +2638,560 @@
     "source": "旧恢复日志不能用于不同的风扇协议",
     "en": "The legacy recovery journal cannot be used with a different fan protocol",
     "zh-Hant": "舊恢復記錄不能用於不同的風扇協定"
+  },
+  {
+    "source": "收纳图标已在菜单栏下方展开",
+    "en": "Folded icons are open below the menu bar",
+    "zh-Hant": "收納圖示已在選單列下方展開"
+  },
+  {
+    "source": "收起展开栏",
+    "en": "Close icon tray",
+    "zh-Hant": "收起展開列"
+  },
+  {
+    "source": "展开栏打开后开始计时；鼠标停在栏内时保持展开。",
+    "en": "The timer starts when the tray opens and pauses while the pointer is inside.",
+    "zh-Hant": "展開列開啟後開始計時；滑鼠停在列內時保持展開。"
+  },
+  {
+    "source": "点击菜单栏分组图标，在下方一行中访问收纳图标。",
+    "en": "Click the menu bar group icon to access hidden icons in a row below it.",
+    "zh-Hant": "點擊選單列分組圖示，在下方一列中存取收納圖示。"
+  },
+  {
+    "source": "展开栏优先显示单色菜单栏原图标，未获取时使用灰度 App 图标。点击执行原操作，菜单栏保持收纳；点击外部或按 Esc 关闭展开栏。",
+    "en": "The tray uses monochrome menu bar icons when available, or grayscale app icons otherwise. Click to perform the original action while icons stay hidden. Click outside or press Esc to close.",
+    "zh-Hant": "展開列優先顯示單色選單列原圖示，未取得時使用灰階 App 圖示。點擊執行原操作，選單列保持收納；點擊外部或按 Esc 關閉展開列。"
+  },
+  {
+    "source": "菜单栏原图标",
+    "en": "Original Menu Bar Icons",
+    "zh-Hant": "選單列原圖示"
+  },
+  {
+    "source": "已允许读取原图标，下次收纳时更新；读取不到时使用灰度图标。",
+    "en": "Original icons update the next time you hide them. Unavailable icons use grayscale placeholders.",
+    "zh-Hant": "已允許讀取原圖示，下次收納時更新；讀取不到時使用灰階圖示。"
+  },
+  {
+    "source": "允许屏幕录制以读取原图标；未允许时使用灰度图标，仍可正常点击。",
+    "en": "Allow Screen Recording to read original icons. Without it, grayscale icons remain clickable.",
+    "zh-Hant": "允許螢幕錄製以讀取原圖示；未允許時使用灰階圖示，仍可正常點擊。"
+  },
+  {
+    "source": "授权原图标…",
+    "en": "Allow Original Icons…",
+    "zh-Hant": "授權原圖示…"
+  },
+  {
+    "source": "允许屏幕录制以显示原图标；授权后下次收纳生效。",
+    "en": "Allow Screen Recording for original icons. Takes effect the next time you hide icons.",
+    "zh-Hant": "允許螢幕錄製以顯示原圖示；授權後下次收納生效。"
+  },
+  {
+    "source": "授权菜单栏原图标",
+    "en": "Allow Original Menu Bar Icons",
+    "zh-Hant": "授權選單列原圖示"
+  },
+  {
+    "source": "Ermi · 点击收起展开栏",
+    "en": "Ermi · Click to close the icon tray",
+    "zh-Hant": "Ermi · 點擊收起展開列"
+  },
+  {
+    "source": "Ermi · 点击在下方展开收纳图标",
+    "en": "Ermi · Click to open folded icons below the menu bar",
+    "zh-Hant": "Ermi · 點擊在下方展開收納圖示"
+  },
+  {
+    "source": "此分组暂无可展开的菜单栏入口。",
+    "en": "No menu bar entries in this group.",
+    "zh-Hant": "此分組暫無可展開的選單列入口。"
+  },
+  {
+    "source": "读取菜单栏入口失败，请刷新。",
+    "en": "Could not read menu bar entries. Please refresh.",
+    "zh-Hant": "讀取選單列入口失敗，請重新整理。"
+  },
+  {
+    "source": "未确认打开，请检查菜单后重试。",
+    "en": "Could not confirm opening. Check the menu before trying again.",
+    "zh-Hant": "未確認開啟，請檢查選單後重試。"
+  },
+  {
+    "source": "CPU（推荐映射）",
+    "en": "CPU (recommended mapping)",
+    "zh-Hant": "CPU（建議對應）"
+  },
+  {
+    "source": "GPU（推荐映射）",
+    "en": "GPU (recommended mapping)",
+    "zh-Hant": "GPU（建議對應）"
+  },
+  {
+    "source": "自定义传感器",
+    "en": "Custom sensor",
+    "zh-Hant": "自訂感測器"
+  },
+  {
+    "source": "传感器",
+    "en": "Sensor",
+    "zh-Hant": "感測器"
+  },
+  {
+    "source": "请选择传感器",
+    "en": "Choose a sensor",
+    "zh-Hant": "請選擇感測器"
+  },
+  {
+    "source": "用途未确认，请观察读数变化后选择。失效时恢复系统控制；不改变面板主温度。",
+    "en": "Sensor purpose is unverified. Observe readings before selecting. Failure restores system control; the main displayed temperature is unchanged.",
+    "zh-Hant": "用途未確認，請觀察讀數變化後選擇。失效時恢復系統控制；不改變面板主溫度。"
+  },
+  {
+    "source": "当前读数",
+    "en": "Current reading",
+    "zh-Hant": "目前讀數"
+  },
+  {
+    "source": "等待读取温度传感器…",
+    "en": "Waiting for temperature sensors…",
+    "zh-Hant": "等待讀取溫度感測器…"
+  },
+  {
+    "source": "所选传感器当前不可用，应用时将重新检查。",
+    "en": "The selected sensor is unavailable. It will be checked again when applied.",
+    "zh-Hant": "所選感測器目前無法使用，套用時將重新檢查。"
+  },
+  {
+    "source": "请选择有效的温度传感器。",
+    "en": "Choose a valid temperature sensor.",
+    "zh-Hant": "請選擇有效的溫度感測器。"
+  },
+  {
+    "source": "当前风扇服务不支持自定义传感器，请先安装 / 更新授权。",
+    "en": "The installed fan service does not support custom sensors. Install / Update Authorization first.",
+    "zh-Hant": "目前風扇服務不支援自訂感測器，請先安裝 / 更新授權。"
+  },
+  {
+    "source": "拖动图标分组",
+    "en": "Drag icons between groups",
+    "zh-Hant": "拖動圖示分組"
+  },
+  {
+    "source": "在展开栏中访问",
+    "en": "Available in the icon tray",
+    "zh-Hant": "在展開列中存取"
+  },
+  {
+    "source": "始终显示在菜单栏",
+    "en": "Always visible in the menu bar",
+    "zh-Hant": "始終顯示在選單列"
+  },
+  {
+    "source": "系统图标",
+    "en": "System icons",
+    "zh-Hant": "系統圖示"
+  },
+  {
+    "source": "始终保留，不能移动",
+    "en": "Always visible; cannot be moved",
+    "zh-Hant": "始終保留，不能移動"
+  },
+  {
+    "source": "移至保留",
+    "en": "Move to visible",
+    "zh-Hant": "移至保留"
+  },
+  {
+    "source": "移至收起",
+    "en": "Move to folded",
+    "zh-Hant": "移至收起"
+  },
+  {
+    "source": "拖到另一分区，或点选图标后移动。",
+    "en": "Drag to another group, or select an icon to move it.",
+    "zh-Hant": "拖到另一分區，或點選圖示後移動。"
+  },
+  {
+    "source": "拖入要收起的 App",
+    "en": "Drop apps here to fold them into the tray",
+    "zh-Hant": "拖入要收起的 App"
+  },
+  {
+    "source": "拖入要保留的 App",
+    "en": "Drop apps here to keep them visible",
+    "zh-Hant": "拖入要保留的 App"
+  },
+  {
+    "source": "隐藏",
+    "en": "Hidden",
+    "zh-Hant": "隱藏"
+  },
+  {
+    "source": "移至隐藏",
+    "en": "Move to hidden",
+    "zh-Hant": "移至隱藏"
+  },
+  {
+    "source": "拖入要隐藏的 App",
+    "en": "Drop apps here to hide them",
+    "zh-Hant": "拖入要隱藏的 App"
+  },
+  {
+    "source": "收纳后不在菜单栏或展开栏显示",
+    "en": "Hidden from the menu bar and tray when applied",
+    "zh-Hant": "收納後不在選單列或展開列顯示"
+  },
+  {
+    "source": "保留常用图标，收起次要图标，隐藏不需要的图标。",
+    "en": "Keep frequently used icons visible, fold others into the tray, or hide them.",
+    "zh-Hant": "保留常用圖示，收起次要圖示，隱藏不需要的圖示。"
+  },
+  {
+    "source": "修改分组后立即生效，启动时自动收纳。",
+    "en": "Group changes apply immediately. Icons collapse on launch.",
+    "zh-Hant": "修改分組後立即生效，啟動時自動收納。"
+  },
+  {
+    "source": "已收起 {0} 个 App · 已隐藏 {1} 个 App",
+    "en": "Folded: {0} apps · Hidden: {1} apps",
+    "zh-Hant": "已收起 {0} 個 App · 已隱藏 {1} 個 App"
+  },
+  {
+    "source": "待应用 · 收起 {0} 个 App · 隐藏 {1} 个 App",
+    "en": "Pending · Fold: {0} apps · Hide: {1} apps",
+    "zh-Hant": "待套用 · 收起 {0} 個 App · 隱藏 {1} 個 App"
+  },
+  {
+    "source": "将分隔线 │ 放到展开箭头左侧，再把需要收纳的图标拖到分隔线左侧。常用图标与 Ermi 留在右侧。",
+    "en": "Move the divider │ left of the expand arrow, then drag icons to the divider's left. Keep frequently used icons and Ermi on the right.",
+    "zh-Hant": "將分隔線 │ 放到展開箭頭左側，再把需要收納的圖示拖到分隔線左側。常用圖示與 Ermi 留在右側。"
+  },
+  {
+    "source": "点击菜单栏箭头，展开或收起下方的收纳图标。",
+    "en": "Click the menu bar arrow to open or close the icon tray below it.",
+    "zh-Hant": "點擊選單列箭頭，展開或收起下方的收納圖示。"
+  },
+  {
+    "source": "按 App 分组，同一 App 的多个入口一起保留、收起或隐藏。隐藏组收纳后不出现在菜单栏与展开栏，可在此移回。依赖系统私有接口，升级后可能失效。停用或退出 Ermi 会恢复显示。",
+    "en": "All menu bar items from an app share one group. When applied, the Hidden group appears in neither the menu bar nor the tray; move apps back here to restore them. Uses a private system interface that may change after updates. Disabling or quitting Ermi restores visibility.",
+    "zh-Hant": "按 App 分組，同一 App 的多個入口一起保留、收起或隱藏。隱藏組收納後不出現在選單列與展開列，可在此移回。依賴系統私有介面，升級後可能失效。停用或退出 Ermi 會恢復顯示。"
+  },
+  {
+    "source": "展开栏仅显示收起组，优先使用单色菜单栏原图标，未获取时使用灰度 App 图标。点击执行原操作，菜单栏保持收纳；点击外部或按 Esc 关闭展开栏。",
+    "en": "The tray shows only the Folded group, using monochrome menu bar icons when available or grayscale app icons otherwise. Click to perform the original action while icons stay folded. Click outside or press Esc to close.",
+    "zh-Hant": "展開列僅顯示收起組，優先使用單色選單列原圖示，未取得時使用灰階 App 圖示。點擊執行原操作，選單列保持收納；點擊外部或按 Esc 關閉展開列。"
+  },
+  {
+    "source": "请按住 ⌘，将分隔线拖到展开箭头左侧，再重试。",
+    "en": "Hold ⌘ and drag the divider left of the expand arrow, then retry.",
+    "zh-Hant": "請按住 ⌘，將分隔線拖到展開箭頭左側，再重試。"
+  },
+  {
+    "source": "请先将至少一个正在运行的 App 移至收起或隐藏。",
+    "en": "Move at least one running app to Folded or Hidden first.",
+    "zh-Hant": "請先將至少一個正在執行的 App 移至收起或隱藏。"
+  },
+  {
+    "source": "分组已更新。",
+    "en": "Groups updated.",
+    "zh-Hant": "分組已更新。"
+  },
+  {
+    "source": "正在准备展开栏",
+    "en": "Preparing icon tray",
+    "zh-Hant": "正在準備展開列"
+  },
+  {
+    "source": "Ermi · 正在准备收纳图标",
+    "en": "Ermi · Preparing folded icons",
+    "zh-Hant": "Ermi · 正在準備收納圖示"
+  },
+  {
+    "source": "拖动排序与分组",
+    "en": "Drag to order or group",
+    "zh-Hant": "拖動排序與分組"
+  },
+  {
+    "source": "同步菜单栏顺序",
+    "en": "Sync menu bar order",
+    "zh-Hant": "同步選單列順序"
+  },
+  {
+    "source": "同步中…",
+    "en": "Syncing…",
+    "zh-Hant": "同步中…"
+  },
+  {
+    "source": "正在同步菜单栏顺序…",
+    "en": "Syncing menu bar order…",
+    "zh-Hant": "正在同步選單列順序…"
+  },
+  {
+    "source": "取消同步",
+    "en": "Cancel sync",
+    "zh-Hant": "取消同步"
+  },
+  {
+    "source": "拖动先保存设置与展开栏顺序；同步后才重排系统菜单栏。",
+    "en": "Dragging saves the order in settings and the tray. Sync to reorder the system menu bar.",
+    "zh-Hant": "拖動先儲存設定與展開列順序；同步後才重新排列系統選單列。"
+  },
+  {
+    "source": "向左移动",
+    "en": "Move left",
+    "zh-Hant": "向左移動"
+  },
+  {
+    "source": "向右移动",
+    "en": "Move right",
+    "zh-Hant": "向右移動"
+  },
+  {
+    "source": "拖动调整顺序；点「同步菜单栏顺序」应用到顶部。",
+    "en": "Drag to reorder. Click Sync menu bar order to apply it to the menu bar above.",
+    "zh-Hant": "拖動調整順序；點「同步選單列順序」套用到頂部。"
+  },
+  {
+    "source": "顺序已保存并更新展开栏；点击「同步菜单栏顺序」应用到顶部。",
+    "en": "Order saved and the tray updated. Click Sync menu bar order to apply it to the menu bar.",
+    "zh-Hant": "順序已儲存並更新展開列；點擊「同步選單列順序」套用到頂部。"
+  },
+  {
+    "source": "当前菜单栏顺序已核对，移动了 {0} 个入口。",
+    "en": "Current menu bar order verified. Moved {0} items.",
+    "zh-Hant": "目前選單列順序已核對，移動了 {0} 個入口。"
+  },
+  {
+    "source": "顶部顺序未完全同步：{0} 设置与展开栏顺序已保存，可重试同步。",
+    "en": "Menu bar order was not fully synced: {0} The order in settings and the tray is saved. You can retry syncing.",
+    "zh-Hant": "頂部順序未完全同步：{0} 設定與展開列順序已儲存，可重試同步。"
+  },
+  {
+    "source": "已取消菜单栏排序，顶部可能保留已完成的调整。",
+    "en": "Menu bar sorting cancelled. Changes already made may remain in the menu bar.",
+    "zh-Hant": "已取消選單列排序，頂部可能保留已完成的調整。"
+  },
+  {
+    "source": "拖到此处排在最后",
+    "en": "Drag here to move to the end",
+    "zh-Hant": "拖到此處排在最後"
+  },
+  {
+    "source": "无法监听排序期间的鼠标事件，未调整菜单栏顺序。",
+    "en": "Unable to monitor mouse events while sorting. Menu bar order was not changed.",
+    "zh-Hant": "無法監聽排序期間的滑鼠事件，未調整選單列順序。"
+  },
+  {
+    "source": "检测到新的鼠标或键盘操作，已停止菜单栏排序，请稍后重试。",
+    "en": "Mouse or keyboard input detected. Menu bar sorting stopped. Try again later.",
+    "zh-Hant": "偵測到新的滑鼠或鍵盤操作，已停止選單列排序，請稍後重試。"
+  },
+  {
+    "source": "上一次菜单栏排序尚未结束，请稍后重试。",
+    "en": "The previous menu bar sort has not finished. Try again later.",
+    "zh-Hant": "上一次選單列排序尚未結束，請稍後重試。"
+  },
+  {
+    "source": "App 列表已变化，请刷新图标后重新同步菜单栏顺序。",
+    "en": "The app list has changed. Refresh the icons, then sync menu bar order again.",
+    "zh-Hant": "App 清單已變更，請重新整理圖示後重新同步選單列順序。"
+  },
+  {
+    "source": "无法读取当前显示器，未调整菜单栏顺序。",
+    "en": "Unable to read the current displays. Menu bar order was not changed.",
+    "zh-Hant": "無法讀取目前顯示器，未調整選單列順序。"
+  },
+  {
+    "source": "目标图标分布在不同显示器，无法在当前菜单栏内安全同步顺序。",
+    "en": "The target icons are on different displays. Their order cannot be safely synced within the current menu bar.",
+    "zh-Hant": "目標圖示分布在不同顯示器，無法在目前選單列內安全同步順序。"
+  },
+  {
+    "source": "菜单栏入口身份不明确，未调整顺序。",
+    "en": "Menu bar items could not be uniquely identified. Their order was not changed.",
+    "zh-Hant": "選單列入口身分不明確，未調整順序。"
+  },
+  {
+    "source": "菜单栏布局持续变化或排序超时，已停止同步，请检查后重试。",
+    "en": "The menu bar layout kept changing or sorting timed out. Syncing stopped. Check the menu bar and try again.",
+    "zh-Hant": "選單列版面持續變化或排序逾時，已停止同步，請檢查後重試。"
+  },
+  {
+    "source": "显示器布局已变化，请重新同步菜单栏顺序。",
+    "en": "The display layout has changed. Sync menu bar order again.",
+    "zh-Hant": "顯示器版面已變更，請重新同步選單列順序。"
+  },
+  {
+    "source": "菜单栏布局在同步时发生变化，已停止排序；请刷新后重试。",
+    "en": "The menu bar layout changed during syncing. Sorting stopped. Refresh and try again.",
+    "zh-Hant": "選單列版面在同步時發生變化，已停止排序；請重新整理後重試。"
+  },
+  {
+    "source": "系统未确认菜单栏图标移动。部分位置可能已改变，请检查顶部菜单栏后重试。",
+    "en": "The system did not confirm the icon move. Some positions may have changed. Check the menu bar and try again.",
+    "zh-Hant": "系統未確認選單列圖示移動。部分位置可能已變更，請檢查頂部選單列後重試。"
+  },
+  {
+    "source": "菜单栏顺序未保持稳定，请检查顶部菜单栏后重试。",
+    "en": "Menu bar order did not remain stable. Check the menu bar and try again.",
+    "zh-Hant": "選單列順序未保持穩定，請檢查頂部選單列後重試。"
+  },
+  {
+    "source": "菜单栏排序失败，请检查顶部菜单栏后重试。",
+    "en": "Menu bar sorting failed. Check the menu bar and try again.",
+    "zh-Hant": "選單列排序失敗，請檢查頂部選單列後重試。"
+  },
+  {
+    "source": "请先允许 Ermi 的辅助功能 / 设备控制和数据访问权限，再同步菜单栏顺序。",
+    "en": "Allow Ermi Accessibility / Device Control and Data Access first, then sync menu bar order.",
+    "zh-Hant": "請先允許 Ermi 的輔助使用 / 裝置控制和資料存取權限，再同步選單列順序。"
+  },
+  {
+    "source": "App 已退出或重启，已停止菜单栏排序，请刷新后重试。",
+    "en": "An app quit or restarted. Menu bar sorting stopped. Refresh and try again.",
+    "zh-Hant": "App 已結束或重新啟動，已停止選單列排序，請重新整理後重試。"
+  },
+  {
+    "source": "菜单栏入口尺寸异常，已停止排序。",
+    "en": "A menu bar item has invalid dimensions. Sorting stopped.",
+    "zh-Hant": "選單列入口尺寸異常，已停止排序。"
+  },
+  {
+    "source": "图标尚未完整显示、被刘海遮挡或跨越显示器边界，请先展开菜单栏再同步。",
+    "en": "An icon is not fully visible, is obscured by the notch, or crosses a display boundary. Expand the menu bar before syncing.",
+    "zh-Hant": "圖示尚未完整顯示、被瀏海遮擋或跨越顯示器邊界，請先展開選單列再同步。"
+  },
+  {
+    "source": "菜单栏入口位置重叠，无法准确排序，请刷新后重试。",
+    "en": "Menu bar item positions overlap, preventing accurate sorting. Refresh and try again.",
+    "zh-Hant": "選單列入口位置重疊，無法準確排序，請重新整理後重試。"
+  },
+  {
+    "source": "菜单栏恢复后仍在变化，请稍后重新同步顺序。",
+    "en": "The menu bar is still changing after being restored. Try syncing its order again later.",
+    "zh-Hant": "選單列恢復後仍在變化，請稍後重新同步順序。"
+  },
+  {
+    "source": "无法读取 {0} 的菜单栏入口，请刷新后重试。",
+    "en": "Unable to read menu bar items for {0}. Refresh and try again.",
+    "zh-Hant": "無法讀取 {0} 的選單列入口，請重新整理後重試。"
+  },
+  {
+    "source": "{0} 的菜单栏入口已变化，请刷新后重试。",
+    "en": "The menu bar items for {0} have changed. Refresh and try again.",
+    "zh-Hant": "{0} 的選單列入口已變更，請重新整理後重試。"
+  },
+  {
+    "source": "菜单栏入口身份重复，无法准确排序。",
+    "en": "Duplicate menu bar item identities prevent accurate sorting.",
+    "zh-Hant": "選單列入口身分重複，無法準確排序。"
+  },
+  {
+    "source": "{0} 的菜单栏入口身份无法确认，未调整顺序。",
+    "en": "Unable to verify the menu bar item identities for {0}. Their order was not changed.",
+    "zh-Hant": "{0} 的選單列入口身分無法確認，未調整順序。"
+  },
+  {
+    "source": "{0} 的菜单栏入口已失效，已停止排序。",
+    "en": "The menu bar items for {0} are no longer valid. Sorting stopped.",
+    "zh-Hant": "{0} 的選單列入口已失效，已停止排序。"
+  },
+  {
+    "source": "无法读取菜单栏图标的有效位置，已停止排序。",
+    "en": "Unable to read valid menu bar icon positions. Sorting stopped.",
+    "zh-Hant": "無法讀取選單列圖示的有效位置，已停止排序。"
+  },
+  {
+    "source": "App 的菜单栏入口已增加、移除或重建，已停止排序，请刷新后重试。",
+    "en": "An app added, removed, or recreated menu bar items. Sorting stopped. Refresh and try again.",
+    "zh-Hant": "App 的選單列入口已增加、移除或重建，已停止排序，請重新整理後重試。"
+  },
+  {
+    "source": "菜单栏入口身份已变化。",
+    "en": "Menu bar item identities have changed.",
+    "zh-Hant": "選單列入口身分已變更。"
+  },
+  {
+    "source": "无法命中原菜单栏图标，请先确保它完整显示。",
+    "en": "Unable to target the original menu bar icon. Make sure it is fully visible first.",
+    "zh-Hant": "無法命中原選單列圖示，請先確保它完整顯示。"
+  },
+  {
+    "source": "原菜单栏图标被遮挡或无法准确命中，未继续排序。",
+    "en": "The original menu bar icon is obscured or cannot be targeted accurately. Sorting stopped.",
+    "zh-Hant": "原選單列圖示被遮擋或無法準確命中，未繼續排序。"
+  },
+  {
+    "source": "请先松开鼠标和修饰键，停止移动指针后再同步菜单栏顺序。",
+    "en": "Release the mouse buttons and modifier keys, and stop moving the pointer before syncing menu bar order.",
+    "zh-Hant": "請先放開滑鼠和修飾鍵，停止移動指標後再同步選單列順序。"
+  },
+  {
+    "source": "无法创建菜单栏拖动事件，未调整顺序。",
+    "en": "Unable to create menu bar drag events. The order was not changed.",
+    "zh-Hant": "無法建立選單列拖動事件，未調整順序。"
+  },
+  {
+    "source": "菜单栏拖动事件创建失败，已停止排序。",
+    "en": "Failed to create a menu bar drag event. Sorting stopped.",
+    "zh-Hant": "選單列拖動事件建立失敗，已停止排序。"
+  },
+  {
+    "source": "系统未确认拖动结束，已补发释放事件，请检查菜单栏。",
+    "en": "The system did not confirm the drag ended. A release event was sent again. Check the menu bar.",
+    "zh-Hant": "系統未確認拖動結束，已補發放開事件，請檢查選單列。"
+  },
+  {
+    "source": "内置方案温度来源",
+    "en": "Built-in profile temperature source",
+    "zh-Hant": "內建方案溫度來源"
+  },
+  {
+    "source": "用于日常均衡与积极散热；自定义方案保留各自的温度来源。",
+    "en": "Used by Balanced and Active Cooling. Custom profiles keep their own temperature sources.",
+    "zh-Hant": "用於日常均衡與積極散熱；自訂方案保留各自的溫度來源。"
+  },
+  {
+    "source": "当前温控来源：{0}",
+    "en": "Active temperature source: {0}",
+    "zh-Hant": "目前溫控來源：{0}"
+  },
+  {
+    "source": "温度来源：{0}",
+    "en": "Temperature source: {0}",
+    "zh-Hant": "溫度來源：{0}"
+  },
+  {
+    "source": "用途未确认，请观察读数变化后选择。弹窗温度同步显示所选来源。",
+    "en": "Sensor purpose is unverified. Observe its readings before choosing. The popup temperature follows this source.",
+    "zh-Hant": "用途未確認，請觀察讀數變化後選擇。彈窗溫度同步顯示所選來源。"
+  },
+  {
+    "source": "每个入口可独立排序；同一 App 的保留、收起或隐藏仍一起生效。跨组请使用「移动整个 App」按钮。点击「同步菜单栏顺序」让 macOS 保存顶部位置。停用或退出 Ermi 会恢复显示。",
+    "en": "Each entry can be reordered independently. Visibility changes still affect the entire app; use Move Entire App to change groups. Sync Menu Bar Order lets macOS save the top-bar positions. Disabling or quitting Ermi restores visibility.",
+    "zh-Hant": "每個入口可獨立排序；同一 App 的保留、收起或隱藏仍一起生效。跨組請使用「移動整個 App」按鈕。點擊「同步選單列順序」讓 macOS 儲存頂部位置。停用或退出 Ermi 會恢復顯示。"
+  },
+  {
+    "source": "移动整个 App",
+    "en": "Move Entire App",
+    "zh-Hant": "移動整個 App"
+  },
+  {
+    "source": "同一 App 的入口可独立排序；跨组请使用「移动整个 App」按钮。",
+    "en": "Entries from the same app can be reordered independently. To change groups, use Move Entire App.",
+    "zh-Hant": "同一 App 的入口可獨立排序；跨組請使用「移動整個 App」按鈕。"
+  },
+  {
+    "source": "入口顺序已更新；点击「同步菜单栏顺序」让 macOS 保存顶部位置。",
+    "en": "Entry order updated. Sync Menu Bar Order lets macOS save the top-bar positions.",
+    "zh-Hant": "入口順序已更新；點擊「同步選單列順序」讓 macOS 儲存頂部位置。"
+  },
+  {
+    "source": "菜单栏入口身份已失效，请刷新后重试。",
+    "en": "Menu-bar entry identities are no longer valid. Refresh and try again.",
+    "zh-Hant": "選單列入口身分已失效，請重新整理後再試。"
   }
 ]

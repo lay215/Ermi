@@ -4,7 +4,7 @@ import ErmiCore
 @testable import Ermi
 
 // 故意使用同步阻塞，确保测试能发现加载意外回到主 actor 后阻塞握手的回归。
-private final class StartupLoadGate: @unchecked Sendable {
+final class StartupLoadGate: @unchecked Sendable {
     private let condition = NSCondition()
     private var released = false
     private var didTimeOut = false

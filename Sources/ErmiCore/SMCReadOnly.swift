@@ -24,6 +24,14 @@ struct SMCValue {
         return value.isFinite ? value : nil
     }
 
+    var isTemperature: Bool { type == "sp78" || type == "flt " }
+
+    var temperatureCelsius: Double? {
+        // 候选和 helper 的定向读取共用严格温度规则；不接受整数/RPM 类型伪装温度。
+        guard isTemperature, let value = number, value > 0, value <= 150 else { return nil }
+        return value
+    }
+
     var fanName: String? {
         // {fds 前4字节为风扇描述头，后续12字节为名称；ch8* 直接为字符串。
         let text: [UInt8]
@@ -35,7 +43,14 @@ struct SMCValue {
     }
 }
 
-protocol SMCKeyReading { func read(_ key: String) throws -> SMCValue }
+protocol SMCKeyReading {
+    func read(_ key: String) throws -> SMCValue
+    func allKeys() throws -> [String]
+}
+extension SMCKeyReading {
+    // 旧 fixture 和不支持枚举的读取器仍可完成既有定向采样。
+    func allKeys() throws -> [String] { [] }
+}
 protocol SMCKeyWriting: SMCKeyReading { func write(_ value: SMCValue) throws }
 
 enum SMCReadError: Error {
@@ -48,7 +63,9 @@ final class SMCReadOnlyTransport: SMCKeyWriting {
     private var connection: io_connect_t = 0
     private var metadata: [String: (size: Int, type: String)] = [:]
     private var retryAfter: TimeInterval = 0
-    private enum Command: UInt8 { case metadata = 9, payload = 5, write = 6 }
+    private enum Command: UInt8 { case metadata = 9, payload = 5, write = 6, readIndex = 8 }
+    private let exchange: (([UInt8]) throws -> [UInt8])?
+    init(exchange: (([UInt8]) throws -> [UInt8])? = nil) { self.exchange = exchange }
     deinit { if connection != 0 { IOServiceClose(connection) } }
 
     func read(_ key: String) throws -> SMCValue {
@@ -69,6 +86,23 @@ final class SMCReadOnlyTransport: SMCKeyWriting {
         return SMCValue(key: key, type: info.type, bytes: Array(response[48..<(48 + info.size)]))
     }
 
+    func allKeys() throws -> [String] {
+        // Stats SMC/smc.swift（bda3a013）：#KEY 给出数量，命令8以 data32 索引读取 output.key。
+        // 只读发现设4096项上限；此方法仅由 App 候选采样按需调用，helper 不枚举。
+        let countValue = try read("#KEY")
+        guard countValue.type == "ui32", let count = countValue.number else { throw SMCReadError.malformedResponse }
+        var keys: [String] = []
+        for index in 0..<min(Int(count), 4096) {
+            do {
+                let response = try call(key: "", command: .readIndex, index: UInt32(index))
+                let code = Self.uint32(response, at: 0)
+                keys.append(String(decoding: [24, 16, 8, 0].map { UInt8((code >> $0) & 255) }, as: UTF8.self))
+            } catch SMCReadError.missingKey { continue }
+            catch SMCReadError.firmware { continue }
+        }
+        return keys
+    }
+
     func write(_ value: SMCValue) throws {
         guard geteuid() == 0, value.key == "Ftst" || value.key == "FS! " || value.key.range(of: "^F[0-9](md|Md|Tg)$", options: .regularExpression) != nil else { throw SMCReadError.invalidKey }
         // 重新读取metadata与payload，拒绝调用方改变驱动声明的类型或长度。
@@ -78,7 +112,8 @@ final class SMCReadOnlyTransport: SMCKeyWriting {
     }
 
     private func openIfNeeded() throws {
-        if connection != 0 { return }
+        // 测试只替换 IOKit 交换边界，仍验证真实80字节请求及响应校验，不访问设备。
+        if exchange != nil || connection != 0 { return }
         guard ProcessInfo.processInfo.systemUptime >= retryAfter else { throw SMCReadError.unavailable }
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSMC"))
         guard service != 0 else { retryAfter = ProcessInfo.processInfo.systemUptime + 5; throw SMCReadError.unavailable }
@@ -91,25 +126,31 @@ final class SMCReadOnlyTransport: SMCKeyWriting {
         }
     }
 
-    private func call(key: String, command: Command, size: Int = 0, payload: [UInt8] = []) throws -> [UInt8] {
+    private func call(key: String, command: Command, size: Int = 0, payload: [UInt8] = [], index: UInt32 = 0) throws -> [UInt8] {
         var request = [UInt8](repeating: 0, count: 80)
         var response = [UInt8](repeating: 0, count: 80)
         let code = key.utf8.reduce(UInt32(0)) { ($0 << 8) | UInt32($1) }
         Self.store(code, in: &request, at: 0)
         Self.store(UInt32(size), in: &request, at: 28)
         request[42] = command.rawValue
+        Self.store(index, in: &request, at: 44)
         for (index, byte) in payload.enumerated() { request[48 + index] = byte }
         var outputSize = 80
-        let result = request.withUnsafeBytes { input in
-            response.withUnsafeMutableBytes { output in
-                IOConnectCallStructMethod(connection, 2, input.baseAddress, input.count, output.baseAddress, &outputSize)
+        if let exchange {
+            response = try exchange(request)
+            outputSize = response.count
+        } else {
+            let result = request.withUnsafeBytes { input in
+                response.withUnsafeMutableBytes { output in
+                    IOConnectCallStructMethod(connection, 2, input.baseAddress, input.count, output.baseAddress, &outputSize)
+                }
             }
-        }
-        guard result == KERN_SUCCESS else {
-            // 睡眠或驱动重启后丢弃旧连接及元数据，稍后重连；不沿用上次成功读数。
-            IOServiceClose(connection); connection = 0; metadata.removeAll()
-            retryAfter = ProcessInfo.processInfo.systemUptime + 5
-            throw SMCReadError.kernel(result)
+            guard result == KERN_SUCCESS else {
+                // 睡眠或驱动重启后丢弃旧连接及元数据，稍后重连；不沿用上次成功读数。
+                IOServiceClose(connection); connection = 0; metadata.removeAll()
+                retryAfter = ProcessInfo.processInfo.systemUptime + 5
+                throw SMCReadError.kernel(result)
+            }
         }
         guard outputSize >= (command == .write ? 48 : 48 + size), outputSize <= 80 else { throw SMCReadError.malformedResponse }
         guard response[40] == 0 else {
